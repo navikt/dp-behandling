@@ -25,9 +25,9 @@ class MigreringTest {
             val innvilgelseBehandlingId = person.behandlingId
             behandlingsresultat(1) {
                 førteTil shouldBe "Innvilgelse"
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
 
                 opplysninger(oppfyllerKravet) shouldHaveSize 1
             }

@@ -24,33 +24,24 @@ class StansPgaAlderTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder.single().harRett shouldBe true
-                rettighetsperioder.single().fraOgMed shouldBe 23.juni(2025)
-                rettighetsperioder.single().tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(23.juni(2025)) harRett true
+                }
             }
 
             person.sendInnMeldekort(1)
             meldekortBatch(markerFerdig = false)
 
             behandlingsresultatForslag {
-                rettighetsperioder.first().harRett shouldBe true
-                rettighetsperioder.first().fraOgMed shouldBe 23.juni(2025)
-                rettighetsperioder.first().tilOgMed shouldBe 30.juni(2025)
-
-                rettighetsperioder.last().harRett shouldBe false
-                rettighetsperioder.last().fraOgMed shouldBe 1.juli(2025)
-                rettighetsperioder.last().tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(23.juni(2025)) til 30.juni(2025) harRett true
+                    fra(1.juli(2025)) harRett false
+                }
 
                 førteTil shouldBe "Stans"
-                with(opplysninger(Alderskrav.kravTilAlder)) {
-                    this.size shouldBe 2
-                    this.first().verdi.verdi shouldBe true
-                    this.first().gyldigFraOgMed shouldBe 23.juni(2025)
-                    this.first().gyldigTilOgMed shouldBe 30.juni(2025)
-
-                    this.last().verdi.verdi shouldBe false
-                    this.last().gyldigFraOgMed shouldBe 1.juli(2025)
-                    this.last().gyldigTilOgMed shouldBe null
+                opplysning(Alderskrav.kravTilAlder) {
+                    fra(23.juni(2025)) til 30.juni(2025) verdi true
+                    fra(1.juli(2025)) verdi false
                 }
 
                 val sisteUtbetalteDag =

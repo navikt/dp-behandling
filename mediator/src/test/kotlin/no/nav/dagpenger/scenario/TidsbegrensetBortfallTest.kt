@@ -31,7 +31,9 @@ class TidsbegrensetBortfallTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
             }
 
             // Meldekort 1 (18.juni - 1.juli): 7 arbeidsdager med rett
@@ -81,7 +83,9 @@ class TidsbegrensetBortfallTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(18.juni(2018)) harRett true
+                }
             }
 
             // Meldekort 1: 3 bortfallsdager, 4 normale dager

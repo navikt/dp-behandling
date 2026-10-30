@@ -18,6 +18,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode.Periodestatus.Arvet
 import org.junit.jupiter.api.Test
+import java.time.LocalDateTime
 import java.util.UUID
 
 // Tester ulike scenarier for kjeding av behandlinger
@@ -255,11 +256,12 @@ class KjedescenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(11.juni(2015)) harRett true
+                }
 
-                with(opplysninger(Minsteinntekt.minsteinntekt)) {
-                    this shouldHaveSize 1
-                    single().gyldigFraOgMed shouldBe 11.juni(2015)
+                opplysning(Minsteinntekt.minsteinntekt) {
+                    fra(11.juni(2015)) verdi true
                 }
 
                 opplysninger(PermitteringFraFiskeindustrien.godkjentÅrsakPermitteringFraFiskindustri) shouldHaveSize 0
@@ -278,11 +280,8 @@ class KjedescenarioTest {
                 basertPå shouldBe behandling1
 
                 // Vi gjenbruker vurderingen av minsteinntekt fra forrige behandling
-                with(opplysninger(Minsteinntekt.minsteinntekt)) {
-                    this shouldHaveSize 1
-                    single().gyldigFraOgMed shouldBe 11.juni(2015)
-                    single().verdi.verdi shouldBe true
-                    single().opprinnelse shouldBe Arvet
+                opplysning(Minsteinntekt.minsteinntekt) {
+                    fra(11.juni(2015)) verdi true opprinnelse Arvet
                 }
 
                 with(opplysninger(Opphold.oppfyllerKravet)) {
@@ -353,15 +352,10 @@ class KjedescenarioTest {
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
-                rettighetsperioder shouldHaveSize 2
-
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
-                rettighetsperioder[0].tilOgMed shouldBe 21.juni(2018)
-                rettighetsperioder[0].harRett shouldBe true
-
-                rettighetsperioder[1].fraOgMed shouldBe 22.juni(2018)
-                rettighetsperioder[1].tilOgMed shouldBe null
-                rettighetsperioder[1].harRett shouldBe true
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 21.juni(2018) harRett true
+                    fra(22.juni(2018)) harRett true
+                }
             }
         }
     }
@@ -380,7 +374,8 @@ class KjedescenarioTest {
 
             // Melding om "nei" kommer først
             var opprinneligUUIDs: List<UUID>? = null
-            person.avsluttArbeidssøkerperiode(24.juni(2018))
+            val avsluttetTidspunkt = LocalDateTime.now()
+            person.avsluttArbeidssøkerperiode(24.juni(2018), avsluttetTidspunkt = avsluttetTidspunkt)
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag(3) {
@@ -402,15 +397,15 @@ class KjedescenarioTest {
             behandlingsresultatForslag(4) {
                 behandletHendelse["type"].asString() shouldBe "Arbeidssøkerperiode"
 
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder.last().harRett shouldBe false
-
-                opplysninger(RegistrertArbeidssøker.registrertArbeidssøker) {
-                    this shouldHaveSize 2
-                    this.last().verdi.verdi shouldBe false
-
-                    map { it.id } shouldBe opprinneligUUIDs
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 23.juni(2018) harRett true
+                    fra(24.juni(2018)) harRett false
                 }
+                opplysning(RegistrertArbeidssøker.registrertArbeidssøker) {
+                    fra(21.juni(2018)) til avsluttetTidspunkt.toLocalDate() verdi true
+                    fra(avsluttetTidspunkt.toLocalDate().plusDays(1)) verdi false
+                }
+                opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).map { it.id } shouldBe opprinneligUUIDs
             }
         }
     }
@@ -461,9 +456,9 @@ class KjedescenarioTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder.size shouldBe 1
-                rettighetsperioder.last().harRett shouldBe false
-                rettighetsperioder.last().fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett false
+                }
                 førteTil shouldBe "Avslag"
             }
 
@@ -475,9 +470,9 @@ class KjedescenarioTest {
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag(7) {
-                rettighetsperioder.size shouldBe 1
-                rettighetsperioder.last().harRett shouldBe true
-                rettighetsperioder.last().fraOgMed shouldBe 10.august(2018)
+                rettighetsperioder {
+                    fra(10.august(2018)) harRett true
+                }
                 basertPå shouldBe null // Hvordan kommunisere dette til STSB.
             }
         }

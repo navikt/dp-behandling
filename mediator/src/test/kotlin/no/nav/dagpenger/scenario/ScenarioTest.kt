@@ -82,7 +82,9 @@ class ScenarioTest {
                 opplysning(Alderskrav.kravTilAlder) {
                     fra(21.juni(2018)) verdi false
                 }
-                opplysning(Minsteinntekt.minsteinntekt) {}
+                opplysning(Minsteinntekt.minsteinntekt) {
+                    erIkkeVurdert()
+                }
 
                 opplysninger shouldHaveSize 25
             }
@@ -155,7 +157,9 @@ class ScenarioTest {
                 opplysning(Minsteinntekt.minsteinntekt) {
                     fra(21.juni(2018)) verdi false
                 }
-                opplysning(ReellArbeidssøker.kravTilArbeidssøker) {}
+                opplysning(ReellArbeidssøker.kravTilArbeidssøker) {
+                    erIkkeVurdert()
+                }
 
                 opplysninger shouldHaveSize 56
             }
@@ -435,7 +439,9 @@ class ScenarioTest {
                 opplysning(Minsteinntekt.minsteinntekt) {
                     fra(25.juni(2018)) verdi false
                 }
-                opplysning(ReellArbeidssøker.kravTilArbeidssøker) {}
+                opplysning(ReellArbeidssøker.kravTilArbeidssøker) {
+                    erIkkeVurdert()
+                }
 
                 opplysninger shouldHaveSize 56
             }

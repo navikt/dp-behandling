@@ -1,8 +1,6 @@
 package no.nav.dagpenger.scenario
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.januar
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -10,6 +8,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Etablering
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.etableringGodkjent
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
+import java.time.LocalDate
 import kotlin.test.Test
 
 class EtableringTest {
@@ -26,15 +25,18 @@ class EtableringTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(1.januar(2025)) harRett true
+                }
 
-                opplysninger(Rettighetstype.skalEtableringVurderes) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe false
+                opplysning(Rettighetstype.skalEtableringVurderes) {
+                    fra(1.januar(2025)) verdi false
                 }
 
                 // Regelsettet har ikke skalKjøres = true ennå, så ingen av opplysningene er produsert
-                opplysninger(Etablering.nyVirksomhet).shouldBeEmpty()
+                opplysning(Etablering.nyVirksomhet) {
+                    erIkkeVurdert()
+                }
             }
         }
     }
@@ -77,18 +79,16 @@ class EtableringTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder.single().harRett shouldBe true
-                rettighetsperioder.single().fraOgMed shouldBe 1.januar(2025)
-                rettighetsperioder.single().tilOgMed shouldBe null
-
-                opplysninger(Rettighetstype.skalEtableringVurderes) {
-                    shouldHaveSize(2)
-                    first().verdi.verdi shouldBe false
-                    last().verdi.verdi shouldBe true
+                rettighetsperioder {
+                    fra(1.januar(2025)) harRett true
                 }
-                opplysninger(etableringGodkjent) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe false
+
+                opplysning(Rettighetstype.skalEtableringVurderes) {
+                    fra(1.januar(2025)) til 9.januar(2025) verdi false
+                    fra(etableringFra) verdi true
+                }
+                opplysning(etableringGodkjent) {
+                    erIkkeVurdert()
                 }
             }
         }
@@ -119,30 +119,24 @@ class EtableringTest {
 
             behandlingsresultatForslag {
                 // Regelsettet kjøres nå, og standardverdiene (somUtgangspunkt) er produsert
-                opplysninger(Etablering.nyVirksomhet) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe false
+                opplysning(Etablering.nyVirksomhet) {
+                    fra(etableringFra) verdi false
                 }
-                opplysninger(Etablering.selvforsørget) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe false
+                opplysning(Etablering.selvforsørget) {
+                    fra(etableringFra) verdi false
                 }
-                opplysninger(Etablering.godkjentNæringsfaglig) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe false
+                opplysning(Etablering.godkjentNæringsfaglig) {
+                    fra(etableringFra) verdi false
                 }
-                opplysninger(Etablering.ikkeSelvforskyldtArbeidsledig) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe false
+                opplysning(Etablering.ikkeSelvforskyldtArbeidsledig) {
+                    fra(etableringFra) verdi false
                 }
-                opplysninger(etableringGodkjent) {
-                    single().verdi.verdi shouldBe false
+                opplysning(etableringGodkjent) {
+                    fra(etableringFra) til LocalDate.now().plusMonths(12).minusDays(1) verdi false
                 }
 
-                with(rettighetsperioder.single()) {
-                    harRett shouldBe true
-                    fraOgMed shouldBe 1.januar(2025)
-                    tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(1.januar(2025)) harRett true
                 }
             }
 
@@ -160,25 +154,16 @@ class EtableringTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(2) {
-                with(rettighetsperioder) {
-                    size shouldBe 2
-                    first().harRett shouldBe true
-                    first().fraOgMed shouldBe 1.januar(2025)
-                    first().tilOgMed shouldBe 9.januar(2025)
-                    last().harRett shouldBe true
-                    last().fraOgMed shouldBe 10.januar(2025)
-                    last().tilOgMed shouldBe 31.januar(2025)
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 9.januar(2025) harRett true
+                    fra(10.januar(2025)) til 31.januar(2025) harRett true
                 }
-                opplysninger(Rettighetstype.skalEtableringVurderes) {
-                    shouldHaveSize(2)
-                    first().verdi.verdi shouldBe false
-                    last().verdi.verdi shouldBe true
+                opplysning(Rettighetstype.skalEtableringVurderes) {
+                    fra(1.januar(2025)) til 9.januar(2025) verdi false
+                    fra(etableringFra) verdi true
                 }
-                opplysninger(etableringGodkjent) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe true
-                    single().gyldigFraOgMed shouldBe 10.januar(2025)
-                    single().gyldigTilOgMed shouldBe 31.januar(2025)
+                opplysning(etableringGodkjent) {
+                    fra(10.januar(2025)) til 31.januar(2025) verdi true
                 }
             }
         }
@@ -235,22 +220,10 @@ class EtableringTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(2) {
-                rettighetsperioder.size shouldBe 3
-                with(rettighetsperioder.first()) {
-                    harRett shouldBe true
-                    fraOgMed shouldBe 1.januar(2025)
-                    tilOgMed shouldBe 9.januar(2025)
-                }
-                with(rettighetsperioder[1]) {
-                    harRett shouldBe true
-                    fraOgMed shouldBe 10.januar(2025)
-                    tilOgMed shouldBe 14.januar(2025)
-                }
-
-                with(rettighetsperioder.last()) {
-                    harRett shouldBe false
-                    fraOgMed shouldBe 15.januar(2025)
-                    tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 9.januar(2025) harRett true
+                    fra(10.januar(2025)) til 14.januar(2025) harRett true
+                    fra(15.januar(2025)) harRett false
                 }
             }
 
@@ -264,22 +237,10 @@ class EtableringTest {
             meldekortBatch(markerFerdig = true)
             behandlingsresultat(4) {
                 førteTil shouldBe "Endring"
-                rettighetsperioder.size shouldBe 3
-                with(rettighetsperioder.first()) {
-                    harRett shouldBe true
-                    fraOgMed shouldBe 1.januar(2025)
-                    tilOgMed shouldBe 9.januar(2025)
-                }
-                with(rettighetsperioder[1]) {
-                    harRett shouldBe true
-                    fraOgMed shouldBe 10.januar(2025)
-                    tilOgMed shouldBe 14.januar(2025)
-                }
-
-                with(rettighetsperioder.last()) {
-                    harRett shouldBe false
-                    fraOgMed shouldBe 15.januar(2025)
-                    tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 9.januar(2025) harRett true
+                    fra(10.januar(2025)) til 14.januar(2025) harRett true
+                    fra(15.januar(2025)) harRett false
                 }
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe utbetalt + 2400
                 utbetalinger.last()["dato"].asLocalDate() shouldBe 14.januar(2025)

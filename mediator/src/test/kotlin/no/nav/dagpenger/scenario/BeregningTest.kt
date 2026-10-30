@@ -66,7 +66,9 @@ class BeregningTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(1.juli(2026)) harRett true
+                }
             }
 
             // Send inn meldekort (uke 25-26)
@@ -210,7 +212,9 @@ class BeregningTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(6.oktober(2026)) harRett true
+                }
             }
 
             // Send inn meldekort
@@ -229,8 +233,9 @@ class BeregningTest {
             meldekortBatch(markerFerdig = false)
 
             behandlingsresultatForslag {
-                rettighetsperioder.single().harRett shouldBe false
-                rettighetsperioder.single().fraOgMed shouldBe 6.oktober(2026)
+                rettighetsperioder {
+                    fra(6.oktober(2026)) harRett false
+                }
                 førteTil shouldBe Avslag.toString()
 
                 with(opplysninger(Beregning.forbruk)) {
@@ -266,8 +271,9 @@ class BeregningTest {
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
-                rettighetsperioder.single().harRett shouldBe true
-                rettighetsperioder.single().fraOgMed shouldBe 6.oktober(2026)
+                rettighetsperioder {
+                    fra(6.oktober(2026)) harRett true
+                }
                 førteTil shouldBe Endring.toString()
 
                 with(opplysninger(Beregning.forbruk)) {
@@ -296,7 +302,9 @@ class BeregningTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
             }
 
             // Send inn meldekort
@@ -306,7 +314,9 @@ class BeregningTest {
             meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
 
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 14
@@ -332,7 +342,9 @@ class BeregningTest {
                     map { it.verdi.verdi }.shouldContainExactly(0, 0, 0, 1, 2, 2, 2, 3, 4, 5, 6, 7, 7, 7)
                 }
 
-                opplysninger(Sanksjonsperiode.harSanksjon).single().verdi.verdi shouldBe false
+                opplysning(Sanksjonsperiode.harSanksjon) {
+                    fra(19.juni(2018)) verdi false
+                }
                 opplysninger(Beregning.forbruktSanksjonsdager) shouldHaveSize 14
             }
         }
@@ -351,7 +363,9 @@ class BeregningTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
             }
 
             // Send inn meldekort
@@ -396,7 +410,11 @@ class BeregningTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
+            behandlingsresultat {
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
+            }
 
             // Send inn meldekort
             person.sendInnMeldekort(1)
@@ -452,12 +470,9 @@ class BeregningTest {
                     this.first().gyldigFraOgMed shouldBe 21.juni(2018)
                     this.last().gyldigFraOgMed shouldBe 8.juli(2018)
                 }
-                with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
-                    this shouldHaveSize 2
-                    this.first().gyldigFraOgMed shouldBe 21.juni(2018)
-                    this.first().verdi.verdi shouldBe true
-                    this.last().gyldigFraOgMed shouldBe 8.juli(2018)
-                    this.last().verdi.verdi shouldBe false
+                opplysning(Opphold.oppfyllerKravetTilOpphold) {
+                    fra(21.juni(2018)) til 7.juli(2018) verdi true
+                    fra(8.juli(2018)) verdi false
                 }
 
                 with(opplysninger(Beregning.forbruk)) {
@@ -497,7 +512,11 @@ class BeregningTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
+            behandlingsresultat {
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
+            }
 
             // Send inn meldekort
             person.sendInnMeldekort(Periode(25.juni(2018), 8.juli(2018)))
@@ -520,7 +539,11 @@ class BeregningTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
+            behandlingsresultat {
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
+            }
 
             // Send inn meldekort
             val meldekortId = person.sendInnMeldekort(1)
@@ -542,21 +565,18 @@ class BeregningTest {
                     this.last().gyldigFraOgMed shouldBe 1.juli(2018)
                 }
 
-                with(opplysninger(Beregning.utbetalingForPeriode)) {
-                    first().verdi.verdi shouldBe 4968
+                opplysning(Beregning.utbetalingForPeriode) {
+                    fra(18.juni(2018)) til 1.juli(2018) verdi Beløp(4968)
                 }
 
-                with(opplysninger(Beregning.gjenståendeEgenandel)) {
-                    this shouldHaveSize 1
-                    first().verdi.verdi shouldBe 0
+                opplysning(Beregning.gjenståendeEgenandel) {
+                    fra(18.juni(2018)) til 1.juli(2018) verdi Beløp(0)
                 }
-                with(opplysninger(Beregning.forbruktEgenandel)) {
-                    this shouldHaveSize 1
-                    first().verdi.verdi shouldBe 3726
+                opplysning(Beregning.forbruktEgenandel) {
+                    fra(18.juni(2018)) til 1.juli(2018) verdi Beløp(3726)
                 }
-                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
-                    this shouldHaveSize 1
-                    first().verdi.verdi shouldBe true
+                opplysning(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden) {
+                    fra(18.juni(2018)) til 1.juli(2018) verdi true
                 }
             }
 
@@ -596,13 +616,12 @@ class BeregningTest {
                     this.last().gyldigFraOgMed shouldBe 1.juli(2018)
                 }
 
-                with(opplysninger(Beregning.utbetalingForPeriode)) {
-                    first().verdi.verdi shouldBe 0
+                opplysning(Beregning.utbetalingForPeriode) {
+                    fra(18.juni(2018)) til 1.juli(2018) verdi Beløp(0)
                 }
-                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
-                    this shouldHaveSize 1
+                opplysning(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden) {
                     // Jobber 7 timer hver dag og vil være over terskel
-                    first().verdi.verdi shouldBe false
+                    fra(18.juni(2018)) til 1.juli(2018) verdi false
                 }
             }
             saksbehandler.lukkAlleAvklaringer()
@@ -626,8 +645,12 @@ class BeregningTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                opplysninger(TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid).single().verdi.verdi shouldBe 21.5
-                opplysninger(fastsattVanligArbeidstid).single().verdi.verdi shouldBe 21.5
+                opplysning(TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid) {
+                    periode(null, null) verdi 21.5
+                }
+                opplysning(fastsattVanligArbeidstid) {
+                    fra(21.juni(2018)) verdi 21.5
+                }
             }
 
             // send inn første meldekort
@@ -648,13 +671,13 @@ class BeregningTest {
             meldekortBatch(markerFerdig = true)
 
             behandlingsresultat {
-                with(opplysninger(Beregning.utbetalingForPeriode)) {
-                    this shouldHaveSize 2
-                    this[1].verdi.verdi shouldBe 0
+                opplysning(Beregning.utbetalingForPeriode) {
+                    fra(18.juni(2018)) til 1.juli(2018) verdi Beløp(4968)
+                    fra(2.juli(2018)) til 15.juli(2018) verdi Beløp(0)
                 }
-                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
-                    this shouldHaveSize 2
-                    this[1].verdi.verdi shouldBe false
+                opplysning(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden) {
+                    fra(18.juni(2018)) til 1.juli(2018) verdi true
+                    fra(2.juli(2018)) til 15.juli(2018) verdi false
                 }
             }
 
@@ -674,9 +697,9 @@ class BeregningTest {
                     this shouldHaveSize 2
                     this[1].verdi.verdi shouldNotBe 0
                 }
-                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
-                    this shouldHaveSize 2
-                    this[1].verdi.verdi shouldBe true
+                opplysning(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden) {
+                    fra(18.juni(2018)) til 1.juli(2018) verdi true
+                    fra(2.juli(2018)) til 15.juli(2018) verdi true
                 }
             }
 
@@ -689,9 +712,9 @@ class BeregningTest {
                     this shouldHaveSize 2
                     this[1].verdi.verdi shouldNotBe 0
                 }
-                with(opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden)) {
-                    this shouldHaveSize 2
-                    this[1].verdi.verdi shouldBe true
+                opplysning(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden) {
+                    fra(18.juni(2018)) til 1.juli(2018) verdi true
+                    fra(2.juli(2018)) til 15.juli(2018) verdi true
                 }
             }
         }
@@ -709,7 +732,11 @@ class BeregningTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            behandlingsresultat { rettighetsperioder.last().harRett shouldBe true }
+            behandlingsresultat {
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
+            }
 
             // Send inn meldekort
             person.sendInnMeldekort(1)
@@ -735,11 +762,10 @@ class BeregningTest {
                     this.last().gyldigFraOgMed shouldBe 29.juli(2018)
                 }
 
-                with(opplysninger(Beregning.utbetalingForPeriode)) {
-                    this shouldHaveSize 3
-                    this[0].verdi.verdi shouldBe 4968
-                    this[1].verdi.verdi shouldBe 12420
-                    this[2].verdi.verdi shouldBe 12420
+                opplysning(Beregning.utbetalingForPeriode) {
+                    fra(18.juni(2018)) til 1.juli(2018) verdi Beløp(4968)
+                    fra(2.juli(2018)) til 15.juli(2018) verdi Beløp(12420)
+                    fra(16.juli(2018)) til 29.juli(2018) verdi Beløp(12420)
                 }
             }
 
@@ -757,11 +783,10 @@ class BeregningTest {
             behandlingsresultatForslag {
                 basertPå shouldBe sisteBehandlingId
 
-                with(opplysninger(Beregning.utbetalingForPeriode)) {
-                    this shouldHaveSize 3
-                    this[0].verdi.verdi shouldBe 4968
-                    this[1].verdi.verdi shouldBe 0
-                    this[2].verdi.verdi shouldBe 12420
+                opplysning(Beregning.utbetalingForPeriode) {
+                    fra(18.juni(2018)) til 1.juli(2018) verdi Beløp(4968)
+                    fra(2.juli(2018)) til 15.juli(2018) verdi Beløp(0)
+                    fra(16.juli(2018)) til 29.juli(2018) verdi Beløp(12420)
                 }
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 42
@@ -862,13 +887,14 @@ class BeregningTest {
             saksbehandler.åpneAvklaringer().first().kode shouldBe JobbetOverTerskel.kode
 
             behandlingsresultatForslag {
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 1.juli(2018) harRett true
+                    fra(2.juli(2018)) harRett false
+                }
 
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
-
-                opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).last().verdi.verdi shouldBe true
+                opplysning(RegistrertArbeidssøker.registrertArbeidssøker) {
+                    fra(21.juni(2018)) verdi true
+                }
 
                 førteTil shouldBe Stans.toString()
             }
@@ -885,10 +911,14 @@ class BeregningTest {
             // Stans på stans skal fortsatt være stans
             behandlingsresultat {
                 førteTil shouldBe Endring.toString()
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
-
-                opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).last().verdi.verdi shouldBe false
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 1.juli(2018) harRett true
+                    fra(2.juli(2018)) harRett false
+                }
+                opplysning(RegistrertArbeidssøker.registrertArbeidssøker) {
+                    fra(21.juni(2018)) til 4.juli(2018) verdi true
+                    fra(5.juli(2018)) verdi false
+                }
             }
 
             person.søkDagpenger(13.august(2018))
@@ -906,18 +936,11 @@ class BeregningTest {
 
             behandlingsresultat {
                 førteTil shouldBe Gjenopptak.toString()
-                rettighetsperioder.size shouldBe 3
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
-                rettighetsperioder[0].tilOgMed shouldBe 1.juli(2018)
-
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].fraOgMed shouldBe 2.juli(2018)
-                rettighetsperioder[1].tilOgMed shouldBe 12.august(2018)
-
-                rettighetsperioder[2].harRett shouldBe true
-                rettighetsperioder[2].fraOgMed shouldBe 13.august(2018)
-                rettighetsperioder[2].tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 1.juli(2018) harRett true
+                    fra(2.juli(2018)) til 12.august(2018) harRett false
+                    fra(13.august(2018)) harRett true
+                }
             }
         }
     }
@@ -949,10 +972,9 @@ class BeregningTest {
             saksbehandler.åpneAvklaringer().first().kode shouldBe JobbetOverTerskel.kode
 
             behandlingsresultatForslag {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder[0].harRett shouldBe false
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
-
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett false
+                }
                 // TODO: Burde det egentlig det?
                 førteTil shouldBe Avslag.toString()
             }
@@ -1007,8 +1029,11 @@ class BeregningTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(5) {
-                rettighetsperioder.size shouldBe 3
-                rettighetsperioder.last().harRett shouldBe true
+                rettighetsperioder {
+                    fra(1.januar(2018)) til 31.januar(2018) harRett true
+                    fra(1.februar(2018)) til 11.februar(2018) harRett false
+                    fra(12.februar(2018)) harRett true
+                }
             }
 
             person.sendInnMeldekort(3)
@@ -1269,10 +1294,11 @@ class BeregningTest {
             meldekortBatch(markerFerdig = false)
 
             behandlingsresultatForslag(3) {
-                rettighetsperioder shouldHaveSize 2
                 // Første mandag i meldekort 2 er 25.juni
-                rettighetsperioder.last().fraOgMed shouldBe 25.juni(2018)
-                rettighetsperioder.last().harRett shouldBe false
+                rettighetsperioder {
+                    fra(11.juni(2018)) til 24.juni(2018) harRett true
+                    fra(25.juni(2018)) harRett false
+                }
                 opplysninger(Beregning.forbruk) {
                     filter { it.verdi.verdi == true } shouldHaveSize 10
                 }
@@ -1328,10 +1354,11 @@ class BeregningTest {
             meldekortBatch(markerFerdig = false)
 
             behandlingsresultatForslag(3) {
-                rettighetsperioder shouldHaveSize 2
                 // Første mandag i meldekort 2 er 25.juni
-                rettighetsperioder.last().fraOgMed shouldBe 25.juni(2018)
-                rettighetsperioder.last().harRett shouldBe false
+                rettighetsperioder {
+                    fra(11.juni(2018)) til 24.juni(2018) harRett true
+                    fra(25.juni(2018)) harRett false
+                }
             }
 
             person.avklaringer.map { it.kode } shouldContain "MeldekortMedUtdanning"
@@ -1371,8 +1398,9 @@ class BeregningTest {
 
             behandlingsresultat(3) {
                 // Perioden 28.juni-2.juli dekkes av tiltak, og gir dermed rett i den delen av meldeperioden
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder.last().harRett shouldBe true
+                rettighetsperioder {
+                    fra(11.juni(2018)) harRett true
+                }
 
                 opplysninger(deltakelseIArbeidsmarkedstiltak) {
                     // Utgangspunkt (false) + de tre periodene fra registeret
@@ -1422,11 +1450,8 @@ class BeregningTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder shouldHaveSize 1
-                with(rettighetsperioder.single()) {
-                    harRett shouldBe true
-                    fraOgMed shouldBe 21.juni(2018)
-                    tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
                 }
             }
 
@@ -1490,9 +1515,8 @@ class BeregningTest {
                     this shouldHaveSize 14
                     all { it.verdi.verdi as Boolean } shouldBe false
                 }
-                opplysninger(Beregning.sisteForbruksdag) {
-                    this shouldHaveSize 1
-                    first().verdi.verdi shouldBe 10.juni(2018).toString()
+                opplysning(Beregning.sisteForbruksdag) {
+                    fra(10.juni(2018)) verdi 10.juni(2018)
                 }
             }
         }
@@ -1520,12 +1544,9 @@ class BeregningTest {
                 opplysninger(Beregning.forbruk) {
                     this shouldHaveSize 14
                 }
-                opplysninger(DagpengenesStørrelse.barnetillegg) {
-                    this shouldHaveSize 2
-                    first().verdi.verdi shouldBe 76
-                    first().gyldigTilOgMed shouldBe 7.juni(2026) // 7. juni er siste dag med barnetillegg for 2 barn
-                    last().verdi.verdi shouldBe 38
-                    last().gyldigFraOgMed shouldBe 8.juni(2026) // 8. juni er første dag med barnetillegg for 1 barn
+                opplysning(DagpengenesStørrelse.barnetillegg) {
+                    fra(1.juni(2026)) til 7.juni(2026) verdi Beløp(76) // 7. juni er siste dag med barnetillegg for 2 barn
+                    fra(8.juni(2026)) til 31.mai(2030) verdi Beløp(38) // 8. juni er første dag med barnetillegg for 1 barn
                 }
 
                 opplysninger(Egenandel.egenandel) {
@@ -1537,12 +1558,9 @@ class BeregningTest {
                     first().gyldigTilOgMed shouldBe 7.juni(2026) // 7. juni er siste dag med barnetillegg for 2 barn
                     last().gyldigFraOgMed shouldBe 8.juni(2026) // 8. juni er første dag med barnetillegg for 1 barn
                 }
-                opplysninger(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg) {
-                    this shouldHaveSize 2
-                    first().verdi.verdi shouldBe 1335
-                    first().gyldigTilOgMed shouldBe 7.juni(2026) // 7. juni er siste dag med barnetillegg for 2 barn
-                    last().verdi.verdi shouldBe 1297
-                    last().gyldigFraOgMed shouldBe 8.juni(2026) // 8. juni er første dag med barnetillegg for 1 barn
+                opplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg) {
+                    fra(1.juni(2026)) til 7.juni(2026) verdi Beløp(1335)
+                    fra(8.juni(2026)) til 31.mai(2030) verdi Beløp(1297)
                 }
                 val satsPerDag = utbetalinger.toList().map { it["sats"].asInt() }
                 val utbetalingPerDag = utbetalinger.toList().map { it["utbetaling"].asInt() }

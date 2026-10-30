@@ -2,12 +2,10 @@ package no.nav.dagpenger.scenario
 
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
-import no.nav.dagpenger.mediator.api.models.RettighetsperiodeDTO
 import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juli
@@ -42,9 +40,9 @@ class ArbeidssøkerTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder.single().harRett shouldBe true
-                rettighetsperioder.single().tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
             }
 
             person.sendInnMeldekort(1)
@@ -68,26 +66,16 @@ class ArbeidssøkerTest {
                 with(opplysninger(Meldeplikt.oppfyllerMeldeplikt)) {
                     this shouldHaveSize 1
                 }
-                with(opplysninger(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)) {
-                    this shouldHaveSize 2
-                    this[1].verdi.verdi shouldBe false
-                    this[1].gyldigFraOgMed shouldBe 20.juli(2018)
+                opplysning(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker) {
+                    fra(21.juni(2018)) til 19.juli(2018) verdi true
+                    fra(20.juli(2018)) verdi false
                 }
                 // Stansen skal være fra og med torsdag
-                rettighetsperioder.shouldContainExactly(
-                    RettighetsperiodeDTO(
-                        fraOgMed = 21.juni(2018),
-                        tilOgMed = 19.juli(2018),
-                        harRett = true,
-                        opprinnelse = OpprinnelseDTO.ARVET,
-                    ),
-                    RettighetsperiodeDTO(
-                        fraOgMed = 20.juli(2018),
-                        tilOgMed = null,
-                        harRett = false,
-                        opprinnelse = OpprinnelseDTO.NY,
-                    ),
-                )
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 19.juli(2018) harRett true
+                    fra(20.juli(2018)) harRett false
+                }
+                rettighetsperioder.map { it.opprinnelse } shouldBe listOf(OpprinnelseDTO.ARVET, OpprinnelseDTO.NY)
             }
         }
     }
@@ -106,9 +94,9 @@ class ArbeidssøkerTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder.single().harRett shouldBe true
-                rettighetsperioder.single().tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
             }
 
             person.sendInnMeldekort(1)
@@ -131,29 +119,19 @@ class ArbeidssøkerTest {
             saksbehandler.godkjenn()
 
             behandlingsresultat(4) {
-                with(opplysninger(Meldeplikt.oppfyllerMeldeplikt)) {
-                    this shouldHaveSize 2
-                    this[0].verdi.verdi shouldBe true
-                    this[0].gyldigFraOgMed shouldBe 21.juni(2018)
-                    this[0].gyldigTilOgMed shouldBe 15.juli(2018)
-
-                    this[1].verdi.verdi shouldBe false
-                    this[1].gyldigFraOgMed shouldBe 16.juli(2018)
+                opplysning(Meldeplikt.oppfyllerMeldeplikt) {
+                    fra(21.juni(2018)) til 15.juli(2018) verdi true
+                    fra(16.juli(2018)) verdi false
                 }
-                with(opplysninger(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)) {
-                    this shouldHaveSize 2
-                    this[1].verdi.verdi shouldBe false
-                    this[1].gyldigFraOgMed shouldBe 2.august(2018)
+                opplysning(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker) {
+                    fra(21.juni(2018)) til 1.august(2018) verdi true
+                    fra(2.august(2018)) verdi false
                 }
 
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
-                rettighetsperioder[0].tilOgMed shouldBe 15.juli(2018)
-
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].fraOgMed shouldBe 16.juli(2018)
-                rettighetsperioder[1].tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 15.juli(2018) harRett true
+                    fra(16.juli(2018)) harRett false
+                }
 
                 førteTil shouldBe Avgjørelse.Stans.toString()
             }
@@ -174,9 +152,9 @@ class ArbeidssøkerTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder.single().harRett shouldBe true
-                rettighetsperioder.single().tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
             }
 
             person.sendInnMeldekort(1)
@@ -220,20 +198,16 @@ class ArbeidssøkerTest {
                 with(opplysninger(RegistrertArbeidssøker.registrertArbeidssøker)) {
                     this shouldHaveSize 2
                 }
-                with(opplysninger(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)) {
-                    this shouldHaveSize 3
-                    this[1].verdi.verdi shouldBe false
-                    this[1].gyldigFraOgMed shouldBe 16.juli(2018)
-                    this[2].verdi.verdi shouldBe false
-                    this[2].gyldigFraOgMed shouldBe 2.august(2018)
+                opplysning(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker) {
+                    fra(21.juni(2018)) til 15.juli(2018) verdi true
+                    fra(16.juli(2018)) til 1.august(2018) verdi false
+                    fra(2.august(2018)) verdi false
                 }
 
-                rettighetsperioder shouldHaveSize 2
-
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].tilOgMed shouldBe 15.juli(2018)
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].fraOgMed shouldBe 16.juli(2018)
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 15.juli(2018) harRett true
+                    fra(16.juli(2018)) harRett false
+                }
             }
         }
     }
@@ -250,9 +224,9 @@ class ArbeidssøkerTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder.single().harRett shouldBe true
-                rettighetsperioder.single().tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
             }
 
             person.sendInnMeldekort(1)
@@ -329,12 +303,10 @@ class ArbeidssøkerTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].tilOgMed shouldBe stansdato.minusDays(1)
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].fraOgMed shouldBe stansdato
-                rettighetsperioder[1].tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(21.juni(2018)) til stansdato.minusDays(1) harRett true
+                    fra(stansdato) harRett false
+                }
             }
 
             repeat(3) { index ->
@@ -353,9 +325,10 @@ class ArbeidssøkerTest {
             behandlingsresultat {
                 sisteMeldekortBehandlingId = behandlingId
                 behandletHendelse["type"].asString() shouldBe "Meldekort"
-                rettighetsperioder.last().harRett shouldBe false
-                rettighetsperioder.last().fraOgMed shouldBe stansdato
-                rettighetsperioder.last().tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(21.juni(2018)) til stansdato.minusDays(1) harRett true
+                    fra(stansdato) harRett false
+                }
             }
 
             val meldingerFørAvsluttetArbeidssøkerperiode = rapidInspektør.size
@@ -380,9 +353,10 @@ class ArbeidssøkerTest {
                 basertPå shouldBe sisteMeldekortBehandlingId
                 arbeidssøkerperiodeHendelseId = behandletHendelse["id"].asUUID()
                 behandletHendelse["type"].asString() shouldBe "Arbeidssøkerperiode"
-                rettighetsperioder.last().harRett shouldBe false
-                rettighetsperioder.last().fraOgMed shouldBe stansdato
-                rettighetsperioder.last().tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(21.juni(2018)) til stansdato.minusDays(1) harRett true
+                    fra(stansdato) harRett false
+                }
             }
             saksbehandler
                 .åpneAvklaringer(arbeidssøkerperiodeHendelseId)
@@ -411,18 +385,13 @@ class ArbeidssøkerTest {
             saksbehandler.beslutt(person.sisteSøknadId)
 
             behandlingsresultat(1) {
-                rettighetsperioder shouldHaveSize 1
-                with(rettighetsperioder.single()) {
-                    harRett shouldBe true
-                    fraOgMed shouldBe 21.juni(2018)
-                    tilOgMed shouldBe 6.juli(2018)
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 6.juli(2018) harRett true
                 }
 
-                with(opplysninger(RegistrertArbeidssøker.registrertArbeidssøker)) {
-                    this shouldHaveSize 2
-
-                    this[0].gyldigFraOgMed shouldBe 21.juni(2018)
-                    this[1].gyldigFraOgMed shouldBe 7.juli(2018)
+                opplysning(RegistrertArbeidssøker.registrertArbeidssøker) {
+                    fra(21.juni(2018)) til 6.juli(2018) verdi true
+                    fra(7.juli(2018)) verdi false
                 }
             }
         }
@@ -448,11 +417,8 @@ class ArbeidssøkerTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder shouldHaveSize 1
-                with(rettighetsperioder.single()) {
-                    harRett shouldBe true
-                    fraOgMed shouldBe 3.august(2026)
-                    tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(3.august(2026)) harRett true
                 }
             }
 
@@ -463,11 +429,8 @@ class ArbeidssøkerTest {
             )
 
             behandlingsresultatForslag(6) {
-                rettighetsperioder shouldHaveSize 1
-                with(rettighetsperioder.last()) {
-                    harRett shouldBe false
-                    fraOgMed shouldBe 3.august(2026)
-                    tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(3.august(2026)) harRett false
                 }
             }
 
@@ -475,16 +438,9 @@ class ArbeidssøkerTest {
             saksbehandler.leggTilOpplysning(Meldeplikt.oppfyllerMeldeplikt, false, "", Gyldighetsperiode(17.august(2026)))
 
             behandlingsresultatForslag(8) {
-                rettighetsperioder shouldHaveSize 2
-                with(rettighetsperioder[0]) {
-                    harRett shouldBe true
-                    fraOgMed shouldBe 3.august(2026)
-                    tilOgMed shouldBe 16.august(2026)
-                }
-                with(rettighetsperioder[1]) {
-                    harRett shouldBe false
-                    fraOgMed shouldBe 17.august(2026)
-                    tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(3.august(2026)) til 16.august(2026) harRett true
+                    fra(17.august(2026)) harRett false
                 }
             }
         }

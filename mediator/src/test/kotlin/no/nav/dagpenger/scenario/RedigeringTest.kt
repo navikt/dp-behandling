@@ -1,8 +1,6 @@
 package no.nav.dagpenger.scenario
 
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -27,8 +25,8 @@ class RedigeringTest {
 
                 behandlingsresultat { utfall shouldBe true }
                 behandlingsresultat {
-                    with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
-                        this[0].verdi.verdi shouldBe 1242
+                    opplysning(dagsatsEtterSamordningMedBarnetillegg) {
+                        fra(21.juni(2018)) verdi Beløp(1242)
                     }
                 }
 
@@ -41,12 +39,9 @@ class RedigeringTest {
                 )
 
                 behandlingsresultatForslag {
-                    with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
-                        this[0].verdi.verdi shouldBe 1242
-
-                        this shouldHaveSize 2
-                        this[1].verdi.verdi shouldNotBe 1259
-                        this[1].verdi.verdi shouldBe 720
+                    opplysning(dagsatsEtterSamordningMedBarnetillegg) {
+                        fra(21.juni(2018)) til 30.juni(2018) verdi Beløp(1242)
+                        fra(1.juli(2018)) verdi Beløp(720)
                     }
                 }
 
@@ -58,12 +53,9 @@ class RedigeringTest {
                 )
 
                 behandlingsresultatForslag {
-                    with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
-                        this[0].verdi.verdi shouldBe 1242
-
-                        this shouldHaveSize 2
-                        this[1].verdi.verdi shouldNotBe 1242
-                        this[1].verdi.verdi shouldBe 960
+                    opplysning(dagsatsEtterSamordningMedBarnetillegg) {
+                        fra(21.juni(2018)) til 30.juni(2018) verdi Beløp(1242)
+                        fra(1.juli(2018)) verdi Beløp(960)
                     }
                 }
                 saksbehandler.lukkAlleAvklaringer()
@@ -79,11 +71,10 @@ class RedigeringTest {
                 )
 
                 behandlingsresultatForslag {
-                    with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
-                        this shouldHaveSize 3
-                        this[0].verdi.verdi shouldBe 1242
-                        this[1].verdi.verdi shouldBe 960
-                        this[2].verdi.verdi shouldBe 720
+                    opplysning(dagsatsEtterSamordningMedBarnetillegg) {
+                        fra(21.juni(2018)) til 30.juni(2018) verdi Beløp(1242)
+                        fra(1.juli(2018)) til 9.juli(2018) verdi Beløp(960)
+                        fra(10.juli(2018)) verdi Beløp(720)
                     }
                 }
             }

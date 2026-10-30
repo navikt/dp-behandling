@@ -1,7 +1,6 @@
 package no.nav.dagpenger.scenario
 
 import io.kotest.matchers.collections.shouldContain
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.februar
@@ -28,16 +27,14 @@ class EksportTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder.single().harRett shouldBe true
-                rettighetsperioder.single().fraOgMed shouldBe 1.januar(2025)
-                rettighetsperioder.single().tilOgMed shouldBe null
-                opplysninger(Rettighetstype.skalEksportVurderes) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe false
+                rettighetsperioder {
+                    fra(1.januar(2025)) harRett true
                 }
-                opplysninger(Eksport.oppfyllerVilkårForEksport) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe false
+                opplysning(Rettighetstype.skalEksportVurderes) {
+                    fra(1.januar(2025)) verdi false
+                }
+                opplysning(Eksport.oppfyllerVilkårForEksport) {
+                    erIkkeVurdert()
                 }
             }
 
@@ -57,12 +54,9 @@ class EksportTest {
             )
 
             behandlingsresultatForslag {
-                opplysninger(Rettighetstype.skalEksportVurderes) {
-                    shouldHaveSize(2)
-                    this[0].verdi.verdi shouldBe false
-                    this[0].gyldigTilOgMed shouldBe 31.januar(2025)
-                    this[1].verdi.verdi shouldBe true
-                    this[1].gyldigFraOgMed shouldBe 1.februar(2025)
+                opplysning(Rettighetstype.skalEksportVurderes) {
+                    fra(1.januar(2025)) til 31.januar(2025) verdi false
+                    fra(1.februar(2025)) verdi true
                 }
             }
 
@@ -72,20 +66,17 @@ class EksportTest {
 
             // Eksport godkjent og bruker får stans fram til registrering i vertsland
             behandlingsresultat(3) {
-                opplysninger(Rettighetstype.skalEksportVurderes) {
-                    shouldHaveSize(2)
-                    this[0].verdi.verdi shouldBe false
-                    this[0].gyldigTilOgMed shouldBe 31.januar(2025)
-                    this[1].verdi.verdi shouldBe true
-                    this[1].gyldigFraOgMed shouldBe 1.februar(2025)
+                opplysning(Rettighetstype.skalEksportVurderes) {
+                    fra(1.januar(2025)) til 31.januar(2025) verdi false
+                    fra(1.februar(2025)) verdi true
                 }
-                opplysninger(Eksport.oppfyllerVilkårForEksport) {
-                    shouldHaveSize(1)
-                    this[0].verdi.verdi shouldBe false
-                    this[0].gyldigFraOgMed shouldBe 1.februar(2025)
+                opplysning(Eksport.oppfyllerVilkårForEksport) {
+                    fra(1.februar(2025)) verdi false
                 }
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder.last().harRett shouldBe false
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 31.januar(2025) harRett true
+                    fra(1.februar(2025)) harRett false
+                }
             }
 
             // Registrerer seg i vertslandet og skal ha gjenopptak av dagpenger
@@ -103,15 +94,14 @@ class EksportTest {
 
             // Registert i vertslandet og dagpenger begynner å løpe
             behandlingsresultat(4) {
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder.last().harRett shouldBe true
-                rettighetsperioder.last().fraOgMed shouldBe 1.februar(2025)
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 31.januar(2025) harRett true
+                    fra(1.februar(2025)) harRett true
+                }
 
                 // Registrert innen fristen, gjenopptak skal arve gyldighetsperioden fra skalHaEksportFra (1.februar)
-                opplysninger(Eksport.eksportGjenopptakFraOgMed) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe 1.februar(2025).toString()
-                    single().gyldigFraOgMed shouldBe 1.februar(2025)
+                opplysning(Eksport.eksportGjenopptakFraOgMed) {
+                    fra(1.februar(2025)) verdi 1.februar(2025)
                 }
             }
 
@@ -147,8 +137,10 @@ class EksportTest {
 
             // Eksport godkjent og bruker får stans fram til registrering i vertsland
             behandlingsresultat(3) {
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder.last().harRett shouldBe false
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 31.januar(2025) harRett true
+                    fra(1.februar(2025)) harRett false
+                }
             }
 
             // Frist for å registrere seg er skalHaEksportFra + 7 dager = 8.februar. Registrering
@@ -168,13 +160,13 @@ class EksportTest {
             // Registrert på fristdagen: skal fortsatt behandles som "innen fristen", altså
             // gjenopptak fra og med skalHaEksportFra, ikke fra registreringsdatoen.
             behandlingsresultat(4) {
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder.last().harRett shouldBe true
-                rettighetsperioder.last().fraOgMed shouldBe 1.februar(2025)
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 31.januar(2025) harRett true
+                    fra(1.februar(2025)) harRett true
+                }
 
-                opplysninger(Eksport.eksportGjenopptakFraOgMed) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe 1.februar(2025).toString()
+                opplysning(Eksport.eksportGjenopptakFraOgMed) {
+                    fra(1.februar(2025)) verdi 1.februar(2025)
                 }
             }
         }
@@ -208,11 +200,12 @@ class EksportTest {
 
             // Eksport godkjent og bruker får stans fram til registrering i vertsland
             behandlingsresultat(3) {
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder.last().harRett shouldBe false
-                opplysninger(Eksport.oppfyllerVilkårForEksport) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe false
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 31.januar(2025) harRett true
+                    fra(1.februar(2025)) harRett false
+                }
+                opplysning(Eksport.oppfyllerVilkårForEksport) {
+                    fra(1.februar(2025)) verdi false
                 }
             }
 
@@ -222,11 +215,12 @@ class EksportTest {
             meldekortBatch(markerFerdig = true)
 
             behandlingsresultat(4) {
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder.last().harRett shouldBe false
-                opplysninger(Eksport.oppfyllerVilkårForEksport) {
-                    shouldHaveSize(1)
-                    single().verdi.verdi shouldBe false
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 31.januar(2025) harRett true
+                    fra(1.februar(2025)) harRett false
+                }
+                opplysning(Eksport.oppfyllerVilkårForEksport) {
+                    fra(1.februar(2025)) verdi false
                 }
             }
         }
@@ -260,8 +254,10 @@ class EksportTest {
 
             // Eksport godkjent og bruker får stans fram til registrering i vertsland
             behandlingsresultat(3) {
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder.last().harRett shouldBe false
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 31.januar(2025) harRett true
+                    fra(1.februar(2025)) harRett false
+                }
             }
 
             // Registrerer seg i vertslandet og skal ha gjenopptak av dagpenger
@@ -279,9 +275,11 @@ class EksportTest {
 
             // Registert i vertslandet og dagpenger begynner å løpe
             behandlingsresultat(4) {
-                rettighetsperioder shouldHaveSize 3
-                rettighetsperioder.last().harRett shouldBe true
-                rettighetsperioder.last().fraOgMed shouldBe 15.februar(2025)
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 31.januar(2025) harRett true
+                    fra(1.februar(2025)) til 14.februar(2025) harRett false
+                    fra(15.februar(2025)) harRett true
+                }
 
                 // Registrert etter fristen, gjenopptak skal arve gyldighetsperioden fra registreringsdatoen.
                 // Historikken inneholder også en tidligere (nå overstyrt) gjetning fra behandlingen
@@ -334,8 +332,10 @@ class EksportTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(4) {
-                rettighetsperioder.last().harRett shouldBe true
-                rettighetsperioder.last().fraOgMed shouldBe 1.februar(2025)
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 31.januar(2025) harRett true
+                    fra(1.februar(2025)) harRett true
+                }
             }
 
             // Sender inn meldekort for perioden hvor eksport ble avklart. Selv om dagpenger var
@@ -402,8 +402,10 @@ class EksportTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(4) {
-                rettighetsperioder.last().harRett shouldBe true
-                rettighetsperioder.last().fraOgMed shouldBe 1.februar(2025)
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 31.januar(2025) harRett true
+                    fra(1.februar(2025)) harRett true
+                }
             }
 
             person.sendInnMeldekort(2)
@@ -424,8 +426,10 @@ class EksportTest {
             // ikke skal påvirke resultatet mens eksport av dagpenger vurderes
             behandlingsresultatForslag {
                 førteTil shouldBe "Endring"
-                rettighetsperioder.last().harRett shouldBe true
-                rettighetsperioder.last().tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 31.januar(2025) harRett true
+                    fra(1.februar(2025)) harRett true
+                }
             }
         }
     }
@@ -488,8 +492,10 @@ class EksportTest {
 
             behandlingsresultatForslag {
                 førteTil shouldBe "Endring"
-                rettighetsperioder.last().harRett shouldBe true
-                rettighetsperioder.last().tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 31.januar(2025) harRett true
+                    fra(1.februar(2025)) harRett true
+                }
             }
         }
     }
@@ -555,28 +561,22 @@ class EksportTest {
 
             behandlingsresultatForslag(12) {
                 førteTil shouldBe "Endring"
-                with(opplysninger(Meldeplikt.oppfyllerMeldeplikt)) {
-                    this shouldHaveSize 1
-                    this[0].verdi.verdi shouldBe true
+                opplysning(Meldeplikt.oppfyllerMeldeplikt) {
+                    fra(1.januar(2025)) verdi true
                 }
-                with(opplysninger(RegistrertArbeidssøker.registrertArbeidssøker)) {
-                    this shouldHaveSize 2
-                    this[0].verdi.verdi shouldBe true
-                    this[1].verdi.verdi shouldBe false
-                    this[1].gyldigFraOgMed shouldBe 13.februar(2025)
+                opplysning(RegistrertArbeidssøker.registrertArbeidssøker) {
+                    fra(1.januar(2025)) til 12.februar(2025) verdi true
+                    fra(13.februar(2025)) verdi false
                 }
-                with(opplysninger(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)) {
-                    this shouldHaveSize 3
-                    this[0].verdi.verdi shouldBe true
-                    this[1].verdi.verdi shouldBe false
-                    this[1].gyldigFraOgMed shouldBe 27.januar(2025)
-                    this[2].verdi.verdi shouldBe false
-                    this[2].gyldigFraOgMed shouldBe 13.februar(2025)
+                opplysning(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker) {
+                    fra(1.januar(2025)) til 26.januar(2025) verdi true
+                    fra(27.januar(2025)) til 12.februar(2025) verdi false
+                    fra(13.februar(2025)) verdi false
                 }
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[1].harRett shouldBe true
-                rettighetsperioder[1].tilOgMed shouldBe null
+                rettighetsperioder {
+                    fra(1.januar(2025)) til 31.januar(2025) harRett true
+                    fra(1.februar(2025)) harRett true
+                }
             }
         }
     }

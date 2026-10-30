@@ -4,11 +4,14 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.ferietillegg.FerietilleggBeløp
 import no.nav.dagpenger.ferietillegg.KravPåFerietillegg
+import no.nav.dagpenger.mediator.januar
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
+import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 class FerietilleggTest {
     @Test
@@ -33,8 +36,12 @@ class FerietilleggTest {
             saksbehandler.godkjenn()
 
             behandlingsresultat {
-                opplysninger(FerietilleggBeløp.ferietilleggBeløp).single().verdi.verdi shouldBe 47500
-                opplysninger(KravPåFerietillegg.harKravpåFerietillegg).single().verdi.verdi shouldBe true
+                opplysning(FerietilleggBeløp.ferietilleggBeløp) {
+                    fra(LocalDate.now()) verdi Beløp(47500)
+                }
+                opplysning(KravPåFerietillegg.harKravpåFerietillegg) {
+                    fra(LocalDate.now()) verdi true
+                }
             }
         }
     }
@@ -67,10 +74,18 @@ class FerietilleggTest {
             val ferietilleggBehandlingId = person.behandlingId
 
             behandlingsresultat {
-                opplysninger(KravPåFerietillegg.harKravpåFerietillegg).single().verdi.verdi shouldBe true
-                opplysninger(KravPåFerietillegg.antallDagerForbruk).single().verdi.verdi shouldBe 100
-                opplysninger(FerietilleggBeløp.ferietilleggBeløp).single().verdi.verdi shouldBe 47500
-                opplysninger(FerietilleggBeløp.sumUtbetaltForÅr).single().verdi.verdi shouldBe 500000
+                opplysning(KravPåFerietillegg.harKravpåFerietillegg) {
+                    fra(LocalDate.now()) verdi true
+                }
+                opplysning(KravPåFerietillegg.antallDagerForbruk) {
+                    fra(1.januar(opptjeningsår)) verdi 100
+                }
+                opplysning(FerietilleggBeløp.ferietilleggBeløp) {
+                    fra(LocalDate.now()) verdi Beløp(47500)
+                }
+                opplysning(FerietilleggBeløp.sumUtbetaltForÅr) {
+                    fra(1.januar(opptjeningsår)) verdi Beløp(500000)
+                }
                 basertPå shouldBe null
 
                 utbetalinger.size() shouldBe 1
@@ -101,10 +116,18 @@ class FerietilleggTest {
             saksbehandler.godkjenn()
 
             behandlingsresultat(4) {
-                opplysninger(KravPåFerietillegg.harKravpåFerietillegg).last().verdi.verdi shouldBe false
-                opplysninger(KravPåFerietillegg.antallDagerForbruk).single().verdi.verdi shouldBe 39
-                opplysninger(FerietilleggBeløp.ferietilleggBeløp).single().verdi.verdi shouldBe 0
-                opplysninger(FerietilleggBeløp.sumUtbetaltForÅr).single().verdi.verdi shouldBe 500000
+                opplysning(KravPåFerietillegg.harKravpåFerietillegg) {
+                    fra(LocalDate.now()) verdi false
+                }
+                opplysning(KravPåFerietillegg.antallDagerForbruk) {
+                    fra(1.januar(opptjeningsår)) verdi 39
+                }
+                opplysning(FerietilleggBeløp.ferietilleggBeløp) {
+                    fra(LocalDate.now()) verdi Beløp(0)
+                }
+                opplysning(FerietilleggBeløp.sumUtbetaltForÅr) {
+                    fra(1.januar(opptjeningsår)) verdi Beløp(500000)
+                }
                 basertPå shouldBe ferietilleggBehandlingId
 
                 utbetalinger.size() shouldBe 1

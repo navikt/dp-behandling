@@ -1,7 +1,6 @@
 package no.nav.dagpenger.scenario
 
 import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -91,7 +90,9 @@ class RevurderingInntektTest {
         var opprinneligGrunnlag: Any? = null
         var opprinneligSats: Any? = null
         behandlingsresultat(1) {
-            rettighetsperioder.single().harRett shouldBe true
+            rettighetsperioder {
+                fra(søknadsdato) harRett true
+            }
 
             opplysninger(grunnlag) {
                 shouldHaveSize(1)

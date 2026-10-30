@@ -29,7 +29,9 @@ class SanksjonTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(18.juni(2018)) harRett true
+                }
             }
 
             // Meldekort 1 (18.juni - 1.juli): 01 arbeidsdager med rett
@@ -86,7 +88,9 @@ class SanksjonTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(18.juni(2018)) harRett true
+                }
             }
 
             // Meldekort 1: 3 bortfallsdager, 4 normale dager
@@ -161,7 +165,9 @@ class SanksjonTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(18.juni(2018)) harRett true
+                }
             }
 
             // Meldekort 1 (18.juni - 1.juli): 01 arbeidsdager med rett
@@ -205,7 +211,9 @@ class SanksjonTest {
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(18.juni(2018)) harRett true
+                }
                 // Forbruker ikke egenandel før sanksjon er avviklet
                 opplysninger(Beregning.forbruktEgenandel) {
                     this.sumOf { it.verdi.verdi as Int } shouldBeGreaterThan 0

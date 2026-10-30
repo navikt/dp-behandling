@@ -33,6 +33,11 @@ internal data class PeriodeUtenVerdi<T : Any>(
 
 internal open class PeriodeForventning<T : Any> {
     protected val forventedePerioder = mutableListOf<ForventetPeriode<T>>()
+    private var forventerTomListe = false
+
+    fun erIkkeVurdert() {
+        forventerTomListe = true
+    }
 
     infix fun fra(dato: LocalDate): PeriodeUtenVerdi<T> = PeriodeUtenVerdi(dato, null)
 
@@ -49,7 +54,12 @@ internal open class PeriodeForventning<T : Any> {
         return this
     }
 
-    internal fun perioder(): List<ForventetPeriode<T>> = forventedePerioder
+    internal fun perioder(): List<ForventetPeriode<T>> {
+        check(!forventerTomListe || forventedePerioder.isEmpty()) {
+            "erIkkeVurdert() kan ikke kombineres med forventede perioder"
+        }
+        return forventedePerioder
+    }
 }
 
 internal class RettighetsperiodeForventning : PeriodeForventning<Boolean>() {

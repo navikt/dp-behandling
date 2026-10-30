@@ -3,7 +3,6 @@ package no.nav.dagpenger.scenario
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
-import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
 import no.nav.dagpenger.mediator.august
@@ -12,6 +11,7 @@ import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.mars
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.dagpengegrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnlag
@@ -51,9 +51,9 @@ class GjenopptakTest {
             val innvilgelseBehandlingId = person.behandlingId
             behandlingsresultat {
                 førteTil shouldBe "Innvilgelse"
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
 
                 opplysninger(oppholdINorge) shouldHaveSize 1
             }
@@ -72,21 +72,18 @@ class GjenopptakTest {
 
             behandlingsresultat {
                 førteTil shouldBe "Stans"
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
-
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].fraOgMed shouldBe 22.juli(2018)
-
-                with(opplysninger(oppholdINorge)) {
-                    this shouldHaveSize 2
-                    this[0].opprinnelse shouldBe Periodestatus.Arvet
-                    this[1].opprinnelse shouldBe Periodestatus.Ny
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 21.juli(2018) harRett true
+                    fra(22.juli(2018)) harRett false
                 }
-                with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
-                    this[0].verdi.verdi shouldBe true
-                    this[1].verdi.verdi shouldBe false
+
+                opplysning(oppholdINorge) {
+                    fra(21.juni(2018)) til 21.juli(2018) verdi true opprinnelse Periodestatus.Arvet
+                    fra(22.juli(2018)) verdi false opprinnelse Periodestatus.Ny
+                }
+                opplysning(Opphold.oppfyllerKravetTilOpphold) {
+                    fra(21.juni(2018)) til 21.juli(2018) verdi true
+                    fra(22.juli(2018)) verdi false
                 }
             }
 
@@ -110,52 +107,40 @@ class GjenopptakTest {
                     this shouldHaveSize 1
                 }
 
-                with(opplysninger(Gjenopptak.skalGjenopptas)) {
-                    this shouldHaveSize 1
-                    this.single().verdi.verdi shouldBe true
-                    this.single().opprinnelse shouldBe Periodestatus.Ny
-                    this.single().gyldigFraOgMed shouldBe 23.august(2018)
+                opplysning(Gjenopptak.skalGjenopptas) {
+                    fra(23.august(2018)) verdi true opprinnelse Periodestatus.Ny
                 }
 
                 with(opplysninger(Minsteinntekt.minsteinntekt)) { this shouldHaveSize 1 }
-                with(opplysninger(grunnlag)) {
-                    this shouldHaveSize 1
-                    this[0].opprinnelse shouldBe Periodestatus.Arvet
-                    this[0].verdi.verdi shouldBe 517349
+                opplysning(grunnlag) {
+                    fra(21.juni(2018)) verdi Beløp(517349) opprinnelse Periodestatus.Arvet
                 }
 
                 // Regresjonstest: dagpengeperioden (stønadsuker/-dager) skal arves fra
                 // førstegangsbehandlingen og ikke utledes på nytt ved gjenopptak.
-                with(opplysninger(ordinærPeriode)) {
-                    this shouldHaveSize 1
-                    this[0].opprinnelse shouldBe Periodestatus.Arvet
+                opplysning(ordinærPeriode) {
+                    fra(21.juni(2018)) verdi 104 opprinnelse Periodestatus.Arvet
                 }
-                with(opplysninger(antallStønadsdager)) {
-                    this shouldHaveSize 1
-                    this[0].opprinnelse shouldBe Periodestatus.Arvet
+                opplysning(antallStønadsdager) {
+                    fra(21.juni(2018)) verdi 520 opprinnelse Periodestatus.Arvet
                 }
 
-                with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
-                    this[0].verdi.verdi shouldBe true
-                    this[1].verdi.verdi shouldBe false
-                    this[2].verdi.verdi shouldBe true
+                opplysning(Opphold.oppfyllerKravetTilOpphold) {
+                    fra(21.juni(2018)) til 21.juli(2018) verdi true
+                    fra(22.juli(2018)) til 22.august(2018) verdi false
+                    fra(23.august(2018)) verdi true
                 }
 
-                rettighetsperioder shouldHaveSize 3
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 21.juli(2018) harRett true
+                    fra(22.juli(2018)) til 22.august(2018) harRett false
+                    fra(23.august(2018)) harRett true
+                }
 
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].fraOgMed shouldBe 22.juli(2018)
-
-                rettighetsperioder[2].harRett shouldBe true
-                rettighetsperioder[2].fraOgMed shouldBe 23.august(2018)
-
-                with(opplysninger(oppholdINorge)) {
-                    this shouldHaveSize 3
-                    this[0].opprinnelse shouldBe Periodestatus.Arvet
-                    this[1].opprinnelse shouldBe Periodestatus.Arvet
-                    this[2].opprinnelse shouldBe Periodestatus.Ny
+                opplysning(oppholdINorge) {
+                    fra(21.juni(2018)) til 21.juli(2018) verdi true opprinnelse Periodestatus.Arvet
+                    fra(22.juli(2018)) til 22.august(2018) verdi false opprinnelse Periodestatus.Arvet
+                    fra(23.august(2018)) verdi true opprinnelse Periodestatus.Ny
                 }
             }
         }
@@ -186,9 +171,9 @@ class GjenopptakTest {
             saksbehandler.beslutt()
 
             behandlingsresultat {
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
-                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
             }
 
             person.sendInnMeldekort(1)
@@ -211,17 +196,15 @@ class GjenopptakTest {
 
             behandlingsresultat {
                 // Selve vilkårsopplysningen splittes riktig i to kant-i-kant-perioder med lik verdi
-                with(opplysninger(oppholdINorge)) {
-                    this shouldHaveSize 2
-                    this[0].gyldigTilOgMed shouldBe 18.juli(2018)
-                    this[1].gyldigFraOgMed shouldBe 19.juli(2018)
+                opplysning(oppholdINorge) {
+                    fra(21.juni(2018)) til 18.juli(2018) verdi true
+                    fra(19.juli(2018)) verdi true
                 }
 
                 // ...men rettighetsperioden er uendret: fortsatt én periode, fortsatt Arvet
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
-                rettighetsperioder[0].tilOgMed shouldBe null
-                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
                 rettighetsperioder[0].opprinnelse shouldBe OpprinnelseDTO.ARVET
             }
         }
@@ -268,23 +251,16 @@ class GjenopptakTest {
 
             behandlingsresultatForslag {
                 with(opplysninger(Minsteinntekt.minsteinntekt)) { this shouldHaveSize 1 }
-                with(opplysninger(grunnlag)) {
-                    this shouldHaveSize 2
-                    this[0].opprinnelse shouldBe Periodestatus.Arvet
-                    this[0].verdi.verdi shouldBe 517349
-
+                opplysning(grunnlag) {
+                    fra(21.juni(2018)) til 22.august(2018) verdi Beløp(517349) opprinnelse Periodestatus.Arvet
                     // Den nye inntekten er ikke nok å bli valgt
-                    this[1].opprinnelse shouldBe Periodestatus.Ny
-                    this[1].verdi.verdi shouldBe this[0].verdi.verdi
+                    fra(gjenopptaksdato) verdi Beløp(517349) opprinnelse Periodestatus.Ny
                 }
 
-                with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
-                    this shouldHaveSize 2
-                    this[0].opprinnelse shouldBe Periodestatus.Arvet
-                    this[1].opprinnelse shouldBe Periodestatus.Ny
-
+                opplysning(dagsatsEtterSamordningMedBarnetillegg) {
+                    fra(21.juni(2018)) til 22.august(2018) verdi Beløp(1242) opprinnelse Periodestatus.Arvet
                     // Sats endres heller ikke
-                    this[1].verdi.verdi shouldBe this[0].verdi.verdi
+                    fra(gjenopptaksdato) verdi Beløp(1242) opprinnelse Periodestatus.Ny
                 }
             }
 
@@ -300,19 +276,14 @@ class GjenopptakTest {
                 førteTil shouldBe "Gjenopptak"
 
                 with(opplysninger(Minsteinntekt.minsteinntekt)) { this shouldHaveSize 1 }
-                with(opplysninger(dagpengegrunnlag)) {
-                    this shouldHaveSize 2
-                    this[0].opprinnelse shouldBe Periodestatus.Arvet
-                    this[1].opprinnelse shouldBe Periodestatus.Ny
+                opplysning(dagpengegrunnlag) {
+                    fra(21.juni(2018)) til 22.august(2018) verdi Beløp(517349) opprinnelse Periodestatus.Arvet
+                    fra(gjenopptaksdato) verdi Beløp(581298) opprinnelse Periodestatus.Ny
                 }
 
-                with(opplysninger(grunnlag)) {
-                    this shouldHaveSize 2
-                    this[0].opprinnelse shouldBe Periodestatus.Arvet
-                    this[0].verdi.verdi shouldBe 517349
-
-                    this[1].opprinnelse shouldBe Periodestatus.Ny
-                    this[1].verdi.verdi shouldBe 581298
+                opplysning(grunnlag) {
+                    fra(21.juni(2018)) til 22.august(2018) verdi Beløp(517349) opprinnelse Periodestatus.Arvet
+                    fra(gjenopptaksdato) verdi Beløp(581298) opprinnelse Periodestatus.Ny
                 }
 
                 with(opplysninger(dagsatsEtterSamordningMedBarnetillegg)) {
@@ -342,9 +313,9 @@ class GjenopptakTest {
             val innvilgelseBehandlingId = person.behandlingId
             behandlingsresultat {
                 førteTil shouldBe "Innvilgelse"
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
 
                 opplysninger(oppholdINorge) shouldHaveSize 1
             }
@@ -359,21 +330,18 @@ class GjenopptakTest {
 
             behandlingsresultat {
                 førteTil shouldBe "Stans"
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
-
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].fraOgMed shouldBe 22.juli(2018)
-
-                with(opplysninger(oppholdINorge)) {
-                    this shouldHaveSize 2
-                    this[0].opprinnelse shouldBe Periodestatus.Arvet
-                    this[1].opprinnelse shouldBe Periodestatus.Ny
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 21.juli(2018) harRett true
+                    fra(22.juli(2018)) harRett false
                 }
-                with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
-                    this[0].verdi.verdi shouldBe true
-                    this[1].verdi.verdi shouldBe false
+
+                opplysning(oppholdINorge) {
+                    fra(21.juni(2018)) til 21.juli(2018) verdi true opprinnelse Periodestatus.Arvet
+                    fra(22.juli(2018)) verdi false opprinnelse Periodestatus.Ny
+                }
+                opplysning(Opphold.oppfyllerKravetTilOpphold) {
+                    fra(21.juni(2018)) til 21.juli(2018) verdi true
+                    fra(22.juli(2018)) verdi false
                 }
             }
 
@@ -396,27 +364,22 @@ class GjenopptakTest {
                 behandlingskjedeId shouldBe innvilgelseBehandlingId
                 førteTil shouldBe "Avslag"
 
-                with(opplysninger(Opphold.oppfyllerKravetTilOpphold)) {
-                    this[0].verdi.verdi shouldBe true
-                    this[1].verdi.verdi shouldBe false
-                    this[2].verdi.verdi shouldBe false
+                opplysning(Opphold.oppfyllerKravetTilOpphold) {
+                    fra(21.juni(2018)) til 21.juli(2018) verdi true
+                    fra(22.juli(2018)) til 22.august(2018) verdi false
+                    fra(23.august(2018)) verdi false
                 }
 
-                rettighetsperioder shouldHaveSize 3
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 21.juli(2018) harRett true
+                    fra(22.juli(2018)) til 22.august(2018) harRett false
+                    fra(23.august(2018)) harRett false
+                }
 
-                rettighetsperioder[1].harRett shouldBe false
-                rettighetsperioder[1].fraOgMed shouldBe 22.juli(2018)
-
-                rettighetsperioder[2].harRett shouldBe false
-                rettighetsperioder[2].fraOgMed shouldBe 23.august(2018)
-
-                with(opplysninger(oppholdINorge)) {
-                    this shouldHaveSize 3
-                    this[0].opprinnelse shouldBe Periodestatus.Arvet
-                    this[1].opprinnelse shouldBe Periodestatus.Arvet
-                    this[2].opprinnelse shouldBe Periodestatus.Ny
+                opplysning(oppholdINorge) {
+                    fra(21.juni(2018)) til 21.juli(2018) verdi true opprinnelse Periodestatus.Arvet
+                    fra(22.juli(2018)) til 22.august(2018) verdi false opprinnelse Periodestatus.Arvet
+                    fra(23.august(2018)) verdi false opprinnelse Periodestatus.Ny
                 }
             }
         }
@@ -439,10 +402,9 @@ class GjenopptakTest {
 
             behandlingsresultat {
                 førteTil shouldBe "Innvilgelse"
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 21.juni(2018)
-                rettighetsperioder[0].tilOgMed shouldBe 25.juni(2018)
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 25.juni(2018) harRett true
+                }
 
                 opplysninger(oppholdINorge) shouldHaveSize 1
             }
@@ -459,15 +421,13 @@ class GjenopptakTest {
                 with(opplysninger(Søknadstidspunkt.prøvingsdato)) {
                     this shouldHaveSize 2
                 }
-                with(opplysninger(oppholdINorge)) {
-                    this shouldHaveSize 2
-                    this[0].gyldigFraOgMed shouldBe 21.juni(2018)
-                    this[1].gyldigFraOgMed shouldBe 23.august(2018)
+                opplysning(oppholdINorge) {
+                    fra(21.juni(2018)) til 22.august(2018) verdi true
+                    fra(23.august(2018)) verdi true
                 }
-                with(opplysninger(Rettighetstype.skalGjenopptakVurderes)) {
-                    this shouldHaveSize 2
-                    this[0].verdi.verdi shouldBe false
-                    this[1].verdi.verdi shouldBe true
+                opplysning(Rettighetstype.skalGjenopptakVurderes) {
+                    fra(21.juni(2018)) til 22.august(2018) verdi false
+                    fra(23.august(2018)) verdi true
                 }
             }
         }
@@ -495,10 +455,9 @@ class GjenopptakTest {
 
             behandlingsresultat {
                 førteTil shouldBe "Innvilgelse"
-                rettighetsperioder shouldHaveSize 1
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 18.mai(2026)
-                rettighetsperioder[0].tilOgMed shouldBe 31.mai(2026)
+                rettighetsperioder {
+                    fra(18.mai(2026)) til 31.mai(2026) harRett true
+                }
             }
 
             // Må ha startet forbruk for å kunne gjenoppta
@@ -525,14 +484,10 @@ class GjenopptakTest {
                 // TODO: Blir endring, burde være gjenopptak
                 førteTil shouldBe "Gjenopptak"
 
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder[0].harRett shouldBe true
-                rettighetsperioder[0].fraOgMed shouldBe 18.mai(2026)
-                rettighetsperioder[0].tilOgMed shouldBe 31.mai(2026)
-
-                rettighetsperioder[1].harRett shouldBe true
-                rettighetsperioder[1].fraOgMed shouldBe gjenopptaksdato
-                rettighetsperioder[1].tilOgMed.shouldBeNull()
+                rettighetsperioder {
+                    fra(18.mai(2026)) til 31.mai(2026) harRett true
+                    fra(gjenopptaksdato) harRett true
+                }
             }
         }
     }

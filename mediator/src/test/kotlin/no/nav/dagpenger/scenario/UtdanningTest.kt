@@ -1,6 +1,5 @@
 package no.nav.dagpenger.scenario
 
-import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.mars
 import no.nav.dagpenger.mediator.september
@@ -24,8 +23,9 @@ class UtdanningTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                rettighetsperioder.single().harRett shouldBe true
-                rettighetsperioder.single().fraOgMed shouldBe 10.august(2026)
+                rettighetsperioder {
+                    fra(10.august(2026)) harRett true
+                }
             }
 
             person.sendInnMeldekort(1)
@@ -69,7 +69,9 @@ class UtdanningTest {
             meldekortFerdig(meldekortId)
 
             behandlingsresultat(3) {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(10.august(2026)) harRett true
+                }
             }
 
             // Meldekort uke 38-39
@@ -102,7 +104,9 @@ class UtdanningTest {
             meldekortBatch(markerFerdig = true)
 
             behandlingsresultat(5) {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(10.august(2026)) harRett true
+                }
             }
 
             // Meldekort uke 40-41 med utdanning
@@ -141,7 +145,9 @@ class UtdanningTest {
             )
 
             behandlingsresultatForslag(12) {
-                rettighetsperioder.single().harRett shouldBe true
+                rettighetsperioder {
+                    fra(10.august(2026)) harRett true
+                }
             }
         }
     }

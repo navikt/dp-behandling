@@ -1,6 +1,5 @@
 package no.nav.dagpenger.scenario
 
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
@@ -37,8 +36,8 @@ class PermitteringTest {
             behandlingsresultat(1) {
                 utfall shouldBe true
 
-                with(opplysninger(PermitteringFastsetting.permitteringsperiode)) {
-                    this.single().verdi.verdi shouldBe 26
+                opplysning(PermitteringFastsetting.permitteringsperiode) {
+                    fra(21.juni(2018)) verdi 26
                 }
             }
 
@@ -48,8 +47,8 @@ class PermitteringTest {
             behandlingsresultat(2) {
                 utfall shouldBe true
 
-                with(opplysninger(PermitteringFastsetting.permitteringsperiode)) {
-                    this.single().verdi.verdi shouldBe 26
+                opplysning(PermitteringFastsetting.permitteringsperiode) {
+                    fra(21.juni(2018)) verdi 26
                 }
                 with(opplysninger(PermitteringFastsetting.forbruktPermittering)) {
                     this.last().verdi.verdi shouldBe 7
@@ -89,8 +88,8 @@ class PermitteringTest {
             behandlingsresultat(1) {
                 utfall shouldBe true
 
-                with(opplysninger(PermitteringFastsetting.permitteringsperiode)) {
-                    this.single().verdi.verdi shouldBe 26
+                opplysning(PermitteringFastsetting.permitteringsperiode) {
+                    fra(21.juni(2018)) verdi 26
                 }
             }
 
@@ -198,8 +197,8 @@ class PermitteringTest {
             behandlingsresultat(1) {
                 utfall shouldBe true
 
-                with(opplysninger(PermitteringFastsetting.permitteringsperiode)) {
-                    this.single().verdi.verdi shouldBe 26
+                opplysning(PermitteringFastsetting.permitteringsperiode) {
+                    fra(21.juni(2018)) verdi 26
                 }
             }
 
@@ -312,8 +311,8 @@ class PermitteringTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                with(opplysninger(PermitteringFastsetting.permitteringsperiode)) {
-                    this.single().verdi.verdi shouldBe 26
+                opplysning(PermitteringFastsetting.permitteringsperiode) {
+                    fra(21.juni(2018)) verdi 26
                 }
             }
 
@@ -402,8 +401,8 @@ class PermitteringTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(1) {
-                with(opplysninger(PermitteringFastsetting.permitteringsperiode)) {
-                    this.single().verdi.verdi shouldBe 26
+                opplysning(PermitteringFastsetting.permitteringsperiode) {
+                    fra(21.juni(2018)) verdi 26
                 }
             }
 
@@ -525,20 +524,22 @@ class PermitteringTest {
                 førteTil shouldBe Stans.toString()
                 opplysninger(gjenståendePermittering).last().verdi.verdi shouldBe 0
 
-                opplysninger(oppfyllerKravetTilPermittering) {
-                    shouldHaveSize(2)
-                    first().verdi.verdi shouldBe true
-                    last().verdi.verdi shouldBe false
+                opplysning(oppfyllerKravetTilPermittering) {
+                    fra(19.juni(2018)) til 9.juli(2018) verdi true
+                    fra(10.juli(2018)) verdi false
                 }
 
-                opplysninger(innenforFritaksperioden) {
-                    shouldHaveSize(2)
-                    last().verdi.verdi shouldBe false
+                opplysning(innenforFritaksperioden) {
+                    fra(19.juni(2018)) til 9.juli(2018) verdi true
+                    fra(10.juli(2018)) verdi false
                 }
 
                 opplysninger(kravTilTapAvArbeidsinntekt).last().verdi.verdi shouldBe false
 
-                rettighetsperioder.first { !it.harRett }.fraOgMed shouldBe 10.juli(2018)
+                rettighetsperioder {
+                    fra(19.juni(2018)) til 9.juli(2018) harRett true
+                    fra(10.juli(2018)) harRett false
+                }
 
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 14904
             }
