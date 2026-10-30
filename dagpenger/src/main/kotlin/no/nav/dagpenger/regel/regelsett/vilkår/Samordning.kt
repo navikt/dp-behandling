@@ -1,8 +1,10 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
+
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningssjekk
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
+import no.nav.dagpenger.opplysning.OverlappStrategi
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.addisjon
@@ -60,16 +62,41 @@ private val visesHvisSamordning: Opplysningssjekk = { it.erSann(skalSamordnes) }
  * § 4-25.Samordning med reduserte ytelser fra folketrygden, eller redusert avtalefestet pensjon
  */
 object Samordning {
-    val sykepenger = Opplysningstype.boolsk(sykepengerId, "Sykepenger etter lovens kapittel 8", behovId = Sykepenger)
-    val pleiepenger = Opplysningstype.boolsk(pleiepengerId, "Pleiepenger etter lovens kapittel 9", behovId = Pleiepenger)
-    val omsorgspenger = Opplysningstype.boolsk(omsorgspengerId, "Omsorgspenger etter lovens kapittel 9", behovId = Omsorgspenger)
+    val sykepenger =
+        Opplysningstype.boolsk(
+            sykepengerId,
+            "Sykepenger etter lovens kapittel 8",
+            behovId = Sykepenger,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
+    val pleiepenger =
+        Opplysningstype.boolsk(
+            pleiepengerId,
+            "Pleiepenger etter lovens kapittel 9",
+            behovId = Pleiepenger,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
+    val omsorgspenger =
+        Opplysningstype.boolsk(
+            omsorgspengerId,
+            "Omsorgspenger etter lovens kapittel 9",
+            behovId = Omsorgspenger,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
     val opplæringspenger =
         Opplysningstype.boolsk(
             opplæringspengerId,
             "Opplæringspenger etter lovens kapittel 9",
             behovId = Opplæringspenger,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
-    val uføre = Opplysningstype.boolsk(uføreId, "Uføretrygd etter lovens kapittel 12", behovId = Uføre)
+    val uføre =
+        Opplysningstype.boolsk(
+            uføreId,
+            "Uføretrygd etter lovens kapittel 12",
+            behovId = Uføre,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
     val skalUføreSamordnes =
         Opplysningstype.boolsk(
             skalUføreSamordnesId,
@@ -77,6 +104,7 @@ object Samordning {
             synlig = {
                 it.erSann(uføre)
             },
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val uføreBeløpSomSkalSamordnes =
         Opplysningstype.beløp(
@@ -85,6 +113,7 @@ object Samordning {
             synlig = {
                 it.erSann(skalUføreSamordnes)
             },
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val sumHvisUføreIkkeSkalSamordnes =
         Opplysningstype.beløp(
@@ -93,13 +122,21 @@ object Samordning {
             synlig = {
                 it.erSann(skalUføreSamordnes)
             },
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
-    val foreldrepenger = Opplysningstype.boolsk(foreldrepengerId, "Foreldrepenger etter lovens kapittel 14", behovId = Foreldrepenger)
+    val foreldrepenger =
+        Opplysningstype.boolsk(
+            foreldrepengerId,
+            "Foreldrepenger etter lovens kapittel 14",
+            behovId = Foreldrepenger,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
     val svangerskapspenger =
         Opplysningstype.boolsk(
             svangerskapspengerId,
             "Svangerskapspenger etter lovens kapittel 14",
             behovId = Svangerskapspenger,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
     val sykepengerDagsats = Opplysningstype.beløp(sykepengerDagsatsId, "Sykepenger dagsats", synlig = { it.erSann(sykepenger) })
@@ -114,33 +151,53 @@ object Samordning {
             uføreDagsatsId,
             "Uføre dagsats",
             synlig = { it.erSann(uføre) && it.erSann(skalUføreSamordnes) },
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val foreldrepengerDagsats =
         Opplysningstype.beløp(
             foreldrepengerDagsatsId,
             "Foreldrepenger dagsats",
             synlig = { it.erSann(foreldrepenger) },
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val svangerskapspengerDagsats =
-        Opplysningstype.beløp(svangerskapspengerDagsatsId, "Svangerskapspenger dagsats", synlig = {
-            it.erSann(svangerskapspenger)
-        })
+        Opplysningstype.beløp(
+            svangerskapspengerDagsatsId,
+            "Svangerskapspenger dagsats",
+            synlig = {
+                it.erSann(svangerskapspenger)
+            },
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
 
-    private val sumAndreYtelser = Opplysningstype.beløp(sumAndreYtelserId, "Sum andre ytelser", synlig = visesHvisSamordning)
+    private val sumAndreYtelser =
+        Opplysningstype.beløp(
+            sumAndreYtelserId,
+            "Sum andre ytelser",
+            synlig = visesHvisSamordning,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
     internal val skalSamordnes =
-        Opplysningstype.boolsk(skalSamordnesId, "Medlem har reduserte ytelser fra folketrygden (Samordning)", synlig = aldriSynlig)
+        Opplysningstype.boolsk(
+            skalSamordnesId,
+            "Medlem har reduserte ytelser fra folketrygden (Samordning)",
+            synlig = aldriSynlig,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
 
     internal val samordnetDagsats =
         Opplysningstype.beløp(
             samordnetDagsatsUtenBarnetilleggId,
             "Samordnet dagsats uten barnetillegg",
             synlig = visesHvisSamordning,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     private val kanUtbetale =
         Opplysningstype.boolsk(
             samordnetDagsatsErNegativEller0Id,
             "Samordnet dagsats er større enn 0",
             synlig = visesHvisSamordning,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val samordnetArbeidstid =
         Opplysningstype.desimaltall(
@@ -148,6 +205,7 @@ object Samordning {
             "Antall timer arbeidstiden skal samordnes mot",
             synlig = visesHvisSamordning,
             enhet = Enhet.Timer,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val samordnetBeregnetArbeidstid =
         Opplysningstype.desimaltall(
@@ -155,12 +213,14 @@ object Samordning {
             "Samordnet fastsatt arbeidstid",
             synlig = visesHvisSamordning,
             enhet = Enhet.Timer,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val utfallEtterSamordning =
         Opplysningstype.boolsk(
             utfallEtterSamordningId,
             "Utfall etter samordning",
             synlig = visesHvisSamordning,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
     // Fulle dagpenger minus en/flere av reduserte ytelsene man mottar per samme dag (regnestykket)
