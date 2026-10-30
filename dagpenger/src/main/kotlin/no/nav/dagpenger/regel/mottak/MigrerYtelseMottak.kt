@@ -27,16 +27,6 @@ import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.regel.hendelse.MigrerYtelseHendelse
 import no.nav.dagpenger.regel.hendelse.MigrertYtelse
 import no.nav.dagpenger.regel.hendelse.Tilleggsopplysning
-import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
-import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
-import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
-import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel
-import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden
-import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid
-import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
-import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
-import no.nav.dagpenger.regel.regelsett.vilkår.Samordning
-import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import tools.jackson.databind.JsonNode
@@ -59,11 +49,28 @@ internal data class MigreringAvbruttDto(
     val arsak: Migreringsavbrudd,
 )
 
+internal data class MigreringAvbruttMedOpplysningerDto(
+    val sakId: Int,
+    val arsak: Migreringsavbrudd,
+    val mottatteOpplysninger: List<String>,
+    val manglendeOpplysninger: List<String>,
+)
+
 internal fun MessageContext.avbrytMigrering(
     sakId: Int,
     arsak: Migreringsavbrudd,
 ) {
     val dto = MigreringAvbruttDto(sakId, arsak)
+    publish(toJsonMessage("migrering_feilet", dto).toJson())
+}
+
+internal fun MessageContext.avbrytMigrering(
+    sakId: Int,
+    arsak: Migreringsavbrudd,
+    mottatteOpplysninger: List<String>,
+    manglendeOpplysninger: List<String>,
+) {
+    val dto = MigreringAvbruttMedOpplysningerDto(sakId, arsak, mottatteOpplysninger, manglendeOpplysninger)
     publish(toJsonMessage("migrering_feilet", dto).toJson())
 }
 
@@ -82,25 +89,6 @@ class MigrerYtelseMottak(
     private val hendelseMottaker: HendelseMottaker,
     private val opplysningstyper: Set<Opplysningstype<*>>,
 ) : River.PacketListener {
-    private val påkrevdeOpplysningstyper =
-        setOf(
-            Alderskrav.fødselsdato,
-            Dagpengegrunnlag.grunnlag,
-            Opphold.oppfyllerKravet,
-            Dagpengeperiode.ordinærPeriode,
-            DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg,
-            DagpengenesStørrelse.antallBarn,
-            Vanligarbeidstid.fastsattVanligArbeidstid,
-            Egenandel.egenandel,
-            TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon,
-            Samordning.samordnetDagsats,
-            Samordning.skalSamordnes,
-            DagpengenesStørrelse.harSamordnet,
-            Samordning.utfallEtterSamordning,
-            SamordingUtenforFolketrygden.dagsatsSamordnetUtenforFolketrygden,
-            SamordingUtenforFolketrygden.andreYtelser,
-        )
-
     init {
         River(rapidsConnection)
             .apply {
@@ -138,33 +126,35 @@ class MigrerYtelseMottak(
             return
         }
 
-        val manglendeOpplysninger = validerOpplysninger(packet)
+        val message = MigrerYtelseMessage(packet, opplysningstyper)
+        val faktagrunnlag = message.hendelse.lagFaktagrunnlag()
+        val rapport =
+            message.hendelse.forretningsprosess
+                .regelkjøring(faktagrunnlag)
+                .evaluer()
 
-        if (manglendeOpplysninger.isNotEmpty()) {
-            logger.info { "Migrering av sakId $sakId mangler opplysninger ${manglendeOpplysninger.map { it.behovId }}" }
+        if (!rapport.erFerdig()) {
+            val manglendeOpplysninger =
+                rapport.mangler
+                    .map { it.id.uuid.toString() }
+                    .distinct()
+                    .sorted()
+            logger.info { "Migrering av sakId $sakId mangler opplysninger $manglendeOpplysninger" }
             context.avbrytMigrering(
                 sakId,
                 Migreringsavbrudd(
                     kode = "MANGLENDE_OPPLYSNINGER",
                     melding = "Mangler påkrevde opplysninger",
-                    detaljer = manglendeOpplysninger.map { it.behovId },
+                    detaljer = manglendeOpplysninger,
                 ),
+                mottatteOpplysninger = message.mottatteOpplysninger,
+                manglendeOpplysninger = manglendeOpplysninger,
             )
             return
         }
 
-        val message = MigrerYtelseMessage(packet, opplysningstyper)
         hendelseMottaker.behandle(message.hendelse, message, context)
         logger.info { "Migrering av sakId $sakId sendt start behandling hendelse" }
-    }
-
-    fun validerOpplysninger(packet: JsonMessage): List<Opplysningstype<*>> {
-        val mottatteTyper =
-            packet["opplysninger"]
-                .tilleggsopplysninger(opplysningstyper)
-                .map { it.opplysningstype }
-                .toSet()
-        return påkrevdeOpplysningstyper.filterNot { it in mottatteTyper }
     }
 
     override fun onError(
@@ -186,6 +176,15 @@ class MigrerYtelseMessage(
 ) : KafkaMelding(packet) {
     override val ident: String = packet["ident"].asString()
 
+    private val tilleggsopplysninger = packet["opplysninger"].tilleggsopplysninger(opplysningstyper)
+    internal val mottatteOpplysninger =
+        tilleggsopplysninger
+            .map {
+                it.opplysningstype.id.uuid
+                    .toString()
+            }.distinct()
+            .sorted()
+
     internal val hendelse =
         MigrerYtelseHendelse(
             meldingsreferanseId = packet.id.toUUID(),
@@ -198,7 +197,7 @@ class MigrerYtelseMessage(
                     innvilgetTilOgMed = packet["innvilgetTilOgMed"].asOptionalLocalDate(),
                     sakId = packet["sakId"].asInt(),
                 ),
-            tilleggsopplysninger = packet["opplysninger"].tilleggsopplysninger(opplysningstyper),
+            tilleggsopplysninger = tilleggsopplysninger,
             opprettetAv = packet["initiertAv"].asStringOpt().getOrNull()?.let { Saksbehandler(it) } ?: Systemaktør.dpSak,
         )
 }

@@ -56,13 +56,16 @@ abstract class StartHendelse(
     open val opplysninger: Opplysninger = Opplysninger()
 
     /** Faktumet for hvilken hendelsestype som opprettet behandlingen. */
-    private val hendelseTypeFaktum: Faktum<String> by lazy {
+    private fun hendelseTypeFaktum() =
         Faktum(
             hendelseTypeOpplysningstype,
             type,
             gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
             kilde = Systemkilde(meldingsreferanseId, opprettet),
         )
+
+    protected fun leggTilHendelseTypeFaktum(opplysninger: Opplysninger) {
+        opplysninger.leggTil(hendelseTypeFaktum())
     }
 
     /**
@@ -91,6 +94,6 @@ abstract class StartHendelse(
             basertPå = basertPå,
             avklaringer = avklaringer,
         ).apply {
-            opplysninger.leggTil(hendelseTypeFaktum)
+            leggTilHendelseTypeFaktum(opplysninger)
         }
 }

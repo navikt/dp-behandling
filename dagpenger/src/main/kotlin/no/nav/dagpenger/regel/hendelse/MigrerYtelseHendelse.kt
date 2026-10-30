@@ -13,14 +13,13 @@ import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Kilde
+import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
-import no.nav.dagpenger.opplysning.verdier.BarnListe
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.prosess.Migreringsprosess
-import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
-import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -63,15 +62,39 @@ class MigrerYtelseHendelse(
     private val kilde = Systemkilde(meldingsreferanseId, opprettet)
 
     init {
-        val typer = eksplisitteTyper + tilleggsopplysninger.map { it.opplysningstype }
-        val duplikater =
-            typer
-                .groupingBy { it }
-                .eachCount()
-                .filterValues { it > 1 }
-                .keys
-        require(duplikater.isEmpty()) { "Opplysninger kan bare oppgis én gang: ${duplikater.map { it.behovId }}" }
+        val eksplisitteDuplikater =
+            tilleggsopplysninger
+                .map { it.opplysningstype }
+                .filter { it in eksplisitteTyper }
+                .toSet()
+        require(eksplisitteDuplikater.isEmpty()) {
+            "Opplysninger kan bare oppgis én gang: ${eksplisitteDuplikater.map { it.id.uuid }}"
+        }
+        val overlappendePerioder =
+            tilleggsopplysninger
+                .groupBy { it.opplysningstype }
+                .filterValues { opplysninger ->
+                    val perioder = opplysninger.map { it.gyldighetsperiode ?: ytelse.innvilgetPeriode }
+                    perioder.size > 1 &&
+                        perioder
+                            .sortedBy { it.fraOgMed }
+                            .zipWithNext()
+                            .any { (a, b) -> a.overlapper(b) }
+                }.keys
+        require(overlappendePerioder.isEmpty()) {
+            "Opplysninger kan ikke ha overlappende gyldighetsperioder: ${overlappendePerioder.map { it.id.uuid }}"
+        }
+        val vurderinger = tilleggsopplysninger.map { it.opplysningstype }.toSet().intersect(vilkårsvurderinger)
+        require(vurderinger.isEmpty()) {
+            "Vilkårsvurderinger kan ikke oppgis ved migrering: ${vurderinger.map { it.id.uuid }}"
+        }
     }
+
+    internal fun lagFaktagrunnlag(): Opplysninger =
+        Opplysninger().also {
+            leggTilHendelseTypeFaktum(it)
+            leggTilFakta(it)
+        }
 
     override fun behandling(
         forrigeBehandling: Behandling?,
@@ -96,38 +119,29 @@ class MigrerYtelseHendelse(
                         ),
                     ),
             ).apply {
-                faktaFraKontrakt().forEach { opplysninger.leggTil(it) }
-                tilleggsopplysninger.forEach { opplysninger.leggTil(it.faktum(ytelse.innvilgetPeriode, kilde)) }
+                leggTilFakta(opplysninger)
             },
         )
     }
 
-    private fun faktaFraKontrakt() =
-        buildList {
-            forretningsprosess.regelverk.vilkårsopplysninger.forEach {
-                add(Tilleggsopplysning(it, true))
-                println("Legger til vilkår ${it.behovId} som oppfylt")
-            }
-
-            addAll(
-                listOf(
-                    // verdier fra kontrakten
-                    Tilleggsopplysning(Søknadstidspunkt.prøvingsdato, ytelse.innvilgetFraOgMed),
-                    Tilleggsopplysning(SøknadInnsendtHendelse.fagsakIdOpplysningstype, ytelse.sakId),
-                    // Defaultverdier vi setter selv
-                    Tilleggsopplysning(Eksport.oppfyllerVilkårForEksport, false),
-                    // finne ut hvordan vi skal lage barnelisten
-                    Tilleggsopplysning(DagpengenesStørrelse.barnSomGirTillegg, BarnListe(null, emptyList())),
-                ),
+    private fun leggTilFakta(opplysninger: Opplysninger) {
+        val standardfakta =
+            listOf(
+                Tilleggsopplysning(Søknadstidspunkt.prøvingsdato, ytelse.innvilgetFraOgMed),
+                Tilleggsopplysning(SøknadInnsendtHendelse.fagsakIdOpplysningstype, ytelse.sakId),
             )
-        }.map { it.faktum(ytelse.innvilgetPeriode, kilde) }
+        (standardfakta + tilleggsopplysninger)
+            .map { it.faktum(ytelse.innvilgetPeriode, kilde) }
+            .forEach { opplysninger.leggTil(it) }
+    }
 
     private companion object {
+        private val vilkårsvurderinger = RegelverkDagpenger.vilkårsopplysninger.toSet()
+
         val eksplisitteTyper =
             listOf(
                 Søknadstidspunkt.prøvingsdato,
                 SøknadInnsendtHendelse.fagsakIdOpplysningstype,
-                Eksport.oppfyllerVilkårForEksport,
             )
     }
 }

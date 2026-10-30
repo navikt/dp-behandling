@@ -3,7 +3,6 @@ package no.nav.dagpenger.regel.prosess
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
-import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import java.time.LocalDate
@@ -22,8 +21,6 @@ class Migreringsprosess : Forretningsprosess(RegelverkDagpenger) {
             forretningsprosess = this,
         )
     }
-
-    override fun ønsketResultat(opplysninger: LesbarOpplysninger): Set<Opplysningstype<*>> = emptySet()
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = false
     // opplysninger.kunEgne.somListe().any { it.kilde is Saksbehandlerkilde }
