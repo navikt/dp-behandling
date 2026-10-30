@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
+import no.nav.dagpenger.opplysning.OverlappStrategi
 import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
@@ -23,10 +24,20 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.dagerIUka
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Sanksjonsperiode {
-    val harSanksjon = Opplysningstype.boolsk(OpplysningsTyper.harSanksjonId, "Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet")
+    val harSanksjon =
+        Opplysningstype.boolsk(
+            OpplysningsTyper.harSanksjonId,
+            "Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet",
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
 
     val antallSanksjonsuker =
-        Opplysningstype.heltall(OpplysningsTyper.antallSanksjonsukerId, "Antall uker med sanksjon", enhet = Enhet.Uker)
+        Opplysningstype.heltall(
+            OpplysningsTyper.antallSanksjonsukerId,
+            "Antall uker med sanksjon",
+            enhet = Enhet.Uker,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
 
     private val oppgirSelvforskyldtArbeidsløshet =
         Opplysningstype.boolsk(

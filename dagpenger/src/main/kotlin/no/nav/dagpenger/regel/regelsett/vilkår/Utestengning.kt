@@ -3,6 +3,7 @@ package no.nav.dagpenger.regel.regelsett.vilkår
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
+import no.nav.dagpenger.opplysning.OverlappStrategi
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.ikke
@@ -20,6 +21,7 @@ object Utestengning {
             brukerErUtestengtFraDagpengerId,
             "Bruker er utestengt fra dagpenger",
             behovId = Behov.ErUtestengt,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val oppfyllerKravetTilIkkeUtestengt =
         Opplysningstype.boolsk(
