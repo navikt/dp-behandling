@@ -35,6 +35,36 @@ internal class BehandlingsresultatAssertions(
         block(opplysningsperioder)
         return opplysningsperioder
     }
+
+    fun <T : Any> opplysning(
+        opplysningstype: Opplysningstype<T>,
+        block: PeriodeForventning<T>.() -> Unit,
+    ) {
+        val forventning = PeriodeForventning<T>().apply(block)
+        val faktisk =
+            opplysninger(opplysningstype).map {
+                PeriodeSegment(
+                    it.gyldigFraOgMed,
+                    it.gyldigTilOgMed,
+                    objectMapper.valueToTree(it.verdi.verdi),
+                    it.opprinnelse,
+                )
+            }
+        assertPerioder(opplysningstype.navn, forventning.perioder(), faktisk)
+    }
+
+    fun rettighetsperioder(block: RettighetsperiodeForventning.() -> Unit) {
+        val forventning = RettighetsperiodeForventning().apply(block)
+        val faktisk =
+            rettighetsperioder.map {
+                PeriodeSegment(
+                    it.fraOgMed,
+                    it.tilOgMed,
+                    objectMapper.valueToTree(it.harRett),
+                )
+            }
+        assertPerioder("rettighetsperioder", forventning.perioder(), faktisk)
+    }
 }
 
 internal data class Opplysningsperiode(
