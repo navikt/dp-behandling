@@ -3,6 +3,7 @@ import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
+import no.nav.dagpenger.opplysning.OverlappStrategi
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.alle
@@ -24,11 +25,23 @@ import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 
 object Opphold {
-    val bostedsland = boolsk(BostedslandId, "Bostedsland er Norge", behovId = BostedslandErNorge, formål = Bruker)
+    val bostedsland =
+        boolsk(
+            BostedslandId,
+            "Bostedsland er Norge",
+            behovId = BostedslandErNorge,
+            formål = Bruker,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
     var oppholdINorge =
         boolsk(OppholdINorgeId, beskrivelse = "Bruker oppholder seg i Norge", behovId = OppholdINorge, formål = Bruker)
     var unntakForOpphold =
-        boolsk(UnntakForOppholdId, "Oppfyller unntak for opphold i Norge", synlig = { it.erSann(oppholdINorge) == false })
+        boolsk(
+            UnntakForOppholdId,
+            "Oppfyller unntak for opphold i Norge",
+            synlig = { it.erSann(oppholdINorge) == false },
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
 
     val oppfyllerKravetTilOpphold =
         boolsk(OppfyllerKravetTilOppholdId, "Oppfyller kravet til opphold i Norge eller unntak", synlig = aldriSynlig)
