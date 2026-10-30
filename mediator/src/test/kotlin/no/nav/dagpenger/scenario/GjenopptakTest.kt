@@ -455,10 +455,9 @@ class GjenopptakTest {
 
             behandlingsresultat {
                 førteTil shouldBe "Innvilgelse"
-
-                opplysninger(beregnetArbeidstid) {
-                    this shouldHaveSize 2
-                    all { it.opprinnelse == Periodestatus.Ny } shouldBe true
+                opplysning(beregnetArbeidstid) {
+                    fra(18.mai(2027)) til 31.mai(2027) verdi 26.5 opprinnelse Periodestatus.Ny
+                    fra(1.juni(2027)) verdi 37.5 opprinnelse Periodestatus.Ny
                 }
                 rettighetsperioder {
                     fra(18.mai(2027)) til 31.mai(2027) harRett true
@@ -488,11 +487,10 @@ class GjenopptakTest {
             behandlingsresultat(3) {
                 førteTil shouldBe "Gjenopptak"
 
-                opplysninger(beregnetArbeidstid) {
-                    this shouldHaveSize 3
-                    this[0].opprinnelse shouldBe Periodestatus.Arvet
-                    this[1].opprinnelse shouldBe Periodestatus.Arvet
-                    this[2].opprinnelse shouldBe Periodestatus.Ny
+                opplysning(beregnetArbeidstid) {
+                    fra(18.mai(2027)) til 31.mai(2027) verdi 26.5 opprinnelse Periodestatus.Arvet
+                    fra(1.juni(2027)) til 17.juni(2027) verdi 37.5 opprinnelse Periodestatus.Arvet
+                    fra(18.juni(2027)) verdi 37.5 opprinnelse Periodestatus.Ny
                 }
 
                 rettighetsperioder {
