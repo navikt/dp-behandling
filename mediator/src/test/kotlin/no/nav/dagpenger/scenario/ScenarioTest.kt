@@ -730,9 +730,16 @@ class ScenarioTest {
 
             behandlingsresultatForslag(7) {
                 // Det er nå en ekstra periode mellom 10 og 20. juni som ikke var nødvendig før det ble lagt til instanser av kanJobbeHvorSomHelst i hullet
-                opplysninger(oppholdINorge) shouldHaveSize 1
+                opplysning(oppholdINorge) {
+                    fra(1.juni(2018)) verdi true
+                }
 
-                opplysninger(kanJobbeHvorSomHelst) shouldHaveSize 2
+                opplysning(kanJobbeHvorSomHelst) {
+                    fra(1.juni(2018)) til 8.juni(2018) verdi true
+                    fra(9.juni(2018)) til 10.juni(2018) verdi true
+                    fra(11.juni(2018)) til 12.juni(2018) verdi true
+                    fra(13.juni(2018)) verdi true
+                }
             }
         }
     }

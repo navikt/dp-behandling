@@ -1,9 +1,11 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
 import no.nav.dagpenger.avklaring.Kontrollpunkt
+import no.nav.dagpenger.dato.november
 import no.nav.dagpenger.opplysning.Opplysningsformål
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
+import no.nav.dagpenger.opplysning.OverlappStrategi
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
@@ -111,6 +113,7 @@ object TapAvArbeidsinntektOgArbeidstid {
             beregnetVanligArbeidstidPerUkeFørTapId,
             "Beregnet vanlig arbeidstid per uke før tap",
             enhet = Enhet.Timer,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val maksimalVanligArbeidstid =
         desimaltall(
@@ -120,7 +123,8 @@ object TapAvArbeidsinntektOgArbeidstid {
             enhet = Enhet.Timer,
         )
 
-    val nyArbeidstid = desimaltall(nyArbeidstidPerUkeId, "Ny arbeidstid per uke", enhet = Enhet.Timer)
+    val nyArbeidstid =
+        desimaltall(nyArbeidstidPerUkeId, "Ny arbeidstid per uke", enhet = Enhet.Timer, overlappStrategi = OverlappStrategi.BEVAR_HØYRE)
 
     internal val ordinærEllerVernepliktArbeidstid =
         desimaltall(
@@ -166,6 +170,7 @@ object TapAvArbeidsinntektOgArbeidstid {
 
             // TODO: Bør hentes fra noe, f.eks. innbyggerflate
             regel(beregnetArbeidstid) { somUtgangspunkt(37.5) }
+            regel(beregnetArbeidstid, gjelderFraOgMed = 1.november(2026)) { somUtgangspunkt(37.5, søknadIdOpplysningstype) }
             regel(arbeidstidsreduksjonIkkeBruktTidligere) { somUtgangspunkt(true) }
 
             // FVA fra verneplikt overstyrer ordinær FVA om verneplikt er gunstigst

@@ -5,6 +5,7 @@ import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.boolsk
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.desimaltall
+import no.nav.dagpenger.opplysning.OverlappStrategi
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.alle
@@ -43,34 +44,62 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpply
 
 object ReellArbeidssøker {
     // c.	å ta arbeid uavhengig av om det er på heltid eller deltid,
-    val kanJobbeDeltid = boolsk(KanJobbeDeltidId, beskrivelse = "Kan jobbe heltid og deltid", Bruker, behovId = KanJobbeDeltid)
+    val kanJobbeDeltid =
+        boolsk(
+            KanJobbeDeltidId,
+            beskrivelse = "Kan jobbe heltid og deltid",
+            Bruker,
+            behovId = KanJobbeDeltid,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
     val godkjentDeltidssøker =
         boolsk(GodkjentDeltidssøkerId, "Det er godkjent at bruker kun søker deltidsarbeid", synlig = {
             it.har(kanJobbeDeltid) && it.finnAlle(kanJobbeDeltid).any { it.verdi == false }
-        })
+        }, overlappStrategi = OverlappStrategi.BEVAR_HØYRE)
+
     val oppfyllerKravTilArbeidssøker =
         boolsk(OppfyllerKravTilArbeidssøkerId, "Oppfyller kravet til heltid- og deltidsarbeid", synlig = aldriSynlig)
 
     // b.	å ta arbeid hvor som helst i Norge,
     val kanJobbeHvorSomHelst =
-        boolsk(KanJobbeHvorSomHelstId, beskrivelse = "Kan jobbe i hele Norge", Bruker, behovId = KanJobbeHvorSomHelst)
+        boolsk(
+            KanJobbeHvorSomHelstId,
+            beskrivelse = "Kan jobbe i hele Norge",
+            Bruker,
+            behovId = KanJobbeHvorSomHelst,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
     val godkjentLokalArbeidssøker =
         boolsk(GodkjentLokalArbeidssøker, "Det er godkjent at bruker kun søker arbeid lokalt", synlig = {
             it.erSann(kanJobbeHvorSomHelst) == false
-        })
+        }, overlappStrategi = OverlappStrategi.BEVAR_HØYRE)
+
     val oppfyllerKravTilMobilitet = boolsk(OppfyllerKravTilMobilitetId, "Oppfyller kravet til mobilitet", synlig = aldriSynlig)
 
     //  Som reell arbeidssøker regnes den som er arbeidsfør,
-    val erArbeidsfør = boolsk(ErArbeidsførId, beskrivelse = "Kan ta alle typer arbeid", Bruker, behovId = HelseTilAlleTyperJobb)
+    val erArbeidsfør =
+        boolsk(
+            ErArbeidsførId,
+            beskrivelse = "Kan ta alle typer arbeid",
+            Bruker,
+            behovId = HelseTilAlleTyperJobb,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
     val godkjentArbeidsufør =
         boolsk(GodkjentArbeidsuførId, "Har helsemessige begrensninger og kan ikke ta alle typer arbeid", synlig = {
             it.erSann(erArbeidsfør) == false
-        })
+        }, overlappStrategi = OverlappStrategi.BEVAR_HØYRE)
     val oppfyllerKravTilArbeidsfør = boolsk(OppfyllerKravTilArbeidsførId, "Oppfyller kravet til å være arbeidsfør", synlig = aldriSynlig)
 
     // a.	å ta ethvert arbeid som er lønnet etter tariff eller sedvane,
     val villigTilEthvertArbeid =
-        boolsk(VilligTilEthvertArbeidId, beskrivelse = "Villig til å bytte yrke", Bruker, behovId = VilligTilÅBytteYrke)
+        boolsk(
+            VilligTilEthvertArbeidId,
+            beskrivelse = "Villig til å bytte yrke",
+            Bruker,
+            behovId = VilligTilÅBytteYrke,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
     val oppfyllerKravetTilEthvertArbeid =
         boolsk(OppfyllerKravetTilEthvertArbeidId, "Oppfyller kravet til å ta ethvert arbeid", synlig = aldriSynlig)
 
@@ -83,6 +112,7 @@ object ReellArbeidssøker {
             Bruker,
             behovId = ØnsketArbeidstid,
             synlig = { it.erSann(kanJobbeDeltid) == false },
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val minimumVanligArbeidstid =
         desimaltall(minimumVanligArbeidstidId, "Minimum vanlig arbeidstid", synlig = { it.erSann(uføre) }, enhet = Enhet.Timer)

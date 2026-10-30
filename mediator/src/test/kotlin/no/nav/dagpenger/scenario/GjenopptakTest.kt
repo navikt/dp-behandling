@@ -29,7 +29,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker.ønsketArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
-import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode.Periodestatus
 import org.junit.jupiter.api.Test
@@ -438,15 +438,15 @@ class GjenopptakTest {
         nyttScenario {
             inntektSiste12Mnd = 500000
         }.test {
-            person.søkDagpenger(18.mai(2026), ønskerFraDato = 1.mars(2026))
+            person.søkDagpenger(18.mai(2027), ønskerFraDato = 1.mars(2027))
             behovsløsere.løsTilForslag()
 
-            saksbehandler.leggTilOpplysning(ReellArbeidssøker.erArbeidsfør, true, "Noe syk", Gyldighetsperiode(18.mai(2026), 31.mai(2026)))
+            saksbehandler.leggTilOpplysning(ReellArbeidssøker.erArbeidsfør, true, "Noe syk", Gyldighetsperiode(18.mai(2027), 31.mai(2027)))
             saksbehandler.leggTilOpplysning(
-                TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid,
+                beregnetArbeidstid,
                 26.5,
                 "70% stilling",
-                Gyldighetsperiode(18.mai(2026), 31.mai(2026)),
+                Gyldighetsperiode(18.mai(2027), 31.mai(2027)),
             )
 
             saksbehandler.lukkAlleAvklaringer()
@@ -455,8 +455,13 @@ class GjenopptakTest {
 
             behandlingsresultat {
                 førteTil shouldBe "Innvilgelse"
+
+                opplysninger(beregnetArbeidstid) {
+                    this shouldHaveSize 2
+                    all { it.opprinnelse == Periodestatus.Ny } shouldBe true
+                }
                 rettighetsperioder {
-                    fra(18.mai(2026)) til 31.mai(2026) harRett true
+                    fra(18.mai(2027)) til 31.mai(2027) harRett true
                 }
             }
 
@@ -465,7 +470,7 @@ class GjenopptakTest {
             meldekortBatch(markerFerdig = true)
 
             // Gjenoppta
-            val gjenopptaksdato = 18.juni(2026)
+            val gjenopptaksdato = 18.juni(2027)
             person.søkGjenopptak(gjenopptaksdato)
             behovsløsere.løsTilForslag()
 
@@ -481,11 +486,17 @@ class GjenopptakTest {
             saksbehandler.beslutt()
 
             behandlingsresultat(3) {
-                // TODO: Blir endring, burde være gjenopptak
                 førteTil shouldBe "Gjenopptak"
 
+                opplysninger(beregnetArbeidstid) {
+                    this shouldHaveSize 3
+                    this[0].opprinnelse shouldBe Periodestatus.Arvet
+                    this[1].opprinnelse shouldBe Periodestatus.Arvet
+                    this[2].opprinnelse shouldBe Periodestatus.Ny
+                }
+
                 rettighetsperioder {
-                    fra(18.mai(2026)) til 31.mai(2026) harRett true
+                    fra(18.mai(2027)) til 31.mai(2027) harRett true
                     fra(gjenopptaksdato) harRett true
                 }
             }

@@ -6,6 +6,8 @@ Behov:
 - ØnskerDagpengerFraDato
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
+Laget avklaring om PrøvingsdatoEtterRapporteringsfrist
+Laget avklaring om VirkningstidspunktForLangtFramItid
 Behov:
 - HelseTilAlleTyperJobb
 - Inntekt
@@ -35,6 +37,7 @@ Behov:
 - Sykepenger
 - TarUtdanningEllerOpplæring
 - Uføre
+Laget avklaring om NyttGrunnbeløpForGrunnlag
 Laget avklaring om SjekkPrøvingsdato
 Behov:
 - BarnetilleggV2
@@ -74,6 +77,7 @@ Behov:
 - ØnsketArbeidstid
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
+Laget avklaring om VirkningstidspunktForLangtFramItid
 Behov:
 - BarnetilleggV2
 - ErUtestengt
