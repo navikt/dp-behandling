@@ -46,18 +46,21 @@ object Utdanning {
         boolsk(
             godkjentUnntakForUtdanningId,
             "Godkjent unntak for utdanning eller opplæring?",
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     private val svartJaPåUtdanning =
         boolsk(
             svartJaPåUtdanningId,
             "Har svart ja på spørsmål om utdanning eller opplæring",
             synlig = aldriSynlig,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     private val svartNeiPåUtdanning =
         boolsk(
             svartNeiPåUtdanningId,
             "Har svart nei på spørsmål om utdanning eller opplæring",
             synlig = aldriSynlig,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
     private val oppfyllerKravetPåUnntak =
@@ -65,6 +68,7 @@ object Utdanning {
             oppfyllerKravetPåUnntakForUtdanningId,
             "Oppfyller kravet på unntak for utdanning eller opplæring",
             synlig = hvisTarUtdanning,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
     // Dagpengeforskriften § 4-3. Utdanning og opplæring
@@ -83,6 +87,7 @@ object Utdanning {
             deltarIOpplæringForInnvandrereId,
             "Deltar i opplæring for innvandrere",
             synlig = hvisTarUtdanning,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
     // § 4-3b.(grunnskoleopplæring, videregående opplæring og opplæring i grunnleggende ferdigheter)
@@ -91,6 +96,7 @@ object Utdanning {
             grunnskoleopplæringId,
             "Deltar i grunnskoleopplæring, videregående opplæring og opplæring i grunnleggende ferdigheter",
             synlig = hvisTarUtdanning,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
     // § 4-3c.(høyere yrkesfaglig utdanning)
@@ -99,13 +105,21 @@ object Utdanning {
             deltarIHøyereYrkesfagligUtdanningId,
             "Deltar i høyere yrkesfaglig utdanning",
             synlig = hvisTarUtdanning,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
     // § 4-3d.(høyere utdanning)
-    val høyereUtdanning = boolsk(deltarIHøyereUtdanningId, "Deltar i høyere utdanning", synlig = hvisTarUtdanning)
+    val høyereUtdanning =
+        boolsk(
+            deltarIHøyereUtdanningId,
+            "Deltar i høyere utdanning",
+            synlig = hvisTarUtdanning,
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
 
     // § 4-3e.(deltakelse på kurs mv
-    val deltakelsePåKurs = boolsk(deltarPåKursMvId, "Deltar på kurs mv", synlig = hvisTarUtdanning)
+    val deltakelsePåKurs =
+        boolsk(deltarPåKursMvId, "Deltar på kurs mv", synlig = hvisTarUtdanning, overlappStrategi = OverlappStrategi.BEVAR_HØYRE)
 
     val kravTilUtdanning =
         boolsk(
