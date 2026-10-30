@@ -5,6 +5,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.ktor.server.application.Application
 import no.nav.dagpenger.mediator.api.auth.AuthFactory
 import no.nav.dagpenger.mediator.api.behandlingApi
+import no.nav.dagpenger.mediator.api.personAdminApi
 import no.nav.dagpenger.mediator.audit.Auditlogg
 import no.nav.dagpenger.mediator.db.DatabaseSession
 import no.nav.dagpenger.mediator.meldekort.MeldekortBehandlingskø
@@ -137,6 +138,7 @@ class BehandlingRuntime(
             messageContext = messageContextFactory,
             oppdateringRepository = oppdateringRepository,
         )
+        personAdminApi(personRepository)
     }
 
     fun meldekortBehandlingskø(messageContext: MessageContext) =
