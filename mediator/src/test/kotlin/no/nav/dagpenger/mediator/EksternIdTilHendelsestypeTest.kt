@@ -29,7 +29,7 @@ class EksternIdTilHendelsestypeTest {
         manuellId.hendelseType() shouldBe "Manuell"
 
         val migreringId = MigreringId(UUIDv7.ny())
-        migreringId.hendelseType() shouldBe "Migrer"
+        migreringId.hendelseType() shouldBe "Migrering"
 
         val omgjøringId = OmgjøringId(UUIDv7.ny())
         omgjøringId.hendelseType() shouldBe "Omgjøring"

@@ -152,7 +152,7 @@ internal fun no.nav.dagpenger.modell.hendelser.EksternId<*>.hendelseType(): Stri
         is SøknadId -> "Søknad"
         is MeldekortId -> "Meldekort"
         is ManuellId -> "Manuell"
-        is MigreringId -> "Migrer"
+        is MigreringId -> "Migrering"
         is OmgjøringId -> "Omgjøring"
         is FerietilleggId -> "Ferietillegg"
         is ArbeidssøkerperiodeId -> "Arbeidssøkerperiode"
