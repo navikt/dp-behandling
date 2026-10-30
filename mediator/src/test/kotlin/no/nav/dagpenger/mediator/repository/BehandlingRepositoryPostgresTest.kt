@@ -1,6 +1,7 @@
 package no.nav.dagpenger.mediator.repository
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -9,8 +10,10 @@ import no.nav.dagpenger.mediator.TestOpplysningstyper.opplysningerRepository
 import no.nav.dagpenger.mediator.db.DBTestContext
 import no.nav.dagpenger.mediator.db.withMigratedDb
 import no.nav.dagpenger.modell.Behandling
+import no.nav.dagpenger.modell.Behandling.TilstandType.Avbrutt
 import no.nav.dagpenger.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.modell.Behandling.TilstandType.ForslagTilVedtak
+import no.nav.dagpenger.modell.Behandling.TilstandType.TilBeslutning
 import no.nav.dagpenger.modell.Behandling.TilstandType.UnderBehandling
 import no.nav.dagpenger.modell.Ident
 import no.nav.dagpenger.modell.Person
@@ -21,6 +24,7 @@ import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Prosessregister
@@ -155,7 +159,7 @@ class BehandlingRepositoryPostgresTest {
             val (personRepository, behandlingRepository) = flyttOppsett()
             val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
             val b2 = nyBehandling(b1, ForslagTilVedtak, Opplysninger.med(opplysning2))
-            val b3 = nyBehandling(b1, Ferdig, Opplysninger.med(opplysning3))
+            val b3 = nyBehandling(null, Ferdig, Opplysninger.med(opplysning3))
             opprettKjede(behandlingRepository, listOf(b1, b2, b3))
 
             val person = personRepository.hent(Ident(ident)).shouldNotBeNull()
@@ -169,6 +173,67 @@ class BehandlingRepositoryPostgresTest {
             gammel.tilstand().first shouldBe Behandling.TilstandType.Avbrutt
             val ny = behandlinger.single { it.basertPå?.behandlingId == b3.behandlingId }
             ny.tilstand().first shouldBe Behandling.TilstandType.Redigert
+        }
+    }
+
+    @Test
+    fun `flytting til ny rot lar gammel avbrutt behandling bli i opprinnelig kjede`() {
+        withMigratedDb {
+            val (personRepository, behandlingRepository) = flyttOppsett()
+            val b1 = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
+            val b2 = nyBehandling(b1, ForslagTilVedtak, Opplysninger.med(opplysning2))
+            opprettKjede(behandlingRepository, listOf(b1, b2))
+
+            val person = personRepository.hent(Ident(ident)).shouldNotBeNull()
+            person.håndter(flytt(b2.behandlingId, null))
+            personRepository.lagre(person)
+
+            val kjeder = behandlingRepository.hentBehandlinger(Ident(ident))
+            kjeder.size shouldBe 2
+            val opprinnelig = kjeder.single { it.rot.behandlingId == b1.behandlingId }
+            opprinnelig.map { it.behandlingId }.toSet() shouldBe setOf(b1.behandlingId, b2.behandlingId)
+            opprinnelig.single { it.behandlingId == b2.behandlingId }.tilstand().first shouldBe Behandling.TilstandType.Avbrutt
+            val nyKjede = kjeder.single { it.rot.behandlingId != b1.behandlingId }
+            nyKjede.toList().size shouldBe 1
+        }
+    }
+
+    @Test
+    fun `flytt søsken lagrer ny forelder og beholder id og opplysninger`() {
+        withMigratedDb {
+            val (personRepository, behandlingRepository) = flyttOppsett()
+            val a = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
+            val b1 = nyBehandling(a, Ferdig, Opplysninger.med(opplysning3))
+            val b2 = nyBehandling(a, ForslagTilVedtak, Opplysninger.med(opplysning2))
+            opprettKjede(behandlingRepository, listOf(a, b1, b2))
+
+            val person = personRepository.hent(Ident(ident)).shouldNotBeNull()
+            person.håndter(
+                flytt(b2.behandlingId, b1.behandlingId),
+            )
+            personRepository.lagre(person)
+
+            val kjeder = behandlingRepository.hentBehandlinger(Ident(ident))
+            kjeder.size shouldBe 1
+            val flyttet = kjeder.single().single { it.behandlingId == b2.behandlingId }
+            flyttet.basertPå?.behandlingId shouldBe b1.behandlingId
+            flyttet.opplysninger().somListe(Egne).map { it.id } shouldContain opplysning2.id
+            kjeder.single().toList().size shouldBe 3
+        }
+    }
+
+    @Test
+    fun `finnSøsken utelater søsken som er ferdige, avbrutt eller til beslutning`() {
+        withMigratedDb {
+            val (_, behandlingRepository) = flyttOppsett()
+            val a = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
+            val ferdig = nyBehandling(a, Ferdig, Opplysninger.med(opplysning3))
+            val forslag = nyBehandling(a, ForslagTilVedtak, Opplysninger.med(opplysning2))
+            val tilBeslutning = nyBehandling(a, TilBeslutning, Opplysninger.med(opplysning2))
+            val avbrutt = nyBehandling(a, Avbrutt, Opplysninger.med(opplysning2))
+            opprettKjede(behandlingRepository, listOf(a, ferdig, forslag, tilBeslutning, avbrutt))
+
+            behandlingRepository.finnSøsken(ferdig.behandlingId) shouldContainExactly listOf(forslag.behandlingId)
         }
     }
 

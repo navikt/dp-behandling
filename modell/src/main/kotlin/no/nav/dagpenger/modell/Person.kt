@@ -301,6 +301,20 @@ class Person(
         val nyBasertPå = hendelse.nyBasertPåId?.let { behandlingkjeder.finn(it) }
         require(nyBasertPå !== gammel) { "Kan ikke flytte behandlingen til seg selv" }
 
+        if (gammel.erSøskenTil(nyBasertPå)) {
+            baserPåSøsken(gammel, nyBasertPå!!, hendelse)
+        } else {
+            flyttTilAnnenBehandlingskjede(gammel, nyBasertPå, hendelse)
+        }
+    }
+
+    private fun Behandling.erSøskenTil(annen: Behandling?) = basertPå != null && basertPå === annen?.basertPå
+
+    private fun flyttTilAnnenBehandlingskjede(
+        gammel: Behandling,
+        nyBasertPå: Behandling?,
+        hendelse: FlyttBehandlingHendelse,
+    ) {
         val ny = gammel.kopierTil(nyBasertPå)
         gammel.håndter(
             AvbrytBehandlingHendelse(
@@ -313,6 +327,22 @@ class Person(
         )
         leggTilBehandling(ny, behandlingkjeder.firstOrNull { nyBasertPå in it })
         ny.håndter(hendelse)
+    }
+
+    private fun baserPåSøsken(
+        gammel: Behandling,
+        nyBasertPå: Behandling,
+        hendelse: FlyttBehandlingHendelse,
+    ) {
+        val flyttet = gammel.medNyForelder(nyBasertPå)
+        fjernBehandling(gammel)
+        leggTilBehandling(flyttet, behandlingkjeder.firstOrNull { nyBasertPå in it })
+        flyttet.håndter(hendelse)
+    }
+
+    private fun fjernBehandling(behandling: Behandling) {
+        val index = behandlingkjeder.indexOfFirst { behandling in it }
+        behandlingkjeder[index] = behandlingkjeder[index] uten behandling
     }
 
     fun behandlinger() = behandlingkjeder.flatten()

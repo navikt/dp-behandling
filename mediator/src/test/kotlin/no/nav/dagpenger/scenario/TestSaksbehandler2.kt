@@ -129,9 +129,8 @@ internal class TestSaksbehandler2(
                     .hent(testPerson.ident.tilPersonIdentfikator())
                     ?.behandlinger()
                     ?.find {
-                        !it.harTilstand(Behandling.TilstandType.Avbrutt) &&
-                            it.behandler.eksternId.id
-                                .toString() == eksternHendelseId.toString()
+                        it.behandler.eksternId.id
+                            .toString() == eksternHendelseId.toString()
                     }
             } else {
                 // personRepository.hent(testPerson.ident.tilPersonIdentfikator())?.behandlinger()?.last()

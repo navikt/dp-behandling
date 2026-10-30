@@ -53,8 +53,5 @@ Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: Ferdig
 melding: flytt_behandling
 Laget avklaring om BehandlingFlyttet
-Behandling endret tilstand til: Avbrutt
-melding: behandling_avbrutt
-Opprettet ny behandling
 Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak

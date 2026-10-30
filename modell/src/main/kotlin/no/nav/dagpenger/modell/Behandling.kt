@@ -168,6 +168,20 @@ class Behandling private constructor(
             basertPå = nyBasertPå,
         )
 
+    /** Samme behandling, men med ny forelder. Opplysningene beholdes, siden den gamle forelderen fortsatt er en forfader. */
+    internal fun medNyForelder(nyBasertPå: Behandling) =
+        Behandling(
+            behandlingId = behandlingId,
+            behandler = behandler,
+            gjeldendeOpplysninger = opplysninger,
+            basertPå = nyBasertPå,
+            opprettet = opprettet,
+            godkjent = godkjent,
+            besluttet = besluttet,
+            tilstand = tilstand,
+            avklaringer = avklaringer().toList(),
+        )
+
     fun kanRedigeres() = harTilstand(ForslagTilVedtak) || harTilstand(TilGodkjenning)
 
     fun opplysninger(): LesbarOpplysninger = opplysninger
@@ -705,6 +719,11 @@ class Behandling private constructor(
 
         override fun håndter(
             behandling: Behandling,
+            hendelse: FlyttBehandlingHendelse,
+        ) = behandling.baserPåSøsken(hendelse)
+
+        override fun håndter(
+            behandling: Behandling,
             hendelse: GodkjennBehandlingHendelse,
         ): Unit = throw IllegalStateException("Behandlingen har åpne avklaringer som må lukkes før den kan godkjennes.")
     }
@@ -1035,6 +1054,11 @@ class Behandling private constructor(
             }
             behandling.tilstand(Redigert(), hendelse)
         }
+
+        override fun håndter(
+            behandling: Behandling,
+            hendelse: FlyttBehandlingHendelse,
+        ) = behandling.baserPåSøsken(hendelse)
     }
 
     private class TilBeslutning(
@@ -1085,6 +1109,13 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Behandlingen er låst, ignorerer opplysningssvar")
         }
+    }
+
+    private fun baserPåSøsken(hendelse: FlyttBehandlingHendelse) {
+        hendelse.info("Baserer behandlingen $behandlingId på ${hendelse.nyBasertPåId}")
+        hendelse.leggTilAvklaring(avklaringer)
+        // Ved å gå til redigert tilstand kjøres regler og avklaringer på nytt
+        tilstand(Redigert(), hendelse)
     }
 
     // Kjører alle regler, logger hvilke regler som er kjørt , sender ut behov, og avgjør neste tilstand

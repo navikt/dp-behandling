@@ -5,7 +5,6 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.august
@@ -374,13 +373,13 @@ class KjedescenarioTest {
             saksbehandler.beslutt()
 
             // Melding om "nei" kommer først
-            var opprinneligVerdier: List<Any?>? = null
+            var opprinneligUUIDs: List<UUID>? = null
             val avsluttetTidspunkt = LocalDateTime.now()
             person.avsluttArbeidssøkerperiode(24.juni(2018), avsluttetTidspunkt = avsluttetTidspunkt)
             behovsløsere.løsTilForslag()
 
             behandlingsresultatForslag(3) {
-                opprinneligVerdier = opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).map { it.verdi.verdi }
+                opprinneligUUIDs = opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).map { it.id }
             }
 
             // Meldekort
@@ -402,13 +401,11 @@ class KjedescenarioTest {
                     fra(21.juni(2018)) til 23.juni(2018) harRett true
                     fra(24.juni(2018)) harRett false
                 }
-
                 opplysning(RegistrertArbeidssøker.registrertArbeidssøker) {
                     fra(21.juni(2018)) til avsluttetTidspunkt.toLocalDate() verdi true
                     fra(avsluttetTidspunkt.toLocalDate().plusDays(1)) verdi false
                 }
-
-                opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).map { it.id } shouldNotBe opprinneligVerdier
+                opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).map { it.id } shouldBe opprinneligUUIDs
             }
         }
     }

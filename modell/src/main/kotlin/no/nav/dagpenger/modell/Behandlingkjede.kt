@@ -72,6 +72,18 @@ private fun Behandlingkjede.leggTilBarnHvisDelAvGren(barn: Behandling): Behandli
 
 operator fun Behandlingkjede.contains(behandling: Behandling): Boolean = rot === behandling || barn.any { behandling in it }
 
+/** Fjerner en behandling (og eventuelle etterkommere) fra kjeden. Roten kan ikke fjernes. */
+infix fun Behandlingkjede.uten(behandling: Behandling): Behandlingkjede {
+    check(rot !== behandling) { "Kan ikke fjerne roten fra en behandlingskjede" }
+    check(behandling in this) { "Behandlingen finnes ikke i kjeden" }
+    return copy(
+        barn =
+            barn
+                .filterNot { it.rot === behandling }
+                .map { if (behandling in it) it uten behandling else it },
+    )
+}
+
 // går gjennom hele treet for å finne løvnoder å bygge videre på,
 private fun alleBehandlingerSomKanBaseresPå(kjede: Behandlingkjede): List<Behandling> {
     val stabel = ArrayDeque(listOf(kjede))
