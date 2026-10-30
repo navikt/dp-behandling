@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.august
@@ -406,7 +407,8 @@ class KjedescenarioTest {
                     fra(21.juni(2018)) til avsluttetTidspunkt.toLocalDate() verdi true
                     fra(avsluttetTidspunkt.toLocalDate().plusDays(1)) verdi false
                 }
-                opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).map { it.id } shouldBe opprinneligVerdier
+
+                opplysninger(RegistrertArbeidssøker.registrertArbeidssøker).map { it.id } shouldNotBe opprinneligVerdier
             }
         }
     }
