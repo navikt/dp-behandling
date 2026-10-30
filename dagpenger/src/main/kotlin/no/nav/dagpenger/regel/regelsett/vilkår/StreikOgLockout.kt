@@ -1,6 +1,7 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
+import no.nav.dagpenger.opplysning.OverlappStrategi
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.ingenAv
@@ -15,11 +16,13 @@ object StreikOgLockout {
         Opplysningstype.boolsk(
             deltarStreikEllerLockoutId,
             "Brukeren deltar i streik eller er omfattet av lock-out",
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val sammeBedriftOgPåvirket =
         Opplysningstype.boolsk(
             ledigVedSammeBedriftOgPåvirketAvUtfalletId,
             "Brukeren er ledig ved samme bedrift eller arbeidsplass, og blir påvirket av utfallet",
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
     val ikkeStreikEllerLockout =
