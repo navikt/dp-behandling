@@ -679,7 +679,7 @@ internal class BehandlingApiTest {
     }
 
     @Test
-    fun `flytt behandling til ny behandling`() {
+    fun `flytt søsken til ny forelder i samme kjede`() {
         medSikretBehandlingApi { testContext ->
             person.søkDagpenger(1.april(LocalDate.now().year))
             behovsløsere.løsTilForslag()
@@ -703,6 +703,29 @@ internal class BehandlingApiTest {
                     httpMethod = HttpMethod.Post,
                     endepunkt = "/behandling/$hengende/flytt",
                     body = """{"nyBasertPå":"${person.behandlingId}"}""",
+                )
+            response.status shouldBe HttpStatusCode.Accepted
+            response.bodyAsText().shouldBeEmpty()
+        }
+    }
+
+    @Test
+    fun `flytt behandling til ny behandlingskjede`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger(1.april(LocalDate.now().year))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.søkDagpenger()
+            behovsløsere.løsTilForslag()
+
+            val response =
+                testContext.autentisert(
+                    httpMethod = HttpMethod.Post,
+                    endepunkt = "/behandling/${person.behandlingId}/flytt",
+                    body = """{}""",
                 )
             response.status shouldBe HttpStatusCode.Accepted
             response.bodyAsText().shouldBeEmpty()

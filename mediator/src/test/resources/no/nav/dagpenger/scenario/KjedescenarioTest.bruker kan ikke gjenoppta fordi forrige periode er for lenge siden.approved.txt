@@ -78,9 +78,16 @@ Behov:
 - Uføre
 Behandling endret tilstand til: ForslagTilVedtak
 Laget avklaring om BehandlingFlyttet
+Laget avklaring om HarTilleggsopplysninger
+Behandling endret tilstand til: Avbrutt
+melding: behandling_avbrutt
+Opprettet ny behandling
 Behandling endret tilstand til: Redigert
+melding: søknadsbehandling_avbrutt
 Behov:
 - Fødselsdato
+Laget avklaring om HattLukkedeSakerSiste8Uker
+Laget avklaring om MuligGjenopptak
 Behov:
 - Inntekt
 Laget avklaring om EØSArbeid

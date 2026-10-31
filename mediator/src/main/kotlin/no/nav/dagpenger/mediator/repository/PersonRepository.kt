@@ -59,13 +59,6 @@ interface BehandlingRepository :
     fun hentBehandlinger(ident: Ident): List<Behandlingkjede>
 
     @WithSpan
-    fun flyttBehandling(
-        @SpanAttribute
-        behandlingId: UUID,
-        nyBasertPåId: UUID? = null,
-    )
-
-    @WithSpan
     fun lagre(
         ident: Ident,
         behandlinger: List<Behandling>,

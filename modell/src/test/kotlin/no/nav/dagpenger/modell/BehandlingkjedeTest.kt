@@ -168,6 +168,36 @@ class BehandlingkjedeTest {
     }
 
     @Test
+    fun `uten fjerner behandlingen og dens etterkommere, men beholder resten`() {
+        val rot = nyBehandling(tilstand = Ferdig)
+        val barn1 = nyBehandling(rot, tilstand = Ferdig)
+        val barn2 = nyBehandling(rot, tilstand = Ferdig)
+        val barnebarn = nyBehandling(barn1, tilstand = Ferdig)
+        val kjede = listOf(rot, barn1, barn2, barnebarn).somKjede()
+
+        val resultat = kjede uten barn1
+
+        resultat.toList() shouldBe listOf(rot, barn2)
+        kjede.toList() shouldBe listOf(rot, barn1, barn2, barnebarn)
+    }
+
+    @Test
+    fun `uten kan ikke fjerne roten`() {
+        val rot = nyBehandling(tilstand = Ferdig)
+        val kjede = rot.somKjede() leggTil nyBehandling(rot)
+
+        shouldThrow<IllegalStateException> { kjede uten rot }
+    }
+
+    @Test
+    fun `uten avviser behandling som ikke finnes i kjeden`() {
+        val rot = nyBehandling(tilstand = Ferdig)
+        val kjede = rot.somKjede()
+
+        shouldThrow<IllegalStateException> { kjede uten nyBehandling(rot) }
+    }
+
+    @Test
     fun `kan gå gjennom kjeden nivå-for-nivå`() {
         val rot = nyBehandling()
         val barn1 = nyBehandling(rot)

@@ -378,16 +378,6 @@ internal class HendelseMediator(
         hendelse: FlyttBehandlingHendelse,
         context: MessageContext,
     ) {
-        val behandling = personRepository.hentBehandling(hendelse.behandlingId)
-        if (behandling == null) {
-            logger.error { "Ingen behandling funnet for id ${hendelse.behandlingId}" }
-            return
-        }
-
-        if (behandling.kanRedigeres()) {
-            personRepository.flyttBehandling(hendelse.behandlingId, hendelse.nyBasertPåId)
-        }
-
         hentPersonOgHåndter(hendelse, context) { person ->
             person.håndter(hendelse)
         }

@@ -50,24 +50,6 @@ internal class BehandlingRepositoryPostgres(
             session.hentBehandlinger(HentBehandling.AlleForIdent(ident))
         }
 
-    override fun flyttBehandling(
-        behandlingId: UUID,
-        nyBasertPåId: UUID?,
-    ) {
-        dbSession.session { session ->
-            session.run(
-                queryOf(
-                    //language=PostgreSQL
-                    "UPDATE behandling SET basert_på_behandling_id = :basertPaa WHERE behandling_id = :behandlingId",
-                    mapOf(
-                        "behandlingId" to behandlingId,
-                        "basertPaa" to nyBasertPåId,
-                    ),
-                ).asUpdate,
-            )
-        }
-    }
-
     override fun finnSøsken(behandlingId: UUID): List<UUID> =
         dbSession.session { session ->
             session.run(
