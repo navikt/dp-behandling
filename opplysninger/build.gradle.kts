@@ -11,7 +11,7 @@ dependencies {
     api("org.javamoney:moneta:1.4.5")
     api(libs.dp.grunnbelop)
     api(libs.kotlin.logging)
-    api("no.nav.dagpenger:aktivitetslogg:20260918.46.50cd81")
+    api("no.nav.dagpenger:aktivitetslogg:20261028.49.ded0d7")
     implementation(libs.otel.instrumentation.annotations)
     implementation(libs.otel.api)
 
