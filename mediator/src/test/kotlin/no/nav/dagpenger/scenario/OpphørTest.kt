@@ -58,6 +58,38 @@ class OpphørTest {
     }
 
     @Test
+    @Disabled("Må fikses, revurdering etter opphør fungerer ikke ")
+    fun `vi kan lage revurdering etter opphør`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(18.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.endreOpplysning(antallStønadsdager, 13)
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                førteTil shouldBe Avgjørelse.Innvilgelse.toString()
+                rettighetsperioder shouldHaveSize 1
+            }
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            person.sendInnMeldekort(2)
+            meldekortBatch(markerFerdig = true)
+            behandlingsresultat(3) {
+                førteTil shouldBe Avgjørelse.Opphør.toString()
+            }
+
+            saksbehandler.omgjørBehandling(25.juni(2018))
+            behandlingsresultatForslag(3) { }
+        }
+    }
+
+    @Test
     fun `tester at stans etter oppbrukt periode overlever en ekstra rekjøring`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
