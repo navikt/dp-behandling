@@ -221,7 +221,11 @@ private fun dagpengerUtbetalinger(opplysninger: LesbarOpplysninger): List<Utbeta
 
     val løpendeRett = opplysninger.finnAlle(KravPåDagpenger.harLøpendeRett)
     val satser = opplysninger.finnAlle(dagsatsEtterSamordningMedBarnetillegg)
-    val dager = opplysninger.finnAlle(Beregning.utbetaling).associateBy { it.gyldighetsperiode.fraOgMed }
+    val dager =
+        opplysninger.finnAlle(Beregning.utbetaling).groupBy { it.gyldighetsperiode.fraOgMed }.mapValues { (fraOgMed, funnet) ->
+            check(funnet.size == 1) { "Overlappende utbetalingsdager for $fraOgMed" }
+            funnet.single()
+        }
 
     return meldeperioder.flatMap { periode ->
         periode.verdi.mapNotNull { dato ->
