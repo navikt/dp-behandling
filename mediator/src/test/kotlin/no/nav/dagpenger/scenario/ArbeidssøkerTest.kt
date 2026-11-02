@@ -3,6 +3,7 @@ package no.nav.dagpenger.scenario
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.api.behandling.models.OpprinnelseDTO
@@ -10,6 +11,7 @@ import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
+import no.nav.dagpenger.brev.TypstRenderer
 import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse.Companion.behandlingFlyttetAvklaring
 import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -19,6 +21,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravPåLønn
+import no.nav.dagpenger.scenario.BrevScenarioTest.Companion.byggBrev
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.BehandlingsresultatAssertions
 import org.junit.jupiter.api.Test
@@ -77,6 +80,11 @@ class ArbeidssøkerTest {
                 }
                 rettighetsperioder.map { it.opprinnelse } shouldBe listOf(OpprinnelseDTO.ARVET, OpprinnelseDTO.NY)
             }
+
+            val resultatJson = behovsløsere.sisteBehandlingsresultatForslag().second
+            val brev = byggBrev(resultatJson)
+            brev.shouldNotBeNull()
+            println(TypstRenderer.render(brev))
         }
     }
 
@@ -135,6 +143,11 @@ class ArbeidssøkerTest {
 
                 førteTil shouldBe Avgjørelse.Stans.toString()
             }
+
+            val resultatJson = behovsløsere.sisteBehandlingsresultat().second
+            val brev = byggBrev(resultatJson)
+            brev.shouldNotBeNull()
+            println(TypstRenderer.render(brev))
         }
     }
 
@@ -209,6 +222,11 @@ class ArbeidssøkerTest {
                     fra(16.juli(2018)) harRett false
                 }
             }
+
+            val resultatJson = behovsløsere.sisteBehandlingsresultat().second
+            val brev = byggBrev(resultatJson)
+            brev.shouldNotBeNull()
+            println(TypstRenderer.render(brev))
         }
     }
 
