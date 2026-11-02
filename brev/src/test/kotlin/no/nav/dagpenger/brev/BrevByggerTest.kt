@@ -3,18 +3,20 @@ package no.nav.dagpenger.brev
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import no.nav.dagpenger.behandling.api.models.AvgjørelseDTO
-import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
-import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
-import no.nav.dagpenger.behandling.api.models.DataTypeDTO
-import no.nav.dagpenger.behandling.api.models.DatoVerdiDTO
-import no.nav.dagpenger.behandling.api.models.HendelseDTO
-import no.nav.dagpenger.behandling.api.models.HendelseDTOTypeDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningsperiodeDTO
-import no.nav.dagpenger.behandling.api.models.OpprinnelseDTO
-import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
-import no.nav.dagpenger.behandling.api.models.RettighetsperiodeDTO
+import no.nav.dagpenger.mediator.api.models.AvgjørelseDTO
+import no.nav.dagpenger.mediator.api.models.BehandlingsresultatDTO
+import no.nav.dagpenger.mediator.api.models.BoolskVerdiDTO
+import no.nav.dagpenger.mediator.api.models.DataTypeDTO
+import no.nav.dagpenger.mediator.api.models.DatoVerdiDTO
+import no.nav.dagpenger.mediator.api.models.HendelseDTO
+import no.nav.dagpenger.mediator.api.models.HendelseDTOTypeDTO
+import no.nav.dagpenger.mediator.api.models.OpplysningerDTO
+import no.nav.dagpenger.mediator.api.models.OpplysningsperiodeDTO
+import no.nav.dagpenger.mediator.api.models.OpplysningsverdiDTO
+import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
+import no.nav.dagpenger.mediator.api.models.PengeVerdiDTO
+import no.nav.dagpenger.mediator.api.models.RettighetsperiodeDTO
+import no.nav.dagpenger.mediator.api.models.TekstVerdiDTO
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -266,6 +268,7 @@ class BrevByggerTest {
         opplysninger: List<OpplysningerDTO> = emptyList(),
     ) = BehandlingsresultatDTO(
         behandlingId = UUID.randomUUID(),
+        regelverk = "Dagpenger",
         behandletHendelse =
             HendelseDTO(
                 id = UUID.randomUUID().toString(),
@@ -294,7 +297,7 @@ class BrevByggerTest {
     private fun lagOpplysning(
         typeId: UUID,
         navn: String,
-        verdi: no.nav.dagpenger.behandling.api.models.OpplysningsverdiDTO,
+        verdi: OpplysningsverdiDTO,
     ) = OpplysningerDTO(
         opplysningTypeId = typeId,
         navn = navn,
@@ -337,8 +340,7 @@ class BrevByggerTest {
                         lagOpplysning(
                             sisteKalendermånedId,
                             "Siste avsluttende kalendermåned",
-                            no.nav.dagpenger.behandling.api.models
-                                .DatoVerdiDTO(verdi = LocalDate.of(2026, 3, 31)),
+                            DatoVerdiDTO(verdi = LocalDate.of(2026, 3, 31)),
                         ),
                         lagOpplysning(
                             inntektperiode1Id,
@@ -379,8 +381,7 @@ class BrevByggerTest {
                         lagOpplysning(
                             beregningsregelId,
                             "Brukt beregningsregel",
-                            no.nav.dagpenger.behandling.api.models
-                                .TekstVerdiDTO(verdi = "Siste12"),
+                            TekstVerdiDTO(verdi = "Siste12"),
                         ),
                     ),
             )
@@ -416,8 +417,7 @@ class BrevByggerTest {
                         lagOpplysning(
                             datoId,
                             "Siste avsluttende kalendermåned",
-                            no.nav.dagpenger.behandling.api.models
-                                .DatoVerdiDTO(verdi = LocalDate.of(2026, 3, 31)),
+                            DatoVerdiDTO(verdi = LocalDate.of(2026, 3, 31)),
                         ),
                     ),
             )
@@ -453,8 +453,7 @@ class BrevByggerTest {
                         lagOpplysning(
                             datoId,
                             "Vedtaksdato",
-                            no.nav.dagpenger.behandling.api.models
-                                .DatoVerdiDTO(verdi = LocalDate.of(2026, 1, 1)),
+                            DatoVerdiDTO(verdi = LocalDate.of(2026, 1, 1)),
                         ),
                     ),
             )

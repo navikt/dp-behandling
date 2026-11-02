@@ -1,14 +1,14 @@
 package no.nav.dagpenger.brev
 
-import no.nav.dagpenger.behandling.api.models.BehandlingsresultatDTO
-import no.nav.dagpenger.behandling.api.models.BoolskVerdiDTO
-import no.nav.dagpenger.behandling.api.models.DatoVerdiDTO
-import no.nav.dagpenger.behandling.api.models.DesimaltallVerdiDTO
-import no.nav.dagpenger.behandling.api.models.HeltallVerdiDTO
-import no.nav.dagpenger.behandling.api.models.OpplysningerDTO
-import no.nav.dagpenger.behandling.api.models.OpprinnelseDTO
-import no.nav.dagpenger.behandling.api.models.PengeVerdiDTO
-import no.nav.dagpenger.behandling.api.models.TekstVerdiDTO
+import no.nav.dagpenger.mediator.api.models.BehandlingsresultatDTO
+import no.nav.dagpenger.mediator.api.models.BoolskVerdiDTO
+import no.nav.dagpenger.mediator.api.models.DatoVerdiDTO
+import no.nav.dagpenger.mediator.api.models.DesimaltallVerdiDTO
+import no.nav.dagpenger.mediator.api.models.HeltallVerdiDTO
+import no.nav.dagpenger.mediator.api.models.OpplysningerDTO
+import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
+import no.nav.dagpenger.mediator.api.models.PengeVerdiDTO
+import no.nav.dagpenger.mediator.api.models.TekstVerdiDTO
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -98,17 +98,23 @@ internal class BrevKontekst(
 
     fun evaluerer(trigger: Trigger): Boolean =
         when (trigger) {
-            is Trigger.Alltid -> true
-            is Trigger.Avgjørelse ->
+            is Trigger.Alltid -> {
+                true
+            }
+
+            is Trigger.Avgjørelse -> {
                 resultat.førteTil.value.let { v ->
                     trigger.avgjørelser.any { it.equals(v, ignoreCase = true) }
                 }
+            }
+
             is Trigger.OpplysningFinnes -> {
                 val opplysning = opplysningerMap[trigger.opplysningsTypeId]
                 opplysning != null &&
                     (!trigger.kunNyeOpplysninger || harNyePerioder(opplysning)) &&
                     (trigger.periodeType == null || matcherPeriodeType(opplysning, trigger.periodeType))
             }
+
             is Trigger.OpplysningVerdi -> {
                 val opplysning = opplysningerMap[trigger.opplysningsTypeId]
                 opplysning != null &&
@@ -199,8 +205,14 @@ internal class BrevKontekst(
 
     private fun oppslåVerdi(nøkkel: String): String? =
         when (nøkkel.lowercase()) {
-            "avgjørelse" -> resultat.førteTil.value
-            "ident" -> resultat.ident
+            "avgjørelse" -> {
+                resultat.førteTil.value
+            }
+
+            "ident" -> {
+                resultat.ident
+            }
+
             else -> {
                 val opplysning = opplysningerNavnMap[nøkkel]
                 opplysning?.let { sisteVerdi(it) }

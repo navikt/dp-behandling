@@ -1,25 +1,25 @@
 package no.nav.dagpenger.scenario
 
-import tools.jackson.databind.JsonNode
-import tools.jackson.module.kotlin.treeToValue
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
-import no.nav.dagpenger.mediator.api.models.BehandlingsresultatDTO
-import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
-import no.nav.dagpenger.mediator.juli
-import no.nav.dagpenger.mediator.juni
-import no.nav.dagpenger.mediator.objectMapper
 import no.nav.dagpenger.brev.BrevBygger
 import no.nav.dagpenger.brev.MarkdownRenderer
 import no.nav.dagpenger.brev.Plassering
+import no.nav.dagpenger.mediator.api.models.BehandlingsresultatDTO
+import no.nav.dagpenger.mediator.juli
+import no.nav.dagpenger.mediator.juni
+import no.nav.dagpenger.mediator.objectMapper
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.regel.brev.DagpengerBrevmal
-import no.nav.dagpenger.regel.fastsetting.DagpengenesStørrelse.antallBarn
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.antallBarn
+import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import org.junit.jupiter.api.Test
+import tools.jackson.databind.JsonNode
+import tools.jackson.module.kotlin.treeToValue
 
 class BrevScenarioTest {
     @Test

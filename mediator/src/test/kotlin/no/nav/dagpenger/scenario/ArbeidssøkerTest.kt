@@ -7,11 +7,11 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.api.behandling.models.OpprinnelseDTO
+import no.nav.dagpenger.brev.TypstRenderer
 import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
-import no.nav.dagpenger.brev.TypstRenderer
 import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse.Companion.behandlingFlyttetAvklaring
 import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
