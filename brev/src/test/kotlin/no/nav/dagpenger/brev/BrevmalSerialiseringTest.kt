@@ -1,18 +1,24 @@
 package no.nav.dagpenger.brev
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import tools.jackson.databind.SerializationFeature
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.KotlinModule
+import tools.jackson.module.kotlin.readValue
 import java.util.UUID
 import kotlin.test.Test
 
 class BrevmalSerialiseringTest {
     private val objectMapper =
-        jacksonObjectMapper().apply {
-            enable(SerializationFeature.INDENT_OUTPUT)
-        }
+        JsonMapper
+            .builder()
+            .addModule(KotlinModule.Builder().build())
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            // Uten dette droppes felter som begynner på Æ/Ø/Å
+            .accessorNaming(DefaultAccessorNamingStrategy.Provider().withFirstCharAcceptance(true, true))
+            .build()
 
     @Test
     fun `brevmal med alle trigger-typer kan serialiseres og deserialiseres`() {
