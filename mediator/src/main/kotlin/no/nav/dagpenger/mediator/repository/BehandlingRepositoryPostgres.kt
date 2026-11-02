@@ -8,7 +8,7 @@ import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.mediator.Metrikk.hentBehandlingTimer
 import no.nav.dagpenger.mediator.Metrikk.hentBehandlingerStegTimer
 import no.nav.dagpenger.mediator.db.DatabaseSession
-import no.nav.dagpenger.mediator.repository.OpplysningerRepositoryPostgres.Companion.hentOpplysninger
+import no.nav.dagpenger.mediator.repository.OpplysningerRepositoryPostgres.Companion.hentKjedeopplysninger
 import no.nav.dagpenger.modell.Arbeidssteg
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Behandling.TilstandType.Avbrutt
@@ -173,6 +173,7 @@ internal class BehandlingRepositoryPostgres(
                             tilstand = row.string("tilstand"),
                             sistEndretTilstand = row.localDateTime("sist_endret_tilstand"),
                             basertPåBehandlingId = row.uuidOrNull("basert_på_behandling_id"),
+                            behandlingskjedeId = row.uuid("behandlingskjede_id"),
                             opprettetAv =
                                 opprettetAvFraDatabase(
                                     type = row.stringOrNull("opprettet_av_type"),
@@ -236,12 +237,10 @@ internal class BehandlingRepositoryPostgres(
 
         val opplysningerMap =
             hentBehandlingerStegTimer.labelValues("opplysninger").time<Map<UUID, Opplysninger>> {
-                this.hentOpplysninger(
+                hentKjedeopplysninger(
                     kildeRepository,
                     opplysningstypeRegister,
-                    behandlingRader
-                        .map { it.opplysningerId }
-                        .toSet(),
+                    behandlingRader.map { it.behandlingskjedeId }.toSet(),
                 )
             }
 
@@ -314,6 +313,7 @@ internal class BehandlingRepositoryPostgres(
         val tilstand: String,
         val sistEndretTilstand: java.time.LocalDateTime,
         val basertPåBehandlingId: UUID?,
+        val behandlingskjedeId: UUID,
         val opprettetAv: Aktør?,
     )
 
@@ -510,17 +510,19 @@ internal class BehandlingRepositoryPostgres(
                     "tilstand" to behandling.tilstand().first.name,
                     "sisteEndretTilstand" to behandling.tilstand().second,
                     "basertPaaBehandlingId" to behandling.basertPå?.behandlingId,
+                    "behandlingskjedeId" to behandling.behandlingskjedeId,
                 )
             }
         unitOfWork.session
             .batchPreparedNamedStatement(
                 // language=PostgreSQL
                 """
-                INSERT INTO behandling (behandling_id, tilstand, sist_endret_tilstand, basert_på_behandling_id)
-                VALUES (:id, :tilstand, :sisteEndretTilstand, :basertPaaBehandlingId)
+                INSERT INTO behandling (behandling_id, tilstand, sist_endret_tilstand, basert_på_behandling_id, behandlingskjede_id)
+                VALUES (:id, :tilstand, :sisteEndretTilstand, :basertPaaBehandlingId, :behandlingskjedeId)
                 ON CONFLICT (behandling_id) DO UPDATE SET tilstand                = :tilstand,
                                                           sist_endret_tilstand    = :sisteEndretTilstand,
-                                                          basert_på_behandling_id = :basertPaaBehandlingId
+                                                          basert_på_behandling_id = :basertPaaBehandlingId,
+                                                          behandlingskjede_id     = :behandlingskjedeId
                 """.trimIndent(),
                 params,
             ).krevAtAntallRaderErNøyaktigLik(params.size)

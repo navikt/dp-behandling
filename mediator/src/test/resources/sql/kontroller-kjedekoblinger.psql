@@ -1,0 +1,170 @@
+\set ON_ERROR_STOP on
+\set QUIET on
+\pset pager off
+\pset format csv
+\pset footer off
+\pset tuples_only on
+\if :{?batchstorrelse}
+\else
+\set batchstorrelse 1000
+\endif
+
+SET statement_timeout = '60s';
+SET lock_timeout = '2s';
+
+-- PostgreSQL krever at midlertidige tabeller opprettes foer READ ONLY-transaksjonen.
+BEGIN READ WRITE;
+CREATE TEMP TABLE kjedekontroll_status (
+    batchstorrelse integer NOT NULL CHECK (batchstorrelse > 0),
+    antall_total bigint NOT NULL,
+    antall_leste bigint NOT NULL DEFAULT 0,
+    antall_aktive bigint NOT NULL DEFAULT 0,
+    antall_batcher bigint NOT NULL DEFAULT 0,
+    etter_id uuid
+);
+
+CREATE TEMP TABLE kjedekontroll_eierskap (
+    opplysninger_id uuid NOT NULL,
+    behandling_id uuid NOT NULL,
+    rot_id uuid
+);
+CREATE INDEX ON kjedekontroll_eierskap (opplysninger_id);
+
+CREATE TEMP TABLE kjedekontroll_avvik (
+    referansetype text NOT NULL,
+    avvikstype text NOT NULL,
+    maal_fjernet boolean,
+    behandling_id uuid,
+    rot_id uuid,
+    antall_koblinger bigint NOT NULL,
+    UNIQUE NULLS NOT DISTINCT (referansetype, avvikstype, maal_fjernet, behandling_id, rot_id)
+);
+COMMIT;
+
+BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY;
+INSERT INTO kjedekontroll_status (batchstorrelse, antall_total)
+SELECT :'batchstorrelse'::integer, COUNT(*) FROM opplysning;
+
+\echo Bygger kjedekart en gang.
+WITH RECURSIVE kjede AS (
+    SELECT behandling_id, behandling_id AS rot_id
+    FROM behandling
+    WHERE basert_på_behandling_id IS NULL
+
+    UNION ALL
+
+    SELECT b.behandling_id, k.rot_id
+    FROM behandling b
+    JOIN kjede k ON b.basert_på_behandling_id = k.behandling_id
+)
+INSERT INTO kjedekontroll_eierskap (opplysninger_id, behandling_id, rot_id)
+SELECT bo.opplysninger_id, bo.behandling_id, k.rot_id
+FROM behandling_opplysninger bo
+LEFT JOIN kjede k USING (behandling_id);
+
+ANALYZE kjedekontroll_eierskap;
+
+PREPARE kjedekontroll_batch AS
+WITH batch AS MATERIALIZED (
+    SELECT o.id, o.opplysninger_id, o.erstatter_id, o.identitet_id, o.fjernet
+    FROM opplysning o
+    -- Inkluderer foerste rad og gir indekssok ogsa med en generisk PREPARE-plan.
+    WHERE o.id >= COALESCE(
+        (SELECT etter_id FROM kjedekontroll_status),
+        (SELECT id FROM opplysning ORDER BY id LIMIT 1)
+    )
+      AND o.id IS DISTINCT FROM (SELECT etter_id FROM kjedekontroll_status)
+    ORDER BY o.id
+    LIMIT (SELECT batchstorrelse FROM kjedekontroll_status)
+),
+referanser AS MATERIALIZED (
+    SELECT o.opplysninger_id, r.referansetype, r.maal_id
+    FROM batch o
+    CROSS JOIN LATERAL (
+        VALUES ('erstatter', o.erstatter_id), ('identitet', o.identitet_id)
+    ) r(referansetype, maal_id)
+    WHERE o.fjernet IS FALSE AND r.maal_id IS NOT NULL
+
+    UNION ALL
+
+    SELECT o.opplysninger_id, 'utledet_av', ua.utledet_av
+    FROM batch o
+    JOIN opplysning_utledet_av ua ON ua.opplysning_id = o.id
+    WHERE o.fjernet IS FALSE AND ua.utledet_av IS NOT NULL
+),
+maalopplysninger AS MATERIALIZED (
+    SELECT id, opplysninger_id, fjernet
+    FROM opplysning
+    WHERE id = ANY(ARRAY(SELECT maal_id FROM referanser))
+),
+eierskap AS MATERIALIZED (
+    SELECT opplysninger_id, behandling_id, rot_id
+    FROM kjedekontroll_eierskap
+    WHERE opplysninger_id = ANY(ARRAY(
+        SELECT opplysninger_id FROM batch
+        UNION
+        SELECT opplysninger_id FROM maalopplysninger
+    ))
+),
+avvik AS (
+    SELECT r.referansetype,
+           CASE
+               WHEN fra.behandling_id IS NULL THEN 'mangler kildebehandling'
+               WHEN fra.rot_id IS NULL THEN 'kildekjede uten rot'
+               WHEN maal.id IS NULL THEN 'mangler maalopplysning'
+               WHEN til.behandling_id IS NULL THEN 'mangler maalbehandling'
+               WHEN til.rot_id IS NULL THEN 'maalkjede uten rot'
+               ELSE 'ulik behandlingskjede'
+           END AS avvikstype,
+           maal.fjernet AS maal_fjernet,
+           fra.behandling_id,
+           fra.rot_id
+    FROM referanser r
+    LEFT JOIN eierskap fra ON fra.opplysninger_id = r.opplysninger_id
+    LEFT JOIN maalopplysninger maal ON maal.id = r.maal_id
+    LEFT JOIN eierskap til ON til.opplysninger_id = maal.opplysninger_id
+    WHERE fra.rot_id IS NULL OR til.rot_id IS NULL OR fra.rot_id <> til.rot_id
+),
+lagre_avvik AS (
+    INSERT INTO kjedekontroll_avvik (referansetype, avvikstype, maal_fjernet, behandling_id, rot_id, antall_koblinger)
+    SELECT referansetype, avvikstype, maal_fjernet, behandling_id, rot_id, COUNT(*)
+    FROM avvik
+    GROUP BY referansetype, avvikstype, maal_fjernet, behandling_id, rot_id
+    ON CONFLICT (referansetype, avvikstype, maal_fjernet, behandling_id, rot_id)
+    DO UPDATE SET antall_koblinger = kjedekontroll_avvik.antall_koblinger + EXCLUDED.antall_koblinger
+),
+fremdrift AS (
+    UPDATE kjedekontroll_status
+    SET antall_leste = antall_leste + (SELECT COUNT(*) FROM batch),
+        antall_aktive = antall_aktive + (SELECT COUNT(*) FROM batch WHERE fjernet IS FALSE),
+        antall_batcher = antall_batcher + 1,
+        etter_id = (SELECT id FROM batch ORDER BY id DESC LIMIT 1)
+    RETURNING *
+)
+SELECT format('Kontrollert %s av %s opplysninger', antall_leste, antall_total)
+FROM fremdrift
+WHERE antall_batcher % 100 = 0 OR antall_leste = antall_total;
+
+SELECT 'EXECUTE kjedekontroll_batch;'
+FROM generate_series(
+    1::bigint,
+    (SELECT (antall_total + batchstorrelse - 1) / batchstorrelse FROM kjedekontroll_status)
+)
+\gexec
+
+DEALLOCATE kjedekontroll_batch;
+\pset tuples_only off
+\echo STATUS
+SELECT antall_leste, antall_aktive, antall_batcher FROM kjedekontroll_status;
+\echo AVVIK
+SELECT referansetype,
+       avvikstype,
+       maal_fjernet,
+       SUM(antall_koblinger) AS antall_koblinger,
+       COUNT(DISTINCT behandling_id) AS antall_behandlinger,
+       COUNT(DISTINCT rot_id) AS antall_kjeder
+FROM kjedekontroll_avvik
+GROUP BY referansetype, avvikstype, maal_fjernet
+ORDER BY referansetype, avvikstype, maal_fjernet;
+
+ROLLBACK;

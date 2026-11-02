@@ -5,7 +5,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import java.util.UUID
 
 interface OpplysningerRepository {
-    fun hentOpplysninger(opplysningerId: UUID): Opplysninger?
+    fun hentKjedeopplysninger(behandlingskjedeIder: Set<UUID>): Map<UUID, Opplysninger>
 
     fun lagreOpplysninger(opplysninger: Opplysninger)
 

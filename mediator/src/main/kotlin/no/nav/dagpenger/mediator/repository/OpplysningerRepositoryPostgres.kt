@@ -56,21 +56,12 @@ internal class OpplysningerRepositoryPostgres(
     internal companion object {
         private val logger = KotlinLogging.logger { }
 
-        fun Session.hentOpplysninger(
+        fun Session.hentKjedeopplysninger(
             kildeRepository: KildeRepository,
             opplysningstypeRegister: OpplysningstypeRegister,
-            opplysningerId: UUID,
-        ) = hentOpplysninger(kildeRepository, opplysningstypeRegister, setOf(opplysningerId))
-            .values
-            .singleOrNull()
-            ?: Opplysninger.rehydrer(opplysningerId, emptyList())
-
-        fun Session.hentOpplysninger(
-            kildeRepository: KildeRepository,
-            opplysningstypeRegister: OpplysningstypeRegister,
-            opplysningerIder: Set<UUID>,
+            behandlingskjedeIder: Set<UUID>,
         ) = OpplysningRepository(this, kildeRepository, opplysningstypeRegister)
-            .hentOpplysninger(opplysningerIder)
+            .hentKjedeopplysninger(behandlingskjedeIder)
             .rehydrerOpplysninger()
 
         private val serdeBarn = objectMapper.serde<BarnListe>()
@@ -80,8 +71,8 @@ internal class OpplysningerRepositoryPostgres(
         private val serdePeriode = objectMapper.serde<Periode>()
     }
 
-    override fun hentOpplysninger(opplysningerId: UUID) =
-        dbSession.session { session -> session.hentOpplysninger(kildeRepository, opplysningstypeRegister, opplysningerId) }
+    override fun hentKjedeopplysninger(behandlingskjedeIder: Set<UUID>) =
+        dbSession.session { session -> session.hentKjedeopplysninger(kildeRepository, opplysningstypeRegister, behandlingskjedeIder) }
 
     override fun lagreOpplysninger(opplysninger: Opplysninger) {
         dbSession.transaction {
@@ -146,9 +137,9 @@ internal class OpplysningerRepositoryPostgres(
         private val opplysningstypeRegister: OpplysningstypeRegister,
     ) {
         @WithSpan
-        fun hentOpplysninger(opplysningerIder: Set<UUID>): Map<UUID, List<Opplysning<out Any>>> {
-            Span.current().setAttribute("app.antallOpplysningerIder", opplysningerIder.size.toLong())
-            val rader = hentRader(opplysningerIder)
+        fun hentKjedeopplysninger(behandlingskjedeIder: Set<UUID>): Map<UUID, List<Opplysning<out Any>>> {
+            Span.current().setAttribute("app.antallBehandlingskjedeIder", behandlingskjedeIder.size.toLong())
+            val rader = hentRader(behandlingskjedeIder)
             Span.current().setAttribute("app.antallOpplysningerRader", rader.size.toLong())
 
             // Hent inn kilde for alle opplysninger vi trenger
@@ -161,19 +152,14 @@ internal class OpplysningerRepositoryPostgres(
                 }
 
             // reverse-lookup map for å finne opplysningerId for hver opplysning
-            val opplysningerIdForOpplysning =
-                raderMedKilde
-                    // bevarer bare opplysninger vi faktisk ønsker oss
-                    .filter { it.opplysingerId in opplysningerIder }
-                    .associate { it.id to it.opplysingerId }
+            val opplysningerIdForOpplysning = raderMedKilde.associate { it.id to it.opplysingerId }
             return raderMedKilde
                 .somOpplysninger()
-                .filter { it.id in opplysningerIdForOpplysning }
                 .groupBy { opplysningerIdForOpplysning.getValue(it.id) }
         }
 
         @WithSpan
-        private fun hentRader(opplysningerIder: Set<UUID>): Collection<OpplysningRad<*>> {
+        private fun hentRader(behandlingskjedeIder: Set<UUID>): Collection<OpplysningRad<*>> {
             val span = Span.current()
             var mappingStart: TimeMark? = null
             val rader =
@@ -182,44 +168,17 @@ internal class OpplysningerRepositoryPostgres(
                         queryOf(
                             //language=PostgreSQL
                             """
-                            WITH RECURSIVE
-                                opplysningskjede AS (
-                                    -- ankeropplysninger
-                                    SELECT id, erstatter_id
-                                    FROM opplysning
-                                    WHERE opplysninger_id = ANY(:opplysninger_ider) AND fjernet IS FALSE
-                                    
-                                    UNION
-                                    -- Traverserer grunntabellene direkte for å unngå beriking av
-                                    -- opplysningene på hvert rekursjonsnivå.
-                                    SELECT o.id, o.erstatter_id
-                                    FROM opplysningskjede ok
-                                    CROSS JOIN LATERAL (
-                                        SELECT utledet_av AS ref_id
-                                        FROM opplysning_utledet_av
-                                        WHERE opplysning_id = ok.id
-                                        UNION ALL
-                                        SELECT ok.erstatter_id
-                                        WHERE ok.erstatter_id IS NOT NULL
-                                    ) cand
-                                    JOIN opplysning o ON o.id = cand.ref_id AND o.fjernet IS FALSE
-                                )
-                            -- Array-basert oppslag (i stedet for join mot CTE-en) fordi rekursive
-                            -- CTE-er har dårlige radestimater i Postgres. Et join mot opplysningskjede
-                            -- direkte fikk planleggeren til å tro resultatet var mye større enn det er,
-                            -- og valgte en full tabellskann (Merge Join) i stedet for indeksoppslag.
                             SELECT o.*
                             FROM opplysningstabell o
-                            WHERE o.id = ANY(ARRAY(SELECT id FROM opplysningskjede))
+                            WHERE o.opplysninger_id = ANY(ARRAY(
+                                SELECT bo.opplysninger_id
+                                FROM behandling b
+                                JOIN behandling_opplysninger bo USING (behandling_id)
+                                WHERE b.behandlingskjede_id = ANY(:behandlingskjede_ider)
+                            ))
                             ORDER BY o.id
                             """.trimIndent(),
-                            mapOf(
-                                "opplysninger_ider" to
-                                    session.connection.underlying.createArrayOf(
-                                        "uuid",
-                                        opplysningerIder.toTypedArray(),
-                                    ),
-                            ),
+                            mapOf("behandlingskjede_ider" to behandlingskjedeIder.toTypedArray()),
                         ).map { row ->
                             if (mappingStart == null) mappingStart = TimeSource.Monotonic.markNow()
                             val datatype = Datatype.fromString(row.string("datatype"))

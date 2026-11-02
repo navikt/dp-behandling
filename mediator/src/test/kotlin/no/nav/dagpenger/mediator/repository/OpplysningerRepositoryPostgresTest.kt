@@ -8,7 +8,6 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
-import no.nav.dagpenger.mediator.TestOpplysningstyper
 import no.nav.dagpenger.mediator.TestOpplysningstyper.barn
 import no.nav.dagpenger.mediator.TestOpplysningstyper.baseOpplysningstype
 import no.nav.dagpenger.mediator.TestOpplysningstyper.beløpA
@@ -29,7 +28,7 @@ import no.nav.dagpenger.mediator.db.withMigratedDb
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.mai
 import no.nav.dagpenger.mediator.objectMapper
-import no.nav.dagpenger.mediator.repository.OpplysningerRepositoryPostgres.Companion.hentOpplysninger
+import no.nav.dagpenger.mediator.repository.TestBehandlinger.opprettBehandlingskjede
 import no.nav.dagpenger.mediator.september
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Faktum
@@ -39,7 +38,6 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.OpplysningstypeRegister
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
@@ -66,6 +64,20 @@ import java.util.UUID
 import kotlin.system.measureTimeMillis
 
 class OpplysningerRepositoryPostgresTest {
+    @Test
+    fun `tomt eller ukjent kjedeutvalg henter ikke andre opplysninger`() {
+        withMigratedDb {
+            val repo = opplysningerRepository(dbSession)
+            val opplysninger = Opplysninger.med(Faktum(heltall, 10))
+            repo.lagreOpplysninger(opplysninger)
+            opprettBehandlingskjede(opplysninger)
+
+            repo.hentKjedeopplysninger(emptySet()).size shouldBe 0
+            repo.hentKjedeopplysninger(setOf(UUIDv7.ny())).size shouldBe 0
+            repo.hentKjedeopplysninger(setOf(opplysninger.id)).size shouldBe 0
+        }
+    }
+
     @Test
     fun `lagrer enkle opplysninger`() {
         withMigratedDb {
@@ -96,9 +108,10 @@ class OpplysningerRepositoryPostgresTest {
                 )
             val opplysninger = Opplysninger.med(heltallFaktum, boolskFaktum, datoFaktum, desimalltallFaktum, tekstFaktum, barn, periode)
             repo.lagreOpplysninger(opplysninger)
+            val behandlingskjedeId = opprettBehandlingskjede(opplysninger)
 
             val fraDb =
-                repo.hentOpplysninger(opplysninger.id).also {
+                repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(opplysninger.id).also {
                     Regelkjøring(LocalDate.now(), it)
                 }
             fraDb.somListe().size shouldBe opplysninger.somListe().size
@@ -124,8 +137,9 @@ class OpplysningerRepositoryPostgresTest {
             val faktum1 = Faktum(heltall, 10, gyldighetsperiode1)
             val opplysninger = Opplysninger.med(faktum1)
             repo.lagreOpplysninger(opplysninger)
+            val behandlingskjedeId = opprettBehandlingskjede(opplysninger)
             val fraDb =
-                repo.hentOpplysninger(opplysninger.id).also {
+                repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(opplysninger.id).also {
                     Regelkjøring(LocalDate.now(), it)
                 }
             fraDb.finnOpplysning(faktum1.opplysningstype).gyldighetsperiode shouldBe gyldighetsperiode1
@@ -140,8 +154,9 @@ class OpplysningerRepositoryPostgresTest {
             opplysninger.leggTil(Faktum(heltall, 10, Gyldighetsperiode(1.april(2024), 20.april(2024))))
             opplysninger.tombstone(heltall, Gyldighetsperiode(10.april(2024), 20.april(2024)))
             repo.lagreOpplysninger(opplysninger)
+            val behandlingskjedeId = opprettBehandlingskjede(opplysninger)
 
-            val fraDb = repo.hentOpplysninger(opplysninger.id)
+            val fraDb = repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(opplysninger.id)
 
             fraDb.rå().filterIsInstance<Tombstone<*>>().size shouldBe 1
             fraDb.finnAlle(heltall).map { it.gyldighetsperiode } shouldBe listOf(Gyldighetsperiode(1.april(2024), 9.april(2024)))
@@ -157,8 +172,9 @@ class OpplysningerRepositoryPostgresTest {
             opplysninger.leggTil(opprinnelig)
             val endret = opplysninger.endre(opprinnelig, verdi = 20, gyldighetsperiode = Gyldighetsperiode(10.april(2024)))
             repo.lagreOpplysninger(opplysninger)
+            val behandlingskjedeId = opprettBehandlingskjede(opplysninger)
 
-            val fraDb = repo.hentOpplysninger(opplysninger.id)
+            val fraDb = repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(opplysninger.id)
 
             fraDb.finnAlle(heltall).map { it.id to it.verdi } shouldBe listOf(endret.id to 20)
             fraDb.finnAlle(heltall).single().identitetId shouldBe opprinnelig.id
@@ -175,9 +191,10 @@ class OpplysningerRepositoryPostgresTest {
             val minDatoFaktum = Faktum(mindato, LocalDate.MIN, kilde = kilde)
             val opplysninger = Opplysninger.med(maksDatoFaktum, minDatoFaktum)
             repo.lagreOpplysninger(opplysninger)
+            val behandlingskjedeId = opprettBehandlingskjede(opplysninger)
 
             val fraDb =
-                repo.hentOpplysninger(opplysninger.id).also {
+                repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(opplysninger.id).also {
                     Regelkjøring(LocalDate.now(), it)
                 }
             fraDb.finnOpplysning(maksDatoFaktum.opplysningstype).verdi shouldBe maksDatoFaktum.verdi
@@ -198,9 +215,10 @@ class OpplysningerRepositoryPostgresTest {
 
             val opplysninger = Opplysninger.med(ulidFaktum, ulidBoolskFaktum)
             repo.lagreOpplysninger(opplysninger)
+            val behandlingskjedeId = opprettBehandlingskjede(opplysninger)
 
             val fraDb =
-                repo.hentOpplysninger(opplysninger.id).also {
+                repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(opplysninger.id).also {
                     Regelkjøring(LocalDate.now(), it)
                 }
             fraDb.finnOpplysning(opplysningstype).verdi shouldBe ulidFaktum.verdi
@@ -229,8 +247,10 @@ class OpplysningerRepositoryPostgresTest {
             opplysninger.leggTil(baseOpplysning as Opplysning<*>).also { regelkjøring.evaluer() }
 
             repo.lagreOpplysninger(opplysninger)
+            val behandlingskjedeId = opprettBehandlingskjede(opplysninger)
 
-            val fraDb = repo.hentOpplysninger(opplysninger.id).also { Regelkjøring(LocalDate.now(), it) }
+            val fraDb =
+                repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(opplysninger.id).also { Regelkjøring(LocalDate.now(), it) }
             fraDb.somListe().size shouldBe opplysninger.somListe().size
 
             with(fraDb.finnOpplysning(utledetOpplysningstype)) {
@@ -250,11 +270,9 @@ class OpplysningerRepositoryPostgresTest {
     }
 
     @Test
-    fun `henter utledninger og avhengigheter for flere opplysningssett uten a blande dem`() {
+    fun `henter utledninger og avhengigheter for flere behandlingskjeder uten a blande dem`() {
         withMigratedDb {
             val repo = opplysningerRepository(dbSession)
-            val kildeRepository = KildeRepository(dbSession)
-            val opplysningstypeRegister = OpplysningstypeRegister(TestOpplysningstyper.alle)
             val regelsett =
                 vilkår("vilkår") {
                     regel(baseOpplysningstype) { innhentes }
@@ -270,12 +288,10 @@ class OpplysningerRepositoryPostgresTest {
                     repo.lagreOpplysninger(opplysninger)
                     opplysninger
                 }
+            val behandlingskjedeIder = opplysningssett.map { opprettBehandlingskjede(it) }
             val valgteOpplysninger = opplysningssett.take(2)
 
-            val fraDb =
-                dbSession.session { session ->
-                    session.hentOpplysninger(kildeRepository, opplysningstypeRegister, valgteOpplysninger.map { it.id }.toSet())
-                }
+            val fraDb = repo.hentKjedeopplysninger(behandlingskjedeIder.take(2).toSet())
 
             fraDb.keys shouldBe valgteOpplysninger.map { it.id }.toSet()
             valgteOpplysninger.forEach { opplysninger ->
@@ -307,8 +323,9 @@ class OpplysningerRepositoryPostgresTest {
             val opplysning = Faktum(utledetOpplysningstype, 5, utledetAv = utledning)
             val opplysninger = Opplysninger.med(opplysning)
             repo.lagreOpplysninger(opplysninger)
+            val behandlingskjedeId = opprettBehandlingskjede(opplysninger)
 
-            val fraDb = repo.hentOpplysninger(opplysninger.id)
+            val fraDb = repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(opplysninger.id)
 
             fraDb.finnOpplysning(utledetOpplysningstype).utledetAv shouldBe utledning
         }
@@ -338,7 +355,8 @@ class OpplysningerRepositoryPostgresTest {
             // Relativ sjekk: fanger O(n²)-regresjoner uavhengig av maskinlast
             tidStor shouldBeLessThan (tidLiten * faktorGrense)
 
-            val fraDb = repo.hentOpplysninger(storOpplysninger.id)
+            val behandlingskjedeId = opprettBehandlingskjede(storOpplysninger)
+            val fraDb = repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(storOpplysninger.id)
             fraDb.somListe().size shouldBe storBatch
         }
     }
@@ -355,8 +373,9 @@ class OpplysningerRepositoryPostgresTest {
             repo.lagreOpplysninger(opplysninger)
             opplysninger.leggTil(opplysningErstattet as Opplysning<*>).also { regelkjøring.evaluer() }
             repo.lagreOpplysninger(opplysninger)
+            val behandlingskjedeId = opprettBehandlingskjede(opplysninger)
             val fraDb =
-                repo.hentOpplysninger(opplysninger.id).also {
+                repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(opplysninger.id).also {
                     Regelkjøring(LocalDate.now(), it)
                 }
             fraDb.somListe(LesbarOpplysninger.Filter.Egne) shouldContainExactly listOf(opplysningErstattet)
@@ -379,10 +398,12 @@ class OpplysningerRepositoryPostgresTest {
             val opplysningErstattet = Faktum(heltall, 20)
             opplysningerSomErstatter.leggTil(opplysningErstattet as Opplysning<*>)
             repo.lagreOpplysninger(opplysningerSomErstatter)
+            val behandlingskjedeId = opprettBehandlingskjede(opprinneligOpplysninger, opplysningerSomErstatter)
+            val hentedeOpplysninger = repo.hentKjedeopplysninger(setOf(behandlingskjedeId))
 
             // Verifiser
             opprinneligOpplysninger.somListe(LesbarOpplysninger.Filter.Egne) shouldContainExactly listOf(opplysning)
-            val opprinneligFraDb = repo.hentOpplysninger(opprinneligOpplysninger.id)
+            val opprinneligFraDb = hentedeOpplysninger.getValue(opprinneligOpplysninger.id)
             opprinneligFraDb.somListe(LesbarOpplysninger.Filter.Egne) shouldContainExactly
                 opprinneligOpplysninger.somListe(
                     LesbarOpplysninger.Filter.Egne,
@@ -390,7 +411,7 @@ class OpplysningerRepositoryPostgresTest {
 
             val fraDb: Opplysninger =
                 // Simulerer hvordan Behandling setter opp Opplysninger
-                repo.hentOpplysninger(opplysningerSomErstatter.id).baserPå(opprinneligFraDb)
+                hentedeOpplysninger.getValue(opplysningerSomErstatter.id).baserPå(opprinneligFraDb)
 
             fraDb.somListe(LesbarOpplysninger.Filter.Egne) shouldContainExactly
                 opplysningerSomErstatter.somListe(LesbarOpplysninger.Filter.Egne)
@@ -431,8 +452,10 @@ class OpplysningerRepositoryPostgresTest {
             val endretBaseOpplysningstype = Faktum(baseOpplysningstype, LocalDate.now().plusDays(1))
             nyeOpplysninger.leggTil(endretBaseOpplysningstype as Opplysning<*>).also { nyRegelkjøring.evaluer() }
             repo.lagreOpplysninger(nyeOpplysninger)
+            val behandlingskjedeId = opprettBehandlingskjede(tidligereOpplysninger, nyeOpplysninger)
+            val hentedeOpplysninger = repo.hentKjedeopplysninger(setOf(behandlingskjedeId))
 
-            val fraDb = repo.hentOpplysninger(nyeOpplysninger.id)
+            val fraDb = hentedeOpplysninger.getValue(nyeOpplysninger.id)
             fraDb.somListe().size shouldBe 2
 
             with(fraDb.finnOpplysning(utledetOpplysningstype)) {
@@ -449,7 +472,7 @@ class OpplysningerRepositoryPostgresTest {
                 utledetAv.shouldBeNull()
             }
 
-            val tidligereOpplysningerFraDb = repo.hentOpplysninger(tidligereOpplysninger.id)
+            val tidligereOpplysningerFraDb = hentedeOpplysninger.getValue(tidligereOpplysninger.id)
             // tidligereOpplysningerFraDb.finnAlle().utenErstattet().size shouldBe 0
             tidligereOpplysningerFraDb.somListe(Egne).size shouldBe 2
             with(tidligereOpplysninger.somListe(Egne).find { it.id == baseOpplysning.id }) {
@@ -474,9 +497,10 @@ class OpplysningerRepositoryPostgresTest {
 
             val opplysninger = Opplysninger.med(beløpFaktumA, beløpFaktumB)
             repo.lagreOpplysninger(opplysninger)
+            val behandlingskjedeId = opprettBehandlingskjede(opplysninger)
 
             val fraDb =
-                repo.hentOpplysninger(opplysninger.id).also {
+                repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(opplysninger.id).also {
                     Regelkjøring(LocalDate.now(), it)
                 }
 
@@ -509,7 +533,8 @@ class OpplysningerRepositoryPostgresTest {
                 )
             val opplysninger = Opplysninger.med(inntektFaktum)
             repo.lagreOpplysninger(opplysninger)
-            val fraDb = repo.hentOpplysninger(opplysninger.id)
+            val behandlingskjedeId = opprettBehandlingskjede(opplysninger)
+            val fraDb = repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(opplysninger.id)
 
             fraDb.finnOpplysning(inntektA).verdi.id shouldBe inntektFaktum.verdi.id
             fraDb
@@ -533,6 +558,7 @@ class OpplysningerRepositoryPostgresTest {
 
             val opplysninger = Opplysninger.med(barn)
             repo.lagreOpplysninger(opplysninger)
+            val behandlingskjedeId = opprettBehandlingskjede(opplysninger)
 
             // Jukser litt å legger det gamle formatet rett i databasen for å simulere en gammel lagret opplysning (uten søknadsbarnId)
             dbSession.session { session ->
@@ -565,7 +591,7 @@ class OpplysningerRepositoryPostgresTest {
                 )
             }
 
-            val fraDb = repo.hentOpplysninger(opplysninger.id)
+            val fraDb = repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(opplysninger.id)
             val barnListe = fraDb.finnOpplysning(barn.opplysningstype).verdi
             barnListe.barn.size shouldBe 2
             barnListe.barn[0].fornavnOgMellomnavn shouldBe "HALV"
@@ -593,8 +619,8 @@ class OpplysningerRepositoryPostgresTest {
             repo.lagreOpplysninger(opplysninger)
             opplysninger.fjernHvis { it == heltallFaktum }
             repo.lagreOpplysninger(opplysninger)
-            val fraDb = repo.hentOpplysninger(opplysninger.id)
-            fraDb.somListe().shouldBeEmpty()
+            val behandlingskjedeId = opprettBehandlingskjede(opplysninger)
+            repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).size shouldBe 0
             vaktmesterRepo.slettOpplysninger() shouldContainExactly listOf(heltallFaktum.id)
         }
     }
@@ -628,9 +654,10 @@ class OpplysningerRepositoryPostgresTest {
                 Regelkjøring(LocalDate.now(), nyeOpplysninger, regelsett).evaluer()
             }
             repo.lagreOpplysninger(nyeOpplysninger)
+            val behandlingskjedeId = opprettBehandlingskjede(tidligereOpplysninger, nyeOpplysninger)
 
             // Hent lagrede opplysninger fra ny behandling
-            val fraDb = repo.hentOpplysninger(nyeOpplysninger.id)
+            val fraDb = repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(nyeOpplysninger.id)
             fraDb.somListe().size shouldBe 2
             vaktmesterRepo.slettOpplysninger().shouldBeEmpty()
             val utledet = fraDb.finnOpplysning(utledetOpplysningstype)
@@ -646,12 +673,12 @@ class OpplysningerRepositoryPostgresTest {
             // Slett opplysninger som er fjernet kun fra ny behandling
             vaktmesterRepo.slettOpplysninger().shouldContainExactly(utledet.id, endretBaseOpplysningstype.id)
 
-            with(repo.hentOpplysninger(nyeOpplysninger.id)) {
+            with(repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(nyeOpplysninger.id)) {
                 somListe().size shouldBe 2
                 finnOpplysning(baseOpplysningstype).verdi shouldBe endretDato
             }
 
-            with(repo.hentOpplysninger(tidligereOpplysninger.id)) {
+            with(repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(tidligereOpplysninger.id)) {
                 somListe().size shouldBe 2
                 finnOpplysning(baseOpplysningstype).verdi shouldBe opprinneligDato
             }
@@ -695,7 +722,8 @@ class OpplysningerRepositoryPostgresTest {
 
             vaktmesterRepo.slettOpplysninger().shouldBeEmpty()
 
-            val rehydrerteOpplysninger = repo.hentOpplysninger(opplysninger.id)
+            val behandlingskjedeId = opprettBehandlingskjede(opplysninger)
+            val rehydrerteOpplysninger = repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(opplysninger.id)
             // Endre opplysning a slik at b og c blir endret (og det originale blir fjernet)
             val endretAFaktum = Faktum(a, false)
             val regelkjøring2 = Regelkjøring(LocalDate.now(), rehydrerteOpplysninger, regelsett1, regelsett2)
@@ -771,15 +799,8 @@ class OpplysningerRepositoryPostgresTest {
 
     @Test
     fun `henter riktig opplysninger for flere ferdige sosken kjedet pa samme rot`() {
-        // Reprodukserer "delt rot": flere ferdige søsken-behandlinger som alle er
-        // basertPå samme forelder og overskriver samme opplysningstype. Dette skaper
-        // fan-in i erstatter_id-grafen når alle opplysninger_id-ene hentes i én batch,
-        // slik hentBehandlinger(ident) faktisk gjør. Regresjonstest for UNION ALL-rewriten
-        // av den rekursive CTE-en i OpplysningerRepositoryPostgres.
         withMigratedDb {
             val repo = opplysningerRepository(dbSession)
-            val kildeRepository = KildeRepository(dbSession)
-            val opplysningstypeRegister = OpplysningstypeRegister(TestOpplysningstyper.alle)
 
             val rot = Opplysninger.med(Faktum(heltall, 1))
             repo.lagreOpplysninger(rot)
@@ -793,12 +814,9 @@ class OpplysningerRepositoryPostgresTest {
                     søsken
                 }
 
-            val alleOpplysningerIder = (listOf(rot) + soskenKjeder).map { it.id }.toSet()
+            val behandlingskjedeId = opprettBehandlingskjede(rot, *soskenKjeder.toTypedArray())
 
-            val fraDb =
-                dbSession.session { session ->
-                    session.hentOpplysninger(kildeRepository, opplysningstypeRegister, alleOpplysningerIder)
-                }
+            val fraDb = repo.hentKjedeopplysninger(setOf(behandlingskjedeId))
 
             // Hver søsken-kjede skal kun se sin egen overskrivning av "heltall", ikke søsknenes
             soskenKjeder.forEachIndexed { i, søsken ->

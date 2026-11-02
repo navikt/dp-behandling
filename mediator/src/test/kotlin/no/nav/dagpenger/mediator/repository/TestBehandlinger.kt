@@ -2,6 +2,7 @@ package no.nav.dagpenger.mediator.repository
 
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.mediator.TestOpplysningstyper
+import no.nav.dagpenger.mediator.db.DBTestContext
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Behandling.TilstandType
 import no.nav.dagpenger.modell.Rettighetstatus
@@ -31,6 +32,37 @@ import java.util.UUID
  * Ingen avhengighet til dagpenger- eller ferietillegg-modulene.
  */
 internal object TestBehandlinger {
+    fun DBTestContext.opprettBehandlingskjede(vararg opplysninger: Opplysninger): UUID {
+        require(opplysninger.isNotEmpty())
+        val behandlingskjedeId = UUIDv7.ny()
+        val params =
+            opplysninger.mapIndexed { index, opplysningssett ->
+                mapOf(
+                    "behandlingId" to if (index == 0) behandlingskjedeId else UUIDv7.ny(),
+                    "basertPaa" to if (index == 0) null else behandlingskjedeId,
+                    "behandlingskjedeId" to behandlingskjedeId,
+                    "opplysningerId" to opplysningssett.id,
+                )
+            }
+        dbSession.transaction {
+            session.batchPreparedNamedStatement(
+                """
+                INSERT INTO behandling (behandling_id, basert_på_behandling_id, behandlingskjede_id, tilstand)
+                VALUES (:behandlingId, :basertPaa, :behandlingskjedeId, 'Ferdig')
+                """.trimIndent(),
+                params,
+            )
+            session.batchPreparedNamedStatement(
+                """
+                INSERT INTO behandling_opplysninger (behandling_id, opplysninger_id)
+                VALUES (:behandlingId, :opplysningerId)
+                """.trimIndent(),
+                params,
+            )
+        }
+        return behandlingskjedeId
+    }
+
     private val testOpplysningstype = TestOpplysningstyper.boolsk
 
     private val testRegelsett =

@@ -6,8 +6,11 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotliquery.queryOf
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.output.MigrateOutput
+import org.testcontainers.containers.Container
 import org.testcontainers.postgresql.PostgreSQLContainer
+import org.testcontainers.utility.MountableFile
 import java.time.Duration
+import java.util.UUID
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -112,6 +115,38 @@ internal object Postgres {
     internal fun slettIsolertDatabase(databasenavn: String) {
         logger.info { "Sletter midlertidig database" }
         systemtilkobling.createStatement().execute("drop database $databasenavn with (force)")
+    }
+
+    internal fun kjorPsql(
+        context: DBTestContext,
+        ressurs: String,
+        variabler: Map<String, String> = emptyMap(),
+        bruker: String = instance.username,
+        pgOptions: String = "-c work_mem=64kB -c temp_file_limit=16384 -c plan_cache_mode=force_generic_plan",
+    ): Container.ExecResult {
+        val fil = "/tmp/kjedekontroll-${UUID.randomUUID()}.psql"
+        instance.copyFileToContainer(MountableFile.forClasspathResource(ressurs), fil)
+        try {
+            return instance.execInContainer(
+                "env",
+                "PGOPTIONS=$pgOptions",
+                "psql",
+                "-X",
+                "-w",
+                "-U",
+                bruker,
+                "-d",
+                context.hikariConfig.jdbcUrl
+                    .substringAfterLast('/')
+                    .substringBefore('?'),
+                *variabler.map { (navn, verdi) -> "--set=$navn=$verdi" }.toTypedArray(),
+                "-f",
+                fil,
+            )
+        } finally {
+            val opprydding = instance.execInContainer("rm", fil)
+            check(opprydding.exitCode == 0) { opprydding.stderr }
+        }
     }
 
     inline fun withTestContext(block: (DBTestContext) -> Unit) {

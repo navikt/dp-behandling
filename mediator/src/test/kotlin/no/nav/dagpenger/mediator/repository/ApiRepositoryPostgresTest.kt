@@ -53,8 +53,8 @@ class ApiRepositoryPostgresTest {
                     queryOf(
                         //language=PostgreSQL
                         """
-                        INSERT INTO behandling(behandling_id, tilstand)
-                        VALUES (:id, :tilstand)
+                        INSERT INTO behandling(behandling_id, tilstand, behandlingskjede_id)
+                        VALUES (:id, :tilstand, :id)
                         ON CONFLICT (behandling_id) DO UPDATE SET tilstand = :tilstand, sist_endret_tilstand = NOW()
                         """.trimIndent(),
                         mapOf(

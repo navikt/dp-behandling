@@ -12,6 +12,7 @@ import io.opentelemetry.context.Context
 import no.nav.dagpenger.mediator.TestOpplysningstyper.heltall
 import no.nav.dagpenger.mediator.TestOpplysningstyper.opplysningerRepository
 import no.nav.dagpenger.mediator.db.withMigratedDb
+import no.nav.dagpenger.mediator.repository.TestBehandlinger.opprettBehandlingskjede
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Saksbehandler
@@ -37,7 +38,7 @@ class OpplysningerRepositoryTracingTest {
             every { span.isRecording } returns true
 
             Context.current().with(span).makeCurrent().use {
-                repo.hentOpplysninger(UUIDv7.ny()).rå() shouldBe emptyList()
+                repo.hentKjedeopplysninger(setOf(UUIDv7.ny())).size shouldBe 0
             }
 
             verify(exactly = 0) { span.setAttribute("app.row_mapping.duration_ms", any<Double>()) }
@@ -57,7 +58,8 @@ class OpplysningerRepositoryTracingTest {
                     kilde = kilde,
                     opprettet = opprettet,
                 )
-            repo.lagreOpplysninger(Opplysninger.med(base))
+            val baseOpplysninger = Opplysninger.med(base)
+            repo.lagreOpplysninger(baseOpplysninger)
             val mellom =
                 Faktum(
                     id = UUID(0, 2),
@@ -80,13 +82,14 @@ class OpplysningerRepositoryTracingTest {
             repo.lagreOpplysninger(opplysninger)
             siste.erstatter(mellom)
             repo.lagreOpplysninger(opplysninger)
+            val behandlingskjedeId = opprettBehandlingskjede(baseOpplysninger, opplysninger)
             val span = spyk(Span.getInvalid())
             every { span.isRecording } returns true
 
             val hentet =
                 Context.current().with(span).makeCurrent().use {
                     Span.current() shouldBeSameInstanceAs span
-                    repo.hentOpplysninger(opplysninger.id).rå()
+                    repo.hentKjedeopplysninger(setOf(behandlingskjedeId)).getValue(opplysninger.id).rå()
                 }
 
             hentet.map { it.id } shouldBe listOf(mellom.id, siste.id).sorted()
@@ -100,6 +103,7 @@ class OpplysningerRepositoryTracingTest {
             hentetSiste.kilde shouldBeSameInstanceAs hentetBase.kilde
             val mappingTid = slot<Double>()
             verify(exactly = 1) { span.setAttribute("app.row_mapping.duration_ms", capture(mappingTid)) }
+            verify(exactly = 1) { span.setAttribute("app.antallBehandlingskjedeIder", 1L) }
             mappingTid.captured shouldBeGreaterThanOrEqual 0.0
         }
     }
