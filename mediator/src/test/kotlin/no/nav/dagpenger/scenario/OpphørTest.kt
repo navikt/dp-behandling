@@ -58,7 +58,6 @@ class OpphørTest {
     }
 
     @Test
-    @Disabled("Må fikses, revurdering etter opphør fungerer ikke ")
     fun `vi kan lage revurdering etter opphør`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
@@ -85,7 +84,7 @@ class OpphørTest {
             }
 
             saksbehandler.omgjørBehandling(25.juni(2018))
-            behandlingsresultatForslag(3) { }
+            behandlingsresultatForslag(4) { }
         }
     }
 

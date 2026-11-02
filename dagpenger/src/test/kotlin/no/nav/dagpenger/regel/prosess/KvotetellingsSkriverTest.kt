@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.prosess
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.dato.januar
 import no.nav.dagpenger.opplysning.Boolsk
@@ -158,5 +159,26 @@ class KvotetellingsSkriverTest {
 
         opplysninger.finnOpplysning(aktiv, 6.januar(2025)).verdi shouldBe true
         opplysninger.finnOpplysning(aktiv, 5.januar(2025)).verdi shouldBe false
+    }
+
+    @Test
+    fun `rører ikke usann betingelse som tilhører en senere meldeperiode`() {
+        val opplysninger = opplysningerMedKapasitet()
+        opplysninger.leggTil(Faktum(aktiv, false, Gyldighetsperiode(20.januar(2025))))
+        val kontekst = Prosesskontekst(opplysninger)
+
+        KvotetellingsSkriver(kvote).skriv(kontekst, resultat(1))
+
+        opplysninger.finnAlle(aktiv).map { it.verdi to it.gyldighetsperiode.fraOgMed } shouldBe listOf(false to 20.januar(2025))
+        kontekst.kreverRekjøring shouldBe false
+    }
+
+    @Test
+    fun `feiler tydelig når oppbrukt ikke kan datofestes`() {
+        val inkonsistent = resultat(1).copy(sisteGjenstående = KvotetellingsVerdi(0, Gyldighetsperiode(6.januar(2025))))
+
+        shouldThrow<IllegalStateException> {
+            KvotetellingsSkriver(kvote).skriv(Prosesskontekst(opplysningerMedKapasitet()), inkonsistent)
+        }
     }
 }

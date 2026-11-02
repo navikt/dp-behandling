@@ -14,7 +14,7 @@ object Kvotetelling {
     /**
      * Teller forbruk. Alle datoer i [dager] teller som +1.
      *
-     * [kapasitet] slås opp per dag (ikke som en fast verdi for hele batchen), slik at en
+     * [kapasitet] slås opp per dag (ikke som en fast verdi for hele meldeperioden), slik at en
      * nedjustering av tildelingsgrunnlaget med virkning midt i en løpende meldeperiode slår ut
      * fra og med virkningsdatoen, og ikke først fra neste meldeperiode.
      *
@@ -80,11 +80,11 @@ class KvotetellingsSkriver(
         kontekst: Prosesskontekst,
         resultat: Kvotetellingsresultat,
     ) {
-        val batchensFørsteDag = resultat.forbruktTeller.minOfOrNull { it.gyldighetsperiode.fraOgMed }
+        val meldeperiode = resultat.meldeperiode
 
         skrivForbruk(kontekst.opplysninger, resultat)
 
-        if (batchensFørsteDag != null) synkroniserUtløsendeBetingelse(kontekst, resultat, batchensFørsteDag)
+        if (meldeperiode != null) synkroniserUtløsendeBetingelse(kontekst, resultat, meldeperiode)
     }
 
     private fun skrivForbruk(
@@ -107,7 +107,7 @@ class KvotetellingsSkriver(
     private fun synkroniserUtløsendeBetingelse(
         kontekst: Prosesskontekst,
         resultat: Kvotetellingsresultat,
-        batchensFørsteDag: LocalDate,
+        meldeperiode: Gyldighetsperiode,
     ) {
         val opplysninger = kontekst.opplysninger
         val betingelse = definisjon.utløsendeBetingelse
@@ -118,7 +118,7 @@ class KvotetellingsSkriver(
             if (erOppbrukt) {
                 resultat.datoOppbrukt.plusDays(1)
             } else {
-                gjenåpningsdato(opplysninger, betingelse, batchensFørsteDag) ?: return
+                gjenåpningsdato(opplysninger, betingelse, meldeperiode) ?: return
             }
 
         val gjeldende = opplysninger.forDato(fraOgMed).finnNullableOpplysning(betingelse)?.verdi
@@ -130,15 +130,19 @@ class KvotetellingsSkriver(
     }
 
     // Datoen der en eksisterende usann betingelse skal overstyres med sann. Null hvis kvoten aldri var oppbrukt.
+    // Usann betingelse etter meldeperioden tilhører senere meldeperioder og skal ikke røres her,
+    // ellers svinger omregning av flere meldeperioder.
     private fun gjenåpningsdato(
         opplysninger: Opplysninger,
         betingelse: Opplysningstype<Boolean>,
-        batchensFørsteDag: LocalDate,
+        meldeperiode: Gyldighetsperiode,
     ): LocalDate? {
-        if (opplysninger.forDato(batchensFørsteDag).finnNullableOpplysning(betingelse)?.verdi == false) return batchensFørsteDag
+        if (opplysninger.forDato(meldeperiode.fraOgMed).finnNullableOpplysning(betingelse)?.verdi == false) return meldeperiode.fraOgMed
+
+        val usannFraDagenEtterMeldeperioden = Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed.plusDays(1))
         return opplysninger
             .finnAlle(betingelse)
-            .filter { !it.verdi && it.gyldighetsperiode.fraOgMed.isAfter(batchensFørsteDag) }
+            .filter { !it.verdi && it.gyldighetsperiode.fraOgMed in usannFraDagenEtterMeldeperioden }
             .minOfOrNull { it.gyldighetsperiode.fraOgMed }
     }
 }
@@ -149,12 +153,20 @@ data class Kvotetellingsresultat(
     val sisteDagMedForbruk: KvotetellingsVerdi<LocalDate>? = null,
     val sisteGjenstående: KvotetellingsVerdi<Int>? = null,
 ) {
+    val meldeperiode get() =
+        forbruktTeller.map { it.gyldighetsperiode.fraOgMed }.let { dager ->
+            if (dager.isEmpty()) null else Gyldighetsperiode(dager.min(), dager.max())
+        }
+
     val erOppbrukt get() = sisteGjenstående?.verdi == 0
 
-    // Hentes fra denne batchens EGET resultat, ikke via opplysninger.finnAlle(...) - sistnevnte ville
+    // Hentes fra denne meldeperiodens EGET resultat, ikke via opplysninger.finnAlle(...) - sistnevnte ville
     // funnet den første nullverdien i HELE historikken, som blir feil dato dersom kvoten tidligere er
     // brukt opp og siden fått en ny tildeling (f.eks. ved revurdering) som nå er brukt opp på nytt.
-    val datoOppbrukt get() = gjenstående.first { it.verdi == 0 }.gyldighetsperiode.fraOgMed
+    val datoOppbrukt get() =
+        checkNotNull(gjenstående.firstOrNull { it.verdi == 0 }) {
+            "Kvoten er markert som oppbrukt (sisteGjenstående=${sisteGjenstående?.verdi}), men ingen dag har 0 gjenstående"
+        }.gyldighetsperiode.fraOgMed
 }
 
 data class KvotetellingsVerdi<T : Any>(
