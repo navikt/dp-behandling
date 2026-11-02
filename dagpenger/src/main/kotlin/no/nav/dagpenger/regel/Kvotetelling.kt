@@ -80,14 +80,11 @@ class KvotetellingsSkriver(
         kontekst: Prosesskontekst,
         resultat: Kvotetellingsresultat,
     ) {
-        val opplysninger = kontekst.opplysninger
-        val gjenståendeFørDenneBatchen = opplysninger.finnNullableOpplysning(definisjon.gjenstående)?.verdi
+        val batchensFørsteDag = resultat.forbruktTeller.minOfOrNull { it.gyldighetsperiode.fraOgMed }
 
-        skrivForbruk(opplysninger, resultat)
+        skrivForbruk(kontekst.opplysninger, resultat)
 
-        if (bleNettoppBruktOpp(resultat, gjenståendeFørDenneBatchen)) {
-            settUtløsendeBetingelseTilUsann(kontekst, resultat)
-        }
+        if (batchensFørsteDag != null) synkroniserUtløsendeBetingelse(kontekst, resultat, batchensFørsteDag)
     }
 
     private fun skrivForbruk(
@@ -103,50 +100,47 @@ class KvotetellingsSkriver(
     }
 
     /**
-     * Kvoten er brukt opp først når den faktisk gikk fra >0 til 0 - ikke bare fordi denne batchen
-     * *ender* på 0. Om forrige batch etterlot 1 dag igjen, og denne batchen kun inneholder den
-     * siste dagen, består gjenstående-lista av ett enkelt 0-element - da må vi vite hva som gjaldt
-     * FØR denne batchen for å avgjøre at kvoten faktisk ble brukt opp akkurat nå.
+     * Utløsende betingelse er alltid et resultat av siste telling: usann fra dagen etter at kvoten
+     * er tom, ellers sann. Verdien skrives kun når den avviker fra det som gjelder fra før.
+     * Svinger verdien for alltid stopper rekjøringsløkka i Behandling (MAKS_ITERASJONER).
      */
-    private fun bleNettoppBruktOpp(
-        resultat: Kvotetellingsresultat,
-        gjenståendeFørDenneBatchen: Int?,
-    ): Boolean {
-        val haddeNoeIgjenFørDenneBatchen = gjenståendeFørDenneBatchen == null || gjenståendeFørDenneBatchen > 0
-        return resultat.sisteGjenstående?.verdi == 0 && haddeNoeIgjenFørDenneBatchen
-    }
-
-    private fun settUtløsendeBetingelseTilUsann(
+    private fun synkroniserUtløsendeBetingelse(
         kontekst: Prosesskontekst,
         resultat: Kvotetellingsresultat,
+        batchensFørsteDag: LocalDate,
     ) {
         val opplysninger = kontekst.opplysninger
-        val fraOgMed = datoKvotenBleBruktOpp(resultat).plusDays(1)
+        val betingelse = definisjon.utløsendeBetingelse
+        val erOppbrukt = resultat.erOppbrukt
+        val ønsketVerdi = !erOppbrukt
 
-        if (opplysninger.erAlleredeSattTilUsannFra(definisjon.utløsendeBetingelse, fraOgMed)) return
+        val fraOgMed =
+            if (erOppbrukt) {
+                resultat.datoOppbrukt.plusDays(1)
+            } else {
+                gjenåpningsdato(opplysninger, betingelse, batchensFørsteDag) ?: return
+            }
 
-        // Skrives bevisst UTEN utledetAv, slik at regelmotoren behandler verdien som ferdig avgjort
-        // (på samme måte som en saksbehandleroverstyring), og ikke prøver å avlede den på nytt fra
-        // utløsendeBetingelses egen regel ved neste regelkjøring.
-        opplysninger.leggTil(Faktum(definisjon.utløsendeBetingelse, false, Gyldighetsperiode(fraOgMed)))
+        val gjeldende = opplysninger.forDato(fraOgMed).finnNullableOpplysning(betingelse)?.verdi
+        if (gjeldende == ønsketVerdi) return
+        opplysninger.leggTil(Faktum(betingelse, ønsketVerdi, Gyldighetsperiode(fraOgMed)))
 
-        // Slik at konsekvensene av at kvoten nå er brukt opp (f.eks. § 4-3 sitt krav til tap av
-        // arbeidsinntekt for permittering) utledes i samme pass, ikke først i neste meldeperiode.
+        // Slik at konsekvensene av endret kvotestatus utledes i samme pass, ikke først i neste meldeperiode.
         kontekst.beOmRekjøring()
     }
 
-    // Hentes fra denne batchens EGET resultat, ikke via opplysninger.finnAlle(...) - sistnevnte ville
-    // funnet den første nullverdien i HELE historikken, som blir feil dato dersom kvoten tidligere er
-    // brukt opp og siden fått en ny tildeling (f.eks. ved revurdering) som nå er brukt opp på nytt.
-    private fun datoKvotenBleBruktOpp(resultat: Kvotetellingsresultat) =
-        resultat.gjenstående
-            .first { it.verdi == 0 }
-            .gyldighetsperiode.fraOgMed
-
-    private fun Opplysninger.erAlleredeSattTilUsannFra(
-        utløsendeBetingelse: Opplysningstype<Boolean>,
-        fraOgMed: LocalDate,
-    ): Boolean = har(utløsendeBetingelse, fraOgMed) && !finnOpplysning(utløsendeBetingelse, fraOgMed).verdi
+    // Datoen der en eksisterende usann betingelse skal overstyres med sann. Null hvis kvoten aldri var oppbrukt.
+    private fun gjenåpningsdato(
+        opplysninger: Opplysninger,
+        betingelse: Opplysningstype<Boolean>,
+        batchensFørsteDag: LocalDate,
+    ): LocalDate? {
+        if (opplysninger.forDato(batchensFørsteDag).finnNullableOpplysning(betingelse)?.verdi == false) return batchensFørsteDag
+        return opplysninger
+            .finnAlle(betingelse)
+            .filter { !it.verdi && it.gyldighetsperiode.fraOgMed.isAfter(batchensFørsteDag) }
+            .minOfOrNull { it.gyldighetsperiode.fraOgMed }
+    }
 }
 
 data class Kvotetellingsresultat(
@@ -154,7 +148,14 @@ data class Kvotetellingsresultat(
     val gjenstående: List<KvotetellingsVerdi<Int>> = emptyList(),
     val sisteDagMedForbruk: KvotetellingsVerdi<LocalDate>? = null,
     val sisteGjenstående: KvotetellingsVerdi<Int>? = null,
-)
+) {
+    val erOppbrukt get() = sisteGjenstående?.verdi == 0
+
+    // Hentes fra denne batchens EGET resultat, ikke via opplysninger.finnAlle(...) - sistnevnte ville
+    // funnet den første nullverdien i HELE historikken, som blir feil dato dersom kvoten tidligere er
+    // brukt opp og siden fått en ny tildeling (f.eks. ved revurdering) som nå er brukt opp på nytt.
+    val datoOppbrukt get() = gjenstående.first { it.verdi == 0 }.gyldighetsperiode.fraOgMed
+}
 
 data class KvotetellingsVerdi<T : Any>(
     val verdi: T,

@@ -36,6 +36,10 @@ sealed class Avgjørelse {
     data object Uavklart : Avgjørelse() {
         override fun toString() = "Uavklart"
     }
+
+    data object Opphør : Avgjørelse() {
+        override fun toString() = "Opphør"
+    }
 }
 
 fun interface Rettighetsperiodeberegning {

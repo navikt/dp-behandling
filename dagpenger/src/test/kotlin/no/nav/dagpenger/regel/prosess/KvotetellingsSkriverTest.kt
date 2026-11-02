@@ -100,4 +100,63 @@ class KvotetellingsSkriverTest {
         opplysninger.finnAlle(Beregning.gjenståendeSanksjonsdager).last().verdi shouldBe 1
         opplysninger.finnAlle(Beregning.sisteSanksjonsdagMedForbruk).last().verdi shouldBe 7.januar(2025)
     }
+
+    private val kvote =
+        KvoteDefinisjon(
+            hjemmel = tomHjemmel("Betingelse"),
+            forbrukstype = Forbrukstype.Rettighet,
+            tildelingsgrunnlag = Tildelingsgrunnlag(kapasitet),
+            tellesNår = Beregning.erSanksjonsdag,
+            forbruksteller = Beregning.forbrukt,
+            gjenstående = Beregning.gjenståendeDager,
+            sisteForbruk = Beregning.sisteForbruksdag,
+            sisteGjenstående = Beregning.sisteGjenståendeDager,
+            utløsendeBetingelse = aktiv,
+        )
+
+    private fun resultat(gjenstående: Int) =
+        Kvotetellingsresultat(
+            forbruktTeller = listOf(KvotetellingsVerdi(3 - gjenstående, Gyldighetsperiode(6.januar(2025), 6.januar(2025)))),
+            gjenstående = listOf(KvotetellingsVerdi(gjenstående, Gyldighetsperiode(6.januar(2025), 6.januar(2025)))),
+            sisteDagMedForbruk = KvotetellingsVerdi(6.januar(2025), Gyldighetsperiode(6.januar(2025))),
+            sisteGjenstående = KvotetellingsVerdi(gjenstående, Gyldighetsperiode(6.januar(2025))),
+        )
+
+    private fun opplysningerMedKapasitet() = Opplysninger().apply { leggTil(Faktum(kapasitet, 3, Gyldighetsperiode(1.januar(2025)))) }
+
+    @Test
+    fun `gjentatt skriving med samme resultat er no-op`() {
+        val opplysninger = opplysningerMedKapasitet()
+        val kontekst = Prosesskontekst(opplysninger)
+
+        KvotetellingsSkriver(kvote).skriv(kontekst, resultat(0))
+        val antall = opplysninger.finnAlle(aktiv).size
+        KvotetellingsSkriver(kvote).skriv(kontekst, resultat(0))
+
+        antall shouldBe 1
+        opplysninger.finnAlle(aktiv).size shouldBe antall
+        opplysninger.finnAlle(aktiv).single().verdi shouldBe false
+    }
+
+    @Test
+    fun `åpner kvoten igjen når den ikke lenger er oppbrukt`() {
+        val opplysninger = opplysningerMedKapasitet()
+        val kontekst = Prosesskontekst(opplysninger)
+
+        KvotetellingsSkriver(kvote).skriv(kontekst, resultat(0))
+        KvotetellingsSkriver(kvote).skriv(kontekst, resultat(1))
+
+        opplysninger.finnAlle(aktiv).last().verdi shouldBe true
+    }
+
+    @Test
+    fun `åpner kvoten fra batchstart når oppbrukt allerede gjelder ved batchstart`() {
+        val opplysninger = opplysningerMedKapasitet()
+        opplysninger.leggTil(Faktum(aktiv, false, Gyldighetsperiode(1.januar(2025))))
+
+        KvotetellingsSkriver(kvote).skriv(Prosesskontekst(opplysninger), resultat(1))
+
+        opplysninger.finnOpplysning(aktiv, 6.januar(2025)).verdi shouldBe true
+        opplysninger.finnOpplysning(aktiv, 5.januar(2025)).verdi shouldBe false
+    }
 }

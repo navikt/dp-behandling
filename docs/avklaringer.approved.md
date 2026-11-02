@@ -232,7 +232,7 @@ Søker har oppgitt arbeid utenfor Norge i søknaden. <br>Sjekk om disse arbeidsf
 Vurdering av reell arbeidssøker mangler. Utfør vurderingen før innvilgelse.
 
 ### Opplysninger avklaringen ser på
-- Skal etablering vurderes
+- Skal eksport vurderes
 
 ---
 ## Meldekort med utdanning eller tiltak

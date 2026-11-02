@@ -442,6 +442,8 @@ object OpplysningsTyper {
     val oppfyllerVilkårForEksportId = Opplysningstype.Id(UUID.fromString("019f6094-681b-7233-9558-da8bf7527cd3"), Boolsk)
     val innenforFritaksperiodenId = Opplysningstype.Id(UUID.fromString("01a03e0b-1dfa-7832-8ec7-a82c549895b4"), Boolsk)
     val manglerKravPåLønnId = Opplysningstype.Id(UUID.fromString("01a03e0b-1dfa-755c-9139-297e3db68a6d"), Boolsk)
+
+    val harDagpengerIgjenId = Opplysningstype.Id(UUID.fromString("1a19ba4-7872-7338-8663-f88d45b351bf"), Boolsk)
 }
 
 /**

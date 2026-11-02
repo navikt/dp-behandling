@@ -1,7 +1,10 @@
 package no.nav.dagpenger.regel.regelsett.beregning
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
+import no.nav.dagpenger.opplysning.Opplysning
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.sanksjonerSortert
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
@@ -28,16 +31,12 @@ class BeregningsperiodeFabrikk(
 ) {
     private val meldeperiode = Periode(meldeperiodeFraOgMed, meldeperiodeTilOgMed)
 
-    private val logger =
-        io.github.oshai.kotlinlogging.KotlinLogging
-            .logger { }
+    private val logger = KotlinLogging.logger { }
 
     fun lagBeregningsperiode(): Beregningsperiode {
         val dager = opprettPeriode(meldeperiode)
-        val stønadsdagerIgjen =
-            opplysninger.finnOpplysning(antallStønadsdager).verdi -
-                opplysninger.somListe().filter { it.er(forbruk) && it.verdi as Boolean }.size
-        val gjenståendeEgenandel = hentGjenståendeEgenandel(meldeperiode.fraOgMed)
+        val stønadsdagerIgjen = hentStønadsdagerIgjen()
+        val gjenståendeEgenandel = hentGjenståendeEgenandel()
         val sanksjonsdagerIgjen = hentGjenståendeBortfall(meldeperiode.fraOgMed)
 
         logger.info {
@@ -54,14 +53,19 @@ class BeregningsperiodeFabrikk(
         return Beregningsperiode(gjenståendeEgenandel, dager, stønadsdagerIgjen, sanksjonsdagerIgjen)
     }
 
-    private fun hentGjenståendeEgenandel(førsteDag: LocalDate): Beløp {
+    // Resultat fra tidligere kjøringer av samme meldeperiode skal ikke påvirke inngangen
+    private fun <T : Any> finnAlleFørMeldeperioden(type: Opplysningstype<T>): List<Opplysning<T>> =
+        opplysninger.finnAlle(type).filter { it.gyldighetsperiode.tilOgMed.isBefore(meldeperiode.fraOgMed) }
+
+    private fun hentStønadsdagerIgjen(): Int {
+        val forbrukteDager = finnAlleFørMeldeperioden(forbruk).count { it.verdi }
+        return opplysninger.finnOpplysning(antallStønadsdager).verdi - forbrukteDager
+    }
+
+    private fun hentGjenståendeEgenandel(): Beløp {
         val innvilgetEgenandel = opplysninger.finnOpplysning(Egenandel.egenandel).verdi
 
-        // Finn siste registrerte gjenstående egenandel før denne meldeperioden, ellers bruk innvilget egenandel
-        return opplysninger
-            .finnAlle(Beregning.gjenståendeEgenandel)
-            .lastOrNull { it.gyldighetsperiode.tilOgMed.isBefore(førsteDag) }
-            ?.verdi ?: innvilgetEgenandel
+        return finnAlleFørMeldeperioden(Beregning.gjenståendeEgenandel).lastOrNull()?.verdi ?: innvilgetEgenandel
     }
 
     private fun hentGjenståendeBortfall(førsteDag: LocalDate): Int =

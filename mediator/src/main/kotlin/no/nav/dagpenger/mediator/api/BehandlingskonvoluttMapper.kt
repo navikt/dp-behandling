@@ -244,11 +244,12 @@ internal fun LocalDate.tilApiDato(): LocalDate? =
 
 internal fun Avgjørelse.tilAvgjørelseDTO(): AvgjørelseDTO =
     when (this) {
-        is Avgjørelse.Innvilgelse -> AvgjørelseDTO.INNVILGELSE
         is Avgjørelse.Avslag -> AvgjørelseDTO.AVSLAG
-        is Avgjørelse.Stans -> AvgjørelseDTO.STANS
-        is Avgjørelse.Gjenopptak -> AvgjørelseDTO.GJENOPPTAK
         is Avgjørelse.Endring -> AvgjørelseDTO.ENDRING
+        is Avgjørelse.Gjenopptak -> AvgjørelseDTO.GJENOPPTAK
+        is Avgjørelse.Innvilgelse -> AvgjørelseDTO.INNVILGELSE
+        is Avgjørelse.Opphør -> AvgjørelseDTO.OPPHØR
+        is Avgjørelse.Stans -> AvgjørelseDTO.STANS
         is Avgjørelse.Uavklart -> AvgjørelseDTO.AVSLAG
     }
 

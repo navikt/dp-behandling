@@ -27,6 +27,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
+import no.nav.dagpenger.regel.regelsett.vilkår.HarDagpengeperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.vilkår.MedlemmetOpplysningsplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt
@@ -78,16 +79,17 @@ val RegelverkDagpenger =
         DagpengenesStørrelse.regelsett,
         Dagpengeperiode.regelsett,
         Egenandel.regelsett,
-        Etablering.regelsett,
         Eksport.regelsett,
+        Etablering.regelsett,
         FulleYtelser.regelsett,
         Gjenopptak.regelsett,
+        HarDagpengeperiode.regelsett,
         KravPåDagpenger.regelsett,
         MedlemmetOpplysningsplikt.regelsett,
         Meldeplikt.regelsett,
         Minsteinntekt.regelsett,
-        OmgjøringUtenKlageValg.regelsett,
         OmgjøringUtenKlage.regelsett,
+        OmgjøringUtenKlageValg.regelsett,
         Opphold.regelsett,
         Opptjeningstid.regelsett,
         Permittering.regelsett,
@@ -175,6 +177,10 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
     }
 
     return when {
+        // Hadde rett fra før, men ender nå uten rett fordi den ordinære stønadsperioden er endelig
+        // brukt opp (§ 4-15) - i motsetning til en vanlig Stans kan denne retten ikke gjenopptas.
+        forrigeHarRett && !gjeldendePeriode.harRett && ordinærKvoteErOppbrukt(opplysninger) -> Avgjørelse.Opphør
+
         // Hadde rett fra før, men ender nå uten rett OG ingen periode i det endelige, flate resultatet
         // (verken arvet eller ny) har rett lenger. Dette er i realiteten en fullstendig retroaktiv
         // tilbakevisning - retten er tatt bort for hele perioden den noensinne gjaldt, ikke bare stanset
@@ -201,6 +207,11 @@ private fun dagpengerAvgjørelse(opplysninger: LesbarOpplysninger): Avgjørelse 
         else -> Avgjørelse.Stans
     }
 }
+
+// Leser antall gjenstående dager direkte, uavhengig av harLøpendeRett-tidslinjen, for å avgjøre om
+// stansen skyldes at den ordinære stønadsperioden faktisk er tom - ikke bare et vilkår som slår ut.
+private fun ordinærKvoteErOppbrukt(opplysninger: LesbarOpplysninger): Boolean =
+    opplysninger.finnAlle(Beregning.gjenståendeDager).lastOrNull()?.verdi == 0
 
 private fun harReeltOppholdEtter(
     perioder: List<Rettighetsperiode>,

@@ -490,6 +490,12 @@ Dette er opplysninger som blir brukt av regelverket.
 |0194881f-943d-77a7-969c-147999f15457|Antall stønadsdager|Heltall|int|| Dager|Resultat
 |0194881f-943d-77a7-969c-147999f15458|Stønadsuker når kravet til minste arbeidsinntekt ikke er oppfylt|Heltall|int|| Uker|Intern
 |0194881f-943d-77a7-969c-147999f15459|Antall stønadsuker (stønadsperiode)|Heltall|int|| Uker|Resultat
+### § 4-15. Antall stønadsuker (stønadsperiode)
+*Type:* Vilkår
+#### Opplysninger
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
+|---|---|---|---|---|---|---|
+|01a19ba4-7872-7338-8663-f88d45b351bf|Har gjenstående periode av dagpenger|Boolsk|boolean|||Resultat
 ### § 4-16. Gjenopptak av løpende stønadsperiode
 *Type:* Vilkår
 #### Avhenger på data fra
@@ -653,14 +659,6 @@ Dette er opplysninger som blir brukt av regelverket.
 |---|---|---|---|---|---|---|
 |0194881f-9447-7e36-a569-3e9f42bff9f6|Bruker er utestengt fra dagpenger|Boolsk|boolean|ErUtestengt||Ekstern
 |0194881f-9447-7e36-a569-3e9f42bff9f7|Oppfyller krav til ikke utestengt|Boolsk|boolean|||Resultat
-### § 6-35. Skal omgjøring uten klage vurderes?
-*Type:* Prosess
-#### Avklaringer
-- SkalOmgjøringUtenKlageVurderes - [Skal vedtaket omgjøres etter forvaltningsloven § 35?](./avklaringer.approved.md#skal-vedtaket-omgjøres-etter-forvaltningsloven--35?)
-#### Opplysninger
-|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
-|---|---|---|---|---|---|---|
-|019f7004-6585-7728-88b4-256210d72b93|Skal vedtaket omgjøres etter forvaltningsloven § 35?|Boolsk|boolean|||Resultat
 ### § 6-35. Omgjøring av vedtak uten klage
 *Type:* Prosess
 #### Avklaringer
@@ -672,3 +670,11 @@ Dette er opplysninger som blir brukt av regelverket.
 |019c5676-5c44-73d4-bc65-aee9d9257aa1|b. underretning om vedtaket ikke er kommet fram til vedkommende og vedtaket heller ikke er offentlig kunngjort|Boolsk|boolean|||Utgangspunkt
 |019c5676-7c80-7217-a232-15318ff258c5|c. vedtaket må anses ugyldig|Boolsk|boolean|||Utgangspunkt
 |019c5676-a923-7e31-83b9-0e77e5a3cdcb|Et forvaltningsorgan kan omgjøre sitt eget vedtak uten at det er påklaget|Boolsk|boolean|||Resultat
+### § 6-35. Skal omgjøring uten klage vurderes?
+*Type:* Prosess
+#### Avklaringer
+- SkalOmgjøringUtenKlageVurderes - [Skal vedtaket omgjøres etter forvaltningsloven § 35?](./avklaringer.approved.md#skal-vedtaket-omgjøres-etter-forvaltningsloven--35?)
+#### Opplysninger
+|UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
+|---|---|---|---|---|---|---|
+|019f7004-6585-7728-88b4-256210d72b93|Skal vedtaket omgjøres etter forvaltningsloven § 35?|Boolsk|boolean|||Resultat
