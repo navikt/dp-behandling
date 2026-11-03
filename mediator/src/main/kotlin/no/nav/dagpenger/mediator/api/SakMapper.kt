@@ -1,9 +1,9 @@
 package no.nav.dagpenger.mediator.api
 
-import no.nav.dagpenger.mediator.api.models.BehandlingSammendragDTO
-import no.nav.dagpenger.mediator.api.models.LukketPeriodeDTO
-import no.nav.dagpenger.mediator.api.models.SakDTO
-import no.nav.dagpenger.mediator.api.models.SakStatusDTO
+import no.nav.dagpenger.api.behandling.models.BehandlingSammendragDTO
+import no.nav.dagpenger.api.behandling.models.LukketPeriodeDTO
+import no.nav.dagpenger.api.behandling.models.SakDTO
+import no.nav.dagpenger.api.behandling.models.SakStatusDTO
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.modell.Behandlingkjede

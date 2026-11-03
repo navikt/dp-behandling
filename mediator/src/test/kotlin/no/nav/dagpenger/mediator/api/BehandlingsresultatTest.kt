@@ -2,8 +2,8 @@ package no.nav.dagpenger.mediator.api
 
 import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.mockk
-import no.nav.dagpenger.mediator.api.models.BehandlingsresultatDTO
-import no.nav.dagpenger.mediator.api.models.RettighetsperiodeDTO
+import no.nav.dagpenger.api.behandling.models.BehandlingsresultatDTO
+import no.nav.dagpenger.api.behandling.models.RettighetsperiodeDTO
 import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni

@@ -2,9 +2,9 @@ package no.nav.dagpenger.mediator
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
-import no.nav.dagpenger.mediator.api.models.RettighetsperiodeDTO
-import no.nav.dagpenger.mediator.api.models.SoknadsbehandlingAvbruttDTO
-import no.nav.dagpenger.mediator.api.models.SoknadsbehandlingFerdigDTO
+import no.nav.dagpenger.api.behandling.models.RettighetsperiodeDTO
+import no.nav.dagpenger.api.behandling.models.SoknadsbehandlingAvbruttDTO
+import no.nav.dagpenger.api.behandling.models.SoknadsbehandlingFerdigDTO
 import no.nav.dagpenger.mediator.api.tilAvgjørelseDTO
 import no.nav.dagpenger.mediator.api.tilOpprinnelseDTO
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingAvbrutt

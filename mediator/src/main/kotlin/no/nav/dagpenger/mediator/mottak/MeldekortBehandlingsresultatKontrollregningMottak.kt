@@ -9,7 +9,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.github.oshai.kotlinlogging.withLoggingContext
 import io.micrometer.core.instrument.MeterRegistry
-import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
+import no.nav.dagpenger.api.behandling.models.OpprinnelseDTO
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.arbeidsdag
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.arbeidstimer

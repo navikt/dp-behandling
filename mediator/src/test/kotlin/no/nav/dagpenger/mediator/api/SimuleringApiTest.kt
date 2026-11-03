@@ -8,9 +8,8 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import no.nav.dagpenger.api.beregning.simulering.models.BeregningDTO
 import no.nav.dagpenger.mediator.api.TestApplication.withMockAuthServerAndTestApplication
-import no.nav.dagpenger.mediator.objectMapper
-import no.nav.dagpenger.mediator.simulering.api.models.BeregningDTO
 import org.junit.jupiter.api.Test
 import tools.jackson.module.kotlin.readValue
 import java.time.LocalDate

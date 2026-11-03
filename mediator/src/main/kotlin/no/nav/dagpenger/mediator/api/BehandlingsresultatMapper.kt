@@ -1,14 +1,14 @@
 package no.nav.dagpenger.mediator.api
 
 import io.github.oshai.kotlinlogging.withLoggingContext
-import no.nav.dagpenger.mediator.api.models.BehandletAvDTO
-import no.nav.dagpenger.mediator.api.models.BehandletAvDTORolleDTO
-import no.nav.dagpenger.mediator.api.models.BehandlingsresultatDTO
-import no.nav.dagpenger.mediator.api.models.OpplysningerDTO
-import no.nav.dagpenger.mediator.api.models.SaksbehandlerDTO
-import no.nav.dagpenger.mediator.api.models.UtbetalingDTO
-import no.nav.dagpenger.mediator.api.models.UtbetalingDTODagpengeTypeDTO.FERIETILLEGG
-import no.nav.dagpenger.mediator.api.models.UtbetalingDTODagpengeTypeDTO.ORDINÆRE_DAGPENGER
+import no.nav.dagpenger.api.behandling.models.BehandletAvDTO
+import no.nav.dagpenger.api.behandling.models.BehandletAvDTORolleDTO
+import no.nav.dagpenger.api.behandling.models.BehandlingsresultatDTO
+import no.nav.dagpenger.api.behandling.models.OpplysningerDTO
+import no.nav.dagpenger.api.behandling.models.SaksbehandlerDTO
+import no.nav.dagpenger.api.behandling.models.UtbetalingDTO
+import no.nav.dagpenger.api.behandling.models.UtbetalingDTODagpengeTypeDTO.FERIETILLEGG
+import no.nav.dagpenger.api.behandling.models.UtbetalingDTODagpengeTypeDTO.ORDINÆRE_DAGPENGER
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning

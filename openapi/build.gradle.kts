@@ -41,7 +41,7 @@ dependencies {
 fabrikt {
     generate("behandling") {
         apiFile = file("$projectDir/src/main/resources/behandling-api.yaml")
-        basePackage = "no.nav.dagpenger.mediator.api"
+        basePackage = "no.nav.dagpenger.api.behandling"
         skip = false
         quarkusReflectionConfig = disabled
         typeOverrides {
@@ -59,7 +59,7 @@ fabrikt {
     }
     generate("simulering") {
         apiFile = file("$projectDir/src/main/resources/simulering-api.yaml")
-        basePackage = "no.nav.dagpenger.mediator.simulering.api"
+        basePackage = "no.nav.dagpenger.api.beregning.simulering"
         skip = false
         quarkusReflectionConfig = disabled
         typeOverrides {

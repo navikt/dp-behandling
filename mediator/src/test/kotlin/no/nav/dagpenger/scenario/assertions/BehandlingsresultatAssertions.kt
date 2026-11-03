@@ -1,6 +1,6 @@
 package no.nav.dagpenger.scenario.assertions
 
-import no.nav.dagpenger.mediator.api.models.RettighetsperiodeDTO
+import no.nav.dagpenger.api.behandling.models.RettighetsperiodeDTO
 import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.objectMapper
 import no.nav.dagpenger.opplysning.Opplysningstype

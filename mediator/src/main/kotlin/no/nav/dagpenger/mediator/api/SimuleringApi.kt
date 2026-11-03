@@ -8,11 +8,11 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import no.nav.dagpenger.api.beregning.simulering.models.BeregningDTO
+import no.nav.dagpenger.api.beregning.simulering.models.BeregningDagDTO
+import no.nav.dagpenger.api.beregning.simulering.models.BeregningRequestDTO
+import no.nav.dagpenger.api.beregning.simulering.models.HttpProblemDTO
 import no.nav.dagpenger.mediator.db.logger
-import no.nav.dagpenger.mediator.simulering.api.models.BeregningDTO
-import no.nav.dagpenger.mediator.simulering.api.models.BeregningDagDTO
-import no.nav.dagpenger.mediator.simulering.api.models.BeregningRequestDTO
-import no.nav.dagpenger.mediator.simulering.api.models.HttpProblemDTO
 import no.nav.dagpenger.modell.hendelser.AktivitetType
 import no.nav.dagpenger.modell.hendelser.Dag
 import no.nav.dagpenger.modell.hendelser.Meldekort

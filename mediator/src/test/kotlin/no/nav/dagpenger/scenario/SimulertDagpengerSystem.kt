@@ -19,6 +19,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.content.TextContent
 import io.ktor.server.application.Application
 import kotliquery.queryOf
+import no.nav.dagpenger.api.behandling.models.BehandlingsresultatDTO
 import no.nav.dagpenger.ferietillegg.FerietilleggRegistrering
 import no.nav.dagpenger.konfigurasjon.Configuration
 import no.nav.dagpenger.mediator.BehandlingRuntime
@@ -29,7 +30,6 @@ import no.nav.dagpenger.mediator.api.TestApplication.testAzureAdToken
 import no.nav.dagpenger.mediator.api.TestContext
 import no.nav.dagpenger.mediator.api.auth.AuthFactory
 import no.nav.dagpenger.mediator.api.auth.AuthFactory.azure_app
-import no.nav.dagpenger.mediator.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.mediator.audit.Auditlogg
 import no.nav.dagpenger.mediator.db.DBTestContext
 import no.nav.dagpenger.mediator.db.withMigratedDb

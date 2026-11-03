@@ -13,7 +13,7 @@ import io.ktor.server.plugins.statuspages.StatusPagesConfig
 import io.ktor.server.request.uri
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
-import no.nav.dagpenger.mediator.api.models.HttpProblemDTO
+import no.nav.dagpenger.api.behandling.models.HttpProblemDTO
 import java.net.URI
 
 fun StatusPagesConfig.statusPagesConfig() {

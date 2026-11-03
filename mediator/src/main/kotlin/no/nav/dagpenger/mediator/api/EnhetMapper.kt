@@ -1,6 +1,6 @@
 package no.nav.dagpenger.mediator.api
 
-import no.nav.dagpenger.mediator.api.models.EnhetDTO
+import no.nav.dagpenger.api.behandling.models.EnhetDTO
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 

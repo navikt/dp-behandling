@@ -2,9 +2,9 @@ package no.nav.dagpenger.scenario
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import io.kotest.matchers.nulls.shouldNotBeNull
+import no.nav.dagpenger.api.behandling.models.OpplysningerDTO
 import no.nav.dagpenger.avklaring.Avklaring
 import no.nav.dagpenger.mediator.IHendelseMediator
-import no.nav.dagpenger.mediator.api.models.OpplysningerDTO
 import no.nav.dagpenger.mediator.repository.PersonRepository
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.Ident.Companion.tilPersonIdentfikator

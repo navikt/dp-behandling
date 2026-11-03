@@ -2,7 +2,7 @@ package no.nav.dagpenger.mediator
 
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldContainOnly
-import no.nav.dagpenger.mediator.api.models.VilkaarNavnDTO
+import no.nav.dagpenger.api.behandling.models.VilkaarNavnDTO
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test

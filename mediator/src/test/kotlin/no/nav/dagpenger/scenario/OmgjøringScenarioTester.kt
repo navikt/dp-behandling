@@ -8,10 +8,10 @@ import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.comparables.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import no.nav.dagpenger.api.behandling.models.OpprinnelseDTO
+import no.nav.dagpenger.api.behandling.models.RettighetsperiodeDTO
 import no.nav.dagpenger.dato.februar
 import no.nav.dagpenger.dato.januar
-import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
-import no.nav.dagpenger.mediator.api.models.RettighetsperiodeDTO
 import no.nav.dagpenger.mediator.april
 import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juli
