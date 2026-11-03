@@ -39,13 +39,13 @@ object PermitteringFastsetting {
     val permitteringsperiode =
         heltall(
             permitteringsperiodeId,
-            "Uker med fritak fra lønnspliktperiode",
+            "Lovfestet fritaksperiode under permittering",
             enhet = Enhet.Uker,
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
     val antallPermitteringsdager =
-        heltall(antallPermitteringsdagerId, "Dager med fritak fra lønnspliktperiode", enhet = Enhet.Dager)
+        heltall(antallPermitteringsdagerId, "Dager med fritaksperiode under permittering", enhet = Enhet.Dager)
 
     val forbruktPermittering = heltall(forbruktPermitteringId, "Antall fritaksperiodedager som er forbrukt", enhet = Enhet.Dager)
     val gjenståendePermittering = heltall(gjenståendePermitteringId, "Antall fritaksperiodedager som gjenstår", enhet = Enhet.Dager)
