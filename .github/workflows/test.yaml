@@ -1,10 +1,7 @@
-name: Test dependency PRs
+name: Test
 on:
   merge_group:
-  push:
-    branches:
-      - 'dependabot/**'
-      - 'renovate/**'
+  pull_request:
 
 jobs:
   test:
