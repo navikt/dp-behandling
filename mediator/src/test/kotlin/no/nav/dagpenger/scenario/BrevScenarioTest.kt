@@ -6,10 +6,10 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import no.nav.dagpenger.api.behandling.models.BehandlingsresultatDTO
 import no.nav.dagpenger.brev.BrevBygger
 import no.nav.dagpenger.brev.MarkdownRenderer
 import no.nav.dagpenger.brev.Plassering
-import no.nav.dagpenger.mediator.api.models.BehandlingsresultatDTO
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.mediator.objectMapper

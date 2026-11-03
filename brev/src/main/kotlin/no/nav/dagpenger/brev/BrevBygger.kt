@@ -1,14 +1,14 @@
 package no.nav.dagpenger.brev
 
-import no.nav.dagpenger.mediator.api.models.BehandlingsresultatDTO
-import no.nav.dagpenger.mediator.api.models.BoolskVerdiDTO
-import no.nav.dagpenger.mediator.api.models.DatoVerdiDTO
-import no.nav.dagpenger.mediator.api.models.DesimaltallVerdiDTO
-import no.nav.dagpenger.mediator.api.models.HeltallVerdiDTO
-import no.nav.dagpenger.mediator.api.models.OpplysningerDTO
-import no.nav.dagpenger.mediator.api.models.OpprinnelseDTO
-import no.nav.dagpenger.mediator.api.models.PengeVerdiDTO
-import no.nav.dagpenger.mediator.api.models.TekstVerdiDTO
+import no.nav.dagpenger.api.behandling.models.BehandlingsresultatDTO
+import no.nav.dagpenger.api.behandling.models.BoolskVerdiDTO
+import no.nav.dagpenger.api.behandling.models.DatoVerdiDTO
+import no.nav.dagpenger.api.behandling.models.DesimaltallVerdiDTO
+import no.nav.dagpenger.api.behandling.models.HeltallVerdiDTO
+import no.nav.dagpenger.api.behandling.models.OpplysningerDTO
+import no.nav.dagpenger.api.behandling.models.OpprinnelseDTO
+import no.nav.dagpenger.api.behandling.models.PengeVerdiDTO
+import no.nav.dagpenger.api.behandling.models.TekstVerdiDTO
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
