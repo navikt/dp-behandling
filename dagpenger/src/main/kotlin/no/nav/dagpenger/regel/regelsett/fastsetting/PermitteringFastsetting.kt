@@ -11,7 +11,6 @@ import no.nav.dagpenger.opplysning.Tildelingsgrunnlag
 import no.nav.dagpenger.opplysning.dsl.fastsettelse
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.multiplikasjon
-import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.tomRegel
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
@@ -25,7 +24,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.permitteringsperiodeId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteGjenståendePermitteringId
 import no.nav.dagpenger.regel.OpplysningsTyper.sistePermitteringsdagId
 import no.nav.dagpenger.regel.regelsett.vilkår.Permittering.oppfyllerKravetTilPermittering
-import no.nav.dagpenger.regel.regelsett.vilkår.Permittering.oppfyllerKravetTilPermitteringFraDato
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringVurderes
 
 object PermitteringFastsetting {
@@ -41,13 +39,13 @@ object PermitteringFastsetting {
     val permitteringsperiode =
         heltall(
             permitteringsperiodeId,
-            "Uker med fritak fra arbeidsplikt",
+            "Lovfestet fritaksperiode under permittering",
             enhet = Enhet.Uker,
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
-    private val antallPermitteringsdager =
-        heltall(antallPermitteringsdagerId, "Dager med fritak fra arbeidsplikt", synlig = aldriSynlig, enhet = Enhet.Dager)
+    val antallPermitteringsdager =
+        heltall(antallPermitteringsdagerId, "Dager med fritaksperiode under permittering", enhet = Enhet.Dager)
 
     val forbruktPermittering = heltall(forbruktPermitteringId, "Antall fritaksperiodedager som er forbrukt", enhet = Enhet.Dager)
     val gjenståendePermittering = heltall(gjenståendePermitteringId, "Antall fritaksperiodedager som gjenstår", enhet = Enhet.Dager)
@@ -68,7 +66,7 @@ object PermitteringFastsetting {
             skalVurderes { it.erSann(skalPermitteringVurderes) }
 
             regel(permitteringsdagerIUka) { somUtgangspunkt(5) }
-            regel(permitteringsperiode) { oppslag(oppfyllerKravetTilPermitteringFraDato) { 26 } }
+            regel(permitteringsperiode) { somUtgangspunkt(26) }
             regel(antallPermitteringsdager) { multiplikasjon(permitteringsperiode, permitteringsdagerIUka) }
 
             regel(permitteringsdag) { tomRegel }

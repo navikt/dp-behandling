@@ -297,13 +297,11 @@ Dette er opplysninger som blir brukt av regelverket.
 |01a02331-3f5b-7751-82f0-0fc520cc8983|Dato permitteringen løper fra|Dato|LocalDate|||Resultat
 ### § 4-7. Dagpenger til permitterte
 *Type:* Fastsettelse
-#### Avhenger på data fra
-- [§ 4-7. Dagpenger til permitterte](#-4-7-dagpenger-til-permitterte)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
-|0195042d-918e-7fae-8fb7-7f38eed42710|Uker med fritak fra arbeidsplikt|Heltall|int|| Uker|Intern
-|01a01e28-0ad3-77e4-aaf5-e23392821cfb|Dager med fritak fra arbeidsplikt|Heltall|int|| Dager|Resultat
+|0195042d-918e-7fae-8fb7-7f38eed42710|Lovfestet fritaksperiode under permittering|Heltall|int|| Uker|Utgangspunkt
+|01a01e28-0ad3-77e4-aaf5-e23392821cfb|Dager med fritaksperiode under permittering|Heltall|int|| Dager|Resultat
 |01a01e28-4bc6-7132-a846-a5666f92427c|Antall fritaksperiodedager som er forbrukt|Heltall|int|| Dager|Utgangspunkt
 |01a01e28-a90b-7109-beae-b69d61cea3c0|Antall fritaksperiodedager som gjenstår|Heltall|int|| Dager|Utgangspunkt
 |01a01e28-e230-7661-98cd-8ece26fa6224|Siste forbruksdato av fritaksperiode|Dato|LocalDate|||Utgangspunkt
