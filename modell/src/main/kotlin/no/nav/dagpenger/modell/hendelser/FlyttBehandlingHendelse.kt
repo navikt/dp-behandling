@@ -28,7 +28,7 @@ class FlyttBehandlingHendelse(
 
     override fun kontekstMap(): Map<String, String> =
         mapOf(
-            "behandlingId" to behandlingId.toString(),
+            "flyttetFraBehandlingId" to behandlingId.toString(),
         )
 
     companion object {

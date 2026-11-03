@@ -38,7 +38,6 @@ import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.LesbarOpplysninger.Companion.somOpplysninger
-import no.nav.dagpenger.opplysning.LesbarOpplysninger.Filter.Egne
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysninger.Companion.forkortetTil
@@ -50,6 +49,7 @@ import no.nav.dagpenger.opplysning.RegelkjøringLoopException
 import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.Rettighetsperiode
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
+import no.nav.dagpenger.opplysning.egneForFlytting
 import no.nav.dagpenger.uuid.UUIDv7
 import java.time.Duration
 import java.time.LocalDate
@@ -159,6 +159,28 @@ class Behandling private constructor(
     val sistEndret get() = tilstand.opprettet
 
     fun harTilstand(tilstand: TilstandType) = this.tilstand.type == tilstand
+
+    /** Ny behandling med samme grunnlag og de egne opplysningene som ikke avhenger av den gamle konteksten. */
+    internal fun kopierTil(nyBasertPå: Behandling?) =
+        Behandling(
+            behandler = behandler,
+            opplysninger = opplysninger.egneForFlytting(),
+            basertPå = nyBasertPå,
+        )
+
+    /** Samme behandling, men med ny forelder. Opplysningene beholdes, siden den gamle forelderen fortsatt er en forfader. */
+    internal fun medNyForelder(nyBasertPå: Behandling) =
+        Behandling(
+            behandlingId = behandlingId,
+            behandler = behandler,
+            gjeldendeOpplysninger = opplysninger,
+            basertPå = nyBasertPå,
+            opprettet = opprettet,
+            godkjent = godkjent,
+            besluttet = besluttet,
+            tilstand = tilstand,
+            avklaringer = avklaringer().toList(),
+        )
 
     fun kanRedigeres() = harTilstand(ForslagTilVedtak) || harTilstand(TilGodkjenning)
 
@@ -495,6 +517,19 @@ class Behandling private constructor(
 
             behandling.tilstand(UnderBehandling(), hendelse)
         }
+
+        override fun håndter(
+            behandling: Behandling,
+            hendelse: FlyttBehandlingHendelse,
+        ) {
+            hendelse.kontekst(this)
+            hendelse.info("Flytter behandlingen til ${behandling.behandlingId}")
+            behandling.emitOpprettet()
+            hendelse.leggTilOpplysninger(behandling.opplysninger)
+            hendelse.leggTilAvklaring(behandling.avklaringer)
+            // Ved å gå til redigert tilstand kjøres regler og avklaringer
+            behandling.tilstand(Redigert(), hendelse)
+        }
     }
 
     private data class UnderBehandling(
@@ -685,10 +720,7 @@ class Behandling private constructor(
         override fun håndter(
             behandling: Behandling,
             hendelse: FlyttBehandlingHendelse,
-        ) {
-            hendelse.info("Flytter behandlingen ${behandling.behandlingId} til ${hendelse.nyBasertPåId ?: "ny kjede"}")
-            behandling.flyttBehandling(hendelse)
-        }
+        ) = behandling.baserPåSøsken(hendelse)
 
         override fun håndter(
             behandling: Behandling,
@@ -1026,10 +1058,7 @@ class Behandling private constructor(
         override fun håndter(
             behandling: Behandling,
             hendelse: FlyttBehandlingHendelse,
-        ) {
-            hendelse.info("Flytter behandlingen ${behandling.behandlingId} til ${hendelse.nyBasertPåId ?: "ny kjede"}")
-            behandling.flyttBehandling(hendelse)
-        }
+        ) = behandling.baserPåSøsken(hendelse)
     }
 
     private class TilBeslutning(
@@ -1082,21 +1111,10 @@ class Behandling private constructor(
         }
     }
 
-    private fun flyttBehandling(hendelse: FlyttBehandlingHendelse) {
-        val egneOpplysninger = opplysninger.somListe(Egne)
-        opplysninger.fjernHvis { opplysning ->
-            val utledetAvOpplysninger = opplysning.utledetAv?.opplysninger ?: return@fjernHvis false
-            // Fjern opplysning hvis det finnes noen opplysninger i utledetAv er basert på opplysninger fra tidligere behandlinger
-            utledetAvOpplysninger.any { it !in egneOpplysninger }
-        }
-
-        // Legg til ekstra opplysninger som er nødvendige for å starte ny kjede
-        hendelse.leggTilOpplysninger(opplysninger)
-
-        // Legg til avklaring om at behandlingen har blitt flyttet
+    private fun baserPåSøsken(hendelse: FlyttBehandlingHendelse) {
+        hendelse.info("Baserer behandlingen $behandlingId på ${hendelse.nyBasertPåId}")
         hendelse.leggTilAvklaring(avklaringer)
-
-        // Emit hendelse om at behandlingen har blitt flyttet))
+        // Ved å gå til redigert tilstand kjøres regler og avklaringer på nytt
         tilstand(Redigert(), hendelse)
     }
 

@@ -45,9 +45,7 @@ class TestHendelse(
                         regelsett,
                     )
 
-                override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {
-                    TODO("Not yet implemented")
-                }
+                override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = LocalDate.now()
             }
 
     private val regelsett =

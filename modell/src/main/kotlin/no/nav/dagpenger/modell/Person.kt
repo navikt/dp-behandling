@@ -180,6 +180,14 @@ class Person(
             basert på behandlingId=${behandling.basertPå?.behandlingId}
             """.trimIndent()
         }
+        leggTilBehandling(behandling, kjede)
+        behandling.håndter(hendelse)
+    }
+
+    private fun leggTilBehandling(
+        behandling: Behandling,
+        kjede: Behandlingkjede?,
+    ) {
         if (kjede == null || behandling.basertPå == null) {
             behandlingkjeder.add(behandling.somKjede())
         } else {
@@ -191,8 +199,6 @@ class Person(
                 PersonObservatørAdapter(ident.identifikator(), it),
             )
         }
-
-        behandling.håndter(hendelse)
     }
 
     override fun håndter(hendelse: AvklaringIkkeRelevantHendelse) {
@@ -290,8 +296,53 @@ class Person(
 
     override fun håndter(hendelse: FlyttBehandlingHendelse) {
         hendelse.leggTilKontekst(this)
-        val behandling = behandlingkjeder.finn(hendelse.behandlingId)
-        behandling.håndter(hendelse)
+        val gammel = behandlingkjeder.finn(hendelse.behandlingId)
+        check(gammel.kanRedigeres()) { "Behandlingen kan ikke flyttes i tilstand ${gammel.tilstand().first}" }
+        val nyBasertPå = hendelse.nyBasertPåId?.let { behandlingkjeder.finn(it) }
+        require(nyBasertPå !== gammel) { "Kan ikke flytte behandlingen til seg selv" }
+
+        if (gammel.erSøskenTil(nyBasertPå)) {
+            baserPåSøsken(gammel, nyBasertPå!!, hendelse)
+        } else {
+            flyttTilAnnenBehandlingskjede(gammel, nyBasertPå, hendelse)
+        }
+    }
+
+    private fun Behandling.erSøskenTil(annen: Behandling?) = basertPå != null && basertPå === annen?.basertPå
+
+    private fun flyttTilAnnenBehandlingskjede(
+        gammel: Behandling,
+        nyBasertPå: Behandling?,
+        hendelse: FlyttBehandlingHendelse,
+    ) {
+        val ny = gammel.kopierTil(nyBasertPå)
+        gammel.håndter(
+            AvbrytBehandlingHendelse(
+                meldingsreferanseId = hendelse.meldingsreferanseId(),
+                ident = hendelse.ident(),
+                behandlingId = gammel.behandlingId,
+                årsak = "Flyttet til ny behandling",
+                opprettet = hendelse.opprettet,
+            ),
+        )
+        leggTilBehandling(ny, behandlingkjeder.firstOrNull { nyBasertPå in it })
+        ny.håndter(hendelse)
+    }
+
+    private fun baserPåSøsken(
+        gammel: Behandling,
+        nyBasertPå: Behandling,
+        hendelse: FlyttBehandlingHendelse,
+    ) {
+        val flyttet = gammel.medNyForelder(nyBasertPå)
+        fjernBehandling(gammel)
+        leggTilBehandling(flyttet, behandlingkjeder.firstOrNull { nyBasertPå in it })
+        flyttet.håndter(hendelse)
+    }
+
+    private fun fjernBehandling(behandling: Behandling) {
+        val index = behandlingkjeder.indexOfFirst { behandling in it }
+        behandlingkjeder[index] = behandlingkjeder[index] uten behandling
     }
 
     fun behandlinger() = behandlingkjeder.flatten()
