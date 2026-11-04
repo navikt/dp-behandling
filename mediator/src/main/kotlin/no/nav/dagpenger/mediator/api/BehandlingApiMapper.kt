@@ -35,6 +35,7 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.antallBarn
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.barn
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.barnetilleggetsStørrelse
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.antallPermitteringsdager
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.permitteringsdag
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.ansesUgyldigVedtak
@@ -414,12 +415,14 @@ internal val redigerbareOpplysninger =
                     )
 
                     // 4-5 Registrert arbeidssøker
-                    // add(RegistrertArbeidssøker.registrertArbeidssøker)
                     add(RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker)
 
-                    // Redigering for å kunne tilbakedatere søknader i dev
-                    if (unleash.isEnabled(Feature.REDIGERING_AV_REGISTRERT_ARBEIDSSØKER.navn)) {
-                        add(søknadIdOpplysningstype)
+                    // Redigering for å kunne tilbakedatere søknader
+                    add(søknadIdOpplysningstype)
+
+                    if (unleash.isEnabled(Feature.REDIGERING_AV_DAGPENGEPERIODE.navn)) {
+                        // Tillat justering av dagpengeperiode
+                        add(Dagpengeperiode.ordinærPeriode)
                     }
 
                     // MANUELL overstyring av beregning

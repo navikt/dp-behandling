@@ -44,6 +44,6 @@ enum class Feature(
     val navn: String,
 ) {
     // Vi bruker denne til å kunne innvilge langt tilbake i tid
-    REDIGERING_AV_REGISTRERT_ARBEIDSSØKER("dp-behandling.redigering-arbeidssoker"),
+    REDIGERING_AV_DAGPENGEPERIODE("dp-behandling.redigering-dagpengeperiode"),
     REDIGERING_AV_BEREGNING("dp-behandling.redigering-beregning"),
 }
