@@ -4,17 +4,23 @@ import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Faktum
+import no.nav.dagpenger.opplysning.Forretningsprosess
+import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.Regelkjøring
+import no.nav.dagpenger.opplysning.Regelverk
+import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.TestOpplysningstyper.a
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.mai
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 internal class HvisSannMedResultatTest {
     private val hvisSannVerdi = Opplysningstype.desimaltall(Opplysningstype.Id(UUIDv7.ny(), Desimaltall), "HvisSannVerdi")
@@ -155,5 +161,69 @@ internal class HvisSannMedResultatTest {
         shouldNotThrowAny { nyRegelkjøring.evaluer() }
 
         nyeOpplysninger.finnOpplysning(beløpResultat).verdi shouldBe Beløp(151)
+    }
+
+    @Nested
+    inner class MedKunResultatSomØnsket {
+        private val opplysninger = Opplysninger()
+        private val regelkjøring = lagRegelkjøring(opplysninger)
+
+        @Test
+        fun `ber ikke om grenen som ikke velges, heller ikke når resultatet allerede finnes`() {
+            opplysninger.leggTil(Faktum(a, true))
+            opplysninger.leggTil(Faktum(hvisSannVerdi, 100.0))
+
+            regelkjøring.evaluer().mangler shouldBe emptySet()
+            val rapport = regelkjøring.evaluer()
+
+            rapport.mangler shouldBe emptySet()
+            rapport.kjørteRegler.size shouldBe 0
+            opplysninger.finnOpplysning(resultat).verdi shouldBe 100.0
+        }
+
+        @Test
+        fun `utledningen inneholder kun sjekk og valgt gren`() {
+            opplysninger.leggTil(Faktum(a, false))
+            opplysninger.leggTil(Faktum(hvisSannVerdi, 100.0))
+            opplysninger.leggTil(Faktum(hvisUsannVerdi, 50.0))
+            regelkjøring.evaluer()
+
+            opplysninger
+                .finnOpplysning(resultat)
+                .utledetAv!!
+                .opplysninger
+                .map { it.opplysningstype } shouldBe
+                listOf(a, hvisUsannVerdi)
+        }
+
+        @Test
+        fun `ber om valgt gren når sjekk snur`() {
+            opplysninger.leggTil(Faktum(a, true))
+            opplysninger.leggTil(Faktum(hvisSannVerdi, 100.0))
+            regelkjøring.evaluer()
+
+            opplysninger.leggTil(Faktum(a, false))
+            regelkjøring.evaluer().mangler shouldBe setOf(hvisUsannVerdi)
+        }
+
+        private fun lagRegelkjøring(opplysninger: Opplysninger): Regelkjøring {
+            val regelsett =
+                vilkår("TestKunResultat") {
+                    regel(a) { innhentes }
+                    regel(hvisSannVerdi) { innhentes }
+                    regel(hvisUsannVerdi) { innhentes }
+                    regel(resultat) { hvisSannMedResultat(a, hvisSannVerdi, hvisUsannVerdi) }
+                    ønsketResultat(resultat)
+                }
+            val prosess =
+                object : Forretningsprosess(Regelverk(navn = RegelverkType("Test"), regelsett = arrayOf(regelsett))) {
+                    override fun regelkjøring(opplysninger: Opplysninger) = throw NotImplementedError()
+
+                    override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = 23.mai(2024)
+
+                    override fun ønsketResultat(opplysninger: LesbarOpplysninger) = setOf<Opplysningstype<*>>(resultat)
+                }
+            return Regelkjøring(23.mai(2024), Regelkjøring.Periode(23.mai(2024)), opplysninger, prosess)
+        }
     }
 }

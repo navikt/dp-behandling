@@ -46,25 +46,29 @@ abstract class Regel<T : Any> internal constructor(
         }
     }
 
+    // Hva regelen faktisk trenger akkurat nå. Betingede regler returnerer bare det de faktisk bruker.
+    open fun aktiveAvhengigheter(opplysninger: LesbarOpplysninger): List<Opplysningstype<out Any>> = avhengerAv
+
     private fun lagPlanNårProduktMangler(
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {
-        avhengerAv.forEach { avhengighet ->
+        val aktive = aktiveAvhengigheter(opplysninger)
+        aktive.forEach { avhengighet ->
             produsenter[avhengighet]?.lagPlan(opplysninger, plan, produsenter, besøkt)
         }
 
         // Hvis noen avhengigheter er planlagt, men ikke ferdig, må vi vente med å planlegge denne regelen
-        if (avhengerAv.any { produsenter[it]?.let(plan::avventer) == true }) {
+        if (aktive.any { produsenter[it]?.let(plan::avventer) == true }) {
             plan.avvent(this)
             return
         }
 
-        val avhengigheter = opplysninger.finnFlere(avhengerAv)
+        val avhengigheter = opplysninger.finnFlere(aktive)
 
-        if (avhengigheter.size == avhengerAv.size) {
+        if (avhengigheter.size == aktive.size) {
             plan.add(this)
         } else {
             plan.avvent(this)
@@ -79,9 +83,10 @@ abstract class Regel<T : Any> internal constructor(
         besøkt: MutableSet<Regel<*>>,
     ) {
         // Oppstrøms regler planlegges først, slik at utdaterte produkter oppdages transitivt
-        avhengerAv.forEach { produsenter[it]?.lagPlan(opplysninger, plan, produsenter, besøkt) }
+        val aktive = aktiveAvhengigheter(opplysninger)
+        aktive.forEach { produsenter[it]?.lagPlan(opplysninger, plan, produsenter, besøkt) }
 
-        if (avhengerAv.any { produsenter[it]?.let(plan::avventer) == true }) {
+        if (aktive.any { produsenter[it]?.let(plan::avventer) == true }) {
             plan.avvent(this)
             return
         }
@@ -89,7 +94,7 @@ abstract class Regel<T : Any> internal constructor(
         // Planlegges en intern oppstrøms regel blir også dette produktet utdatert, selv om det fortsatt
         // stemmer overens med oppstrøms produkter som snart erstattes
         val internAvhengighetSkalBeregnesPåNytt =
-            avhengerAv.any { type ->
+            aktive.any { type ->
                 val produsent = produsenter[type] ?: return@any false
 
                 produsent !is Ekstern<*> &&
@@ -98,7 +103,7 @@ abstract class Regel<T : Any> internal constructor(
             }
 
         // Produktet er utdatert om det er utledet av noe annet enn det som gjelder nå
-        val gjeldende = opplysninger.finnFlere(avhengerAv)
+        val gjeldende = opplysninger.finnFlere(aktive)
         val sammeGrunnlag = gjeldende.toSet() == utledning.opplysninger.toSet()
 
         if (sammeGrunnlag && !internAvhengighetSkalBeregnesPåNytt) return
@@ -112,11 +117,13 @@ abstract class Regel<T : Any> internal constructor(
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {
-        if (opplysninger.finnFlere(avhengerAv).size == avhengerAv.size) plan.add(this)
+        val aktive = aktiveAvhengigheter(opplysninger)
+        if (opplysninger.finnFlere(aktive).size == aktive.size) plan.add(this)
     }
 
     // Tidligere regler i samme runde kan ha gjort inndata ugyldig (f.eks. via tombstones). Da planlegges regelen på nytt neste runde.
-    internal open fun erKlarTilKjøring(opplysninger: LesbarOpplysninger) = opplysninger.finnFlere(avhengerAv).size == avhengerAv.size
+    internal open fun erKlarTilKjøring(opplysninger: LesbarOpplysninger) =
+        aktiveAvhengigheter(opplysninger).let { aktive -> opplysninger.finnFlere(aktive).size == aktive.size }
 
     abstract override fun toString(): String
 
@@ -136,7 +143,7 @@ abstract class Regel<T : Any> internal constructor(
             return Faktum(produserer, produkt)
         }
 
-        val basertPå = opplysninger.finnFlere(avhengerAv)
+        val basertPå = opplysninger.finnFlere(aktiveAvhengigheter(opplysninger))
 
         val produkt = kjør(opplysninger, prøvingsdato)
         val erAlleFaktum = basertPå.all { it is Faktum<*> }

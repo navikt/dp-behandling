@@ -40,14 +40,20 @@ class Regelplanlegger {
 
     fun avventer(regel: Regel<*>) = regel in ventende || (regel is Ekstern<*> && planlegger(regel))
 
-    fun lagProduksjonsplan(): Produksjonsplan {
+    fun lagProduksjonsplan(opplysninger: LesbarOpplysninger): Produksjonsplan {
         val (ekstern, intern) = regler.partition { it is Ekstern<*> }
 
         // Om en regel avhenger av en opplysningstype som en ANNEN regel i samme runde produserer,
         // planlegger vi den samme regelen på nytt senere (etter at avhengigheten faktisk er
         // oppdatert) i stedet for å kjøre den nå mot en verdi som er i ferd med å bli erstattet.
         val produsertDenneRunden = intern.map { it.produserer }.toSet()
-        val (kanKjøres, ventende) = intern.partition { it.avhengerAv.none { avhengighet -> avhengighet in produsertDenneRunden } }
+        val (kanKjøres, ventende) =
+            intern.partition {
+                it.aktiveAvhengigheter(opplysninger).none { avhengighet ->
+                    avhengighet in
+                        produsertDenneRunden
+                }
+            }
 
         return Produksjonsplan(ekstern = ekstern.toSet(), intern = kanKjøres.toSet()).also {
             if (ventende.isNotEmpty()) {
@@ -204,7 +210,12 @@ class Regelkjøring(
         // Guard: Ikke fjern opplysninger når det finnes uløste informasjonsbehov, fordi
         // ønsketResultat kan være ufullstendig (regelsett med skalKjøres=false pga manglende data).
         if (kjøreplan.siste.eksterneRegler.isEmpty()) {
-            val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, kjøreplan.siste.ønsketResultat)
+            val brukteOpplysninger =
+                avhengighetsgraf.nødvendigeOpplysninger(
+                    opplysninger,
+                    kjøreplan.siste.ønsketResultat,
+                    kjøreplan.siste.opplysningerPåPrøvingsdato,
+                )
             opplysninger.fjernHvis {
                 val opplysningFraSaksbehandler = it.kilde is Saksbehandlerkilde
                 val opplysningFraHendelse = it.kilde is Systemkilde
@@ -372,7 +383,7 @@ class Regelkjøring(
                         produsent.lagPlan(opplysningerPåPrøvingsdato, planlegger, produsenter, besøkt)
                     }
 
-                val (ekstern, intern) = planlegger.lagProduksjonsplan()
+                val (ekstern, intern) = planlegger.lagProduksjonsplan(opplysningerPåPrøvingsdato)
                 return Regelkjøringstilstand(
                     prøvingsdato = prøvingsdato,
                     opplysningerPåPrøvingsdato = opplysningerPåPrøvingsdato,
@@ -387,7 +398,7 @@ class Regelkjøring(
             trenger
                 .associateWith {
                     // Finn regel som produserer opplysningstype og hent ut avhengigheter
-                    gjeldendeRegler.find { regel -> regel.produserer(it) }?.avhengerAv ?: emptyList()
+                    gjeldendeRegler.find { regel -> regel.produserer(it) }?.aktiveAvhengigheter(opplysningerPåPrøvingsdato) ?: emptyList()
                 }.filter { (_, avhengigheter) ->
                     // Finn bare opplysninger hvor alle avhengigheter er tilfredsstilt
                     avhengigheter.all { opplysningerPåPrøvingsdato.har(it) }

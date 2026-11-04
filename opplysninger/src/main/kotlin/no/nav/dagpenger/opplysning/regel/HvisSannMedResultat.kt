@@ -2,8 +2,6 @@ package no.nav.dagpenger.opplysning.regel
 
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
-import no.nav.dagpenger.opplysning.Regelplanlegger
-import no.nav.dagpenger.opplysning.finn
 import java.time.LocalDate
 
 class HvisSannMedResultat<T : Any>(
@@ -12,22 +10,13 @@ class HvisSannMedResultat<T : Any>(
     private val hvisSann: Opplysningstype<T>,
     private val hvisUsann: Opplysningstype<T>,
 ) : Regel<T>(produserer, listOf(sjekk, hvisSann, hvisUsann)) {
-    override fun lagPlan(
-        opplysninger: LesbarOpplysninger,
-        plan: Regelplanlegger,
-        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
-        if (besøkt.contains(this)) return else besøkt.add(this)
-
-        if (opplysninger.har(produserer)) {
-            // Deleger til Regel sin logikk for endringer
-            besøkt.remove(this)
-            return super.lagPlan(opplysninger, plan, produsenter, besøkt)
+    // Grenen som ikke velges er verken avhengighet, grunnlag eller behov
+    override fun aktiveAvhengigheter(opplysninger: LesbarOpplysninger): List<Opplysningstype<out Any>> =
+        when {
+            opplysninger.mangler(sjekk) -> listOf(sjekk)
+            opplysninger.finnOpplysning(sjekk).verdi -> listOf(sjekk, hvisSann)
+            else -> listOf(sjekk, hvisUsann)
         }
-
-        lagPlanForValgtGren(opplysninger, plan, produsenter, besøkt)
-    }
 
     override fun kjør(
         opplysninger: LesbarOpplysninger,
@@ -40,42 +29,6 @@ class HvisSannMedResultat<T : Any>(
         } else {
             opplysninger.finnOpplysning(hvisUsann).verdi
         }
-    }
-
-    override fun lagPlanNårAvhengerErErstattet(
-        opplysninger: LesbarOpplysninger,
-        plan: Regelplanlegger,
-        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
-        lagPlanForValgtGren(opplysninger, plan, produsenter, besøkt)
-    }
-
-    private fun lagPlanForValgtGren(
-        opplysninger: LesbarOpplysninger,
-        plan: Regelplanlegger,
-        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
-        besøkt: MutableSet<Regel<*>>,
-    ) {
-        if (opplysninger.mangler(sjekk)) {
-            produsenter.finn(sjekk).lagPlan(opplysninger, plan, produsenter, besøkt)
-            return
-        }
-
-        val sjekkVerdi = opplysninger.finnOpplysning(sjekk).verdi
-        val valgtGren = if (sjekkVerdi) hvisSann else hvisUsann
-
-        if (opplysninger.mangler(valgtGren)) {
-            produsenter.finn(valgtGren).lagPlan(opplysninger, plan, produsenter, besøkt)
-            return
-        }
-
-        plan.add(this)
-    }
-
-    override fun erKlarTilKjøring(opplysninger: LesbarOpplysninger): Boolean {
-        if (opplysninger.mangler(sjekk)) return false
-        return opplysninger.har(if (opplysninger.finnOpplysning(sjekk).verdi) hvisSann else hvisUsann)
     }
 
     override fun toString() = "Hvis $sjekk er sann, returner $hvisSann, ellers returner $hvisUsann"

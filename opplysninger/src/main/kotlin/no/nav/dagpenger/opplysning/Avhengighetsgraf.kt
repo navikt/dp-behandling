@@ -12,11 +12,13 @@ internal class Avhengighetsgraf(
      * Finner alle mulige opplysninger som blir brukt for å produsere ønsket resultat.
      *
      * Gitt ett regeltre hvor A -> B -> C, og vi ønsker C, vil denne metoden returnere A, B og C.
+     * Betingede regler bidrar kun med avhengighetene som er aktive for [gjeldende].
      * Opplysninger som ikke brukes for å produsere C vil bli ikke bli med.
      */
     fun nødvendigeOpplysninger(
         opplysninger: Opplysninger,
         ønsketResultat: Collection<Opplysningstype<*>>,
+        gjeldende: LesbarOpplysninger = opplysninger,
     ): Set<Opplysningstype<*>> {
         val nødvendigeOpplysninger = mutableSetOf<Opplysningstype<*>>()
         nødvendigeOpplysninger.addAll(ønsketResultat)
@@ -29,7 +31,7 @@ internal class Avhengighetsgraf(
         for (ønsket in ønsketResultat) {
             val regel = reglerEtterOutput[ønsket] ?: throw IllegalStateException("Fant ikke regel for $ønsket")
             nødvendigeOpplysninger.add(regel.produserer)
-            leggTilAvhengigheter(regel, nødvendigeOpplysninger)
+            leggTilAvhengigheter(regel, gjeldende, nødvendigeOpplysninger)
         }
 
         return nødvendigeOpplysninger
@@ -40,13 +42,14 @@ internal class Avhengighetsgraf(
      */
     private fun leggTilAvhengigheter(
         regel: Regel<*>,
+        gjeldende: LesbarOpplysninger,
         nødvendigeOpplysninger: MutableSet<Opplysningstype<*>>,
     ) {
-        for (avhengighet in regel.avhengerAv) {
+        for (avhengighet in regel.aktiveAvhengigheter(gjeldende)) {
             val avhengigRegel = reglerEtterOutput[avhengighet] ?: throw IllegalStateException("Fant ikke regel for $avhengighet")
 
             if (nødvendigeOpplysninger.add(avhengigRegel.produserer)) {
-                leggTilAvhengigheter(avhengigRegel, nødvendigeOpplysninger)
+                leggTilAvhengigheter(avhengigRegel, gjeldende, nødvendigeOpplysninger)
             }
         }
     }
