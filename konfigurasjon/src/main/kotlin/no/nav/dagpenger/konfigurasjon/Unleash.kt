@@ -21,12 +21,7 @@ val unleash: Unleash =
                 .unleashAPI(properties[Key("UNLEASH_SERVER_API_URL", stringType)] + "/api/")
                 .apiKey(properties[Key("UNLEASH_SERVER_API_TOKEN", stringType)])
                 .synchronousFetchOnInitialisation(true)
-                .environment(
-                    when (System.getenv("NAIS_CLUSTER_NAME").orEmpty()) {
-                        "prod-gcp" -> "production"
-                        else -> "development"
-                    },
-                ).build(),
+                .build(),
         )
     }
 
@@ -43,7 +38,6 @@ fun skruAvFeatures() {
 enum class Feature(
     val navn: String,
 ) {
-    // Vi bruker denne til å kunne innvilge langt tilbake i tid
     REDIGERING_AV_DAGPENGEPERIODE("dp-behandling.redigering-dagpengeperiode"),
     REDIGERING_AV_BEREGNING("dp-behandling.redigering-beregning"),
 }
