@@ -25,7 +25,6 @@ Laget avklaring om JobbetUtenforNorge
 Laget avklaring om HarOppgittPermittering
 Laget avklaring om BeregnetArbeidstid
 Behov:
-- AndreØkonomiskeYtelser
 - BostedslandErNorge
 - ErUtestengt
 - Foreldrepenger

@@ -156,4 +156,18 @@ internal class HvisSannMedResultatTest {
 
         nyeOpplysninger.finnOpplysning(beløpResultat).verdi shouldBe Beløp(151)
     }
+
+    @Test
+    fun `skal ikke trenge hvisUsannVerdi`() {
+        opplysninger.leggTil(Faktum(a, true))
+        opplysninger.leggTil(Faktum(hvisSannVerdi, 100.0))
+        regelkjøring.evaluer().kjørteRegler.size shouldBe 1
+        opplysninger.finnOpplysning(resultat).verdi shouldBe 100.0
+
+        opplysninger.leggTil(Faktum(a, false))
+        opplysninger.leggTil(Faktum(hvisUsannVerdi, 200.0))
+        opplysninger.tombstone(hvisSannVerdi)
+        regelkjøring.evaluer().kjørteRegler.size shouldBe 1
+        opplysninger.finnOpplysning(resultat).verdi shouldBe 200.0
+    }
 }

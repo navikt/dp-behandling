@@ -403,7 +403,9 @@ class Regelkjøring(
             plan.mapNotNull { regel ->
                 if (!regel.erKlarTilKjøring(opplysningerPåPrøvingsdato)) return@mapNotNull null
                 try {
-                    regel.kjørRegel().also { opplysninger.leggTil(it.produkt) }
+                    regel.kjørRegel().also {
+                        opplysninger.leggTil(it.produkt)
+                    }
                 } catch (e: IllegalArgumentException) {
                     throw RegelkjøringException(regel, e)
                 }

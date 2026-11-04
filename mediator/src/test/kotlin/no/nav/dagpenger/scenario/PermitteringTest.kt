@@ -1,5 +1,6 @@
 package no.nav.dagpenger.scenario
 
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
@@ -121,6 +122,7 @@ class PermitteringTest {
                 "Permitteringen er satt på pause",
                 Gyldighetsperiode(2.juli(2018)),
             )
+            behovsløsere.løsTilForslag() shouldHaveSize 1
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()

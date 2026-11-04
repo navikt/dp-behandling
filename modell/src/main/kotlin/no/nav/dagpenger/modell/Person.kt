@@ -54,7 +54,7 @@ class Person(
     private val observatører =
         mutableSetOf<PersonObservatør>()
 
-    private var rettighetstatus: TemporalCollection<Rettighetstatus> =
+    private val rettighetstatus: TemporalCollection<Rettighetstatus> =
         behandlinger.fold(TemporalCollection()) { rettighetstatus, behandlingkjede ->
             behandlingkjede.alleFerdigeLøvnoder.lastOrNull()?.let {
                 it.vedtakopplysninger.rettighetsperioder.map { periode ->
