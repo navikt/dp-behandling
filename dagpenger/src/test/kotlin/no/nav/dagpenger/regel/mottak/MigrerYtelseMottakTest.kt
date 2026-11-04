@@ -14,11 +14,13 @@ import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.modell.hendelser.MigreringId
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
+import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
+import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
@@ -26,10 +28,10 @@ import no.nav.dagpenger.opplysning.Prosesskontekst
 import no.nav.dagpenger.opplysning.Regelkjøringsrapport
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.opplysning.verdier.Barn
 import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
-import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.DagpengerRegistrering
 import no.nav.dagpenger.regel.hendelse.MigrerYtelseHendelse
 import no.nav.dagpenger.regel.hendelse.MigrertYtelse
@@ -46,6 +48,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning
+import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
@@ -54,6 +57,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
+import tools.jackson.databind.JsonNode
 import tools.jackson.databind.json.JsonMapper
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -80,7 +84,7 @@ class MigrerYtelseMottakTest {
                 .regelkjøring(event.lagFaktagrunnlag())
                 .evaluer()
         val forventedeMangler =
-            rapport.mangler
+            (rapport.mangler + påkrevdeMigreringsopplysninger())
                 .map { it.id.uuid.toString() }
                 .distinct()
                 .sorted()
@@ -96,6 +100,76 @@ class MigrerYtelseMottakTest {
         feilet["arsak"]["detaljer"].values().map { it.asString() } shouldBe forventedeMangler
         feilet["manglendeOpplysninger"].values().map { UUID.fromString(it.asString()) }
         rapid.inspektør.size shouldBe 1
+        verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+    }
+
+    @Test
+    fun `krever søknadsfakta og rettighetstypevelgere selv når regelkjøringen er ferdig`() {
+        val fullstendig =
+            lagFerdigFaktagrunnlag(
+                fødselsdato = LocalDate.of(1980, 1, 1),
+                overstyringer =
+                    listOf(
+                        Tilleggsopplysning(Rettighetstype.skalVernepliktVurderes, true),
+                    ),
+            )
+        val påkrevde = påkrevdeMigreringsopplysninger()
+        påkrevde.contains(Søknadstidspunkt.søknadIdOpplysningstype) shouldBe false
+        påkrevde.contains(Rettighetstype.rettighetstype) shouldBe false
+
+        påkrevde.forEach { manglendeType ->
+            rapid.reset()
+            val fakta = fullstendig.opplysninger.filterNot { it.first == manglendeType }
+            val event = hendelse(fakta.map { (type, verdi) -> lagTilleggsopplysning(type, verdi) })
+            event.forretningsprosess
+                .regelkjøring(event.lagFaktagrunnlag())
+                .evaluer()
+                .erFerdig() shouldBe true
+
+            rapid.sendTestMessage(melding(fakta.map { (type, verdi) -> opplysning(type, jsonVerdi(verdi)) }))
+
+            val feilet = rapid.inspektør.message(0)
+            feilet["arsak"]["kode"].asString() shouldBe "MANGLENDE_OPPLYSNINGER"
+            feilet["manglendeOpplysninger"].values().map { it.asString() } shouldBe
+                listOf(manglendeType.id.uuid.toString())
+            feilet["mottatteOpplysninger"].values().map { it.asString() } shouldBe
+                fakta
+                    .map {
+                        it.first.id.uuid
+                            .toString()
+                    }.distinct()
+                    .sorted()
+        }
+        verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+
+        rapid.reset()
+        rapid.sendTestMessage(
+            melding(fullstendig.opplysninger.map { (type, verdi) -> opplysning(type, jsonVerdi(verdi)) }),
+        )
+        rapid.inspektør.size shouldBe 0
+        verify(exactly = 1) { hendelseMottaker.behandle(any(), any(), any()) }
+    }
+
+    @Test
+    fun `påkrevd opplysning må være gyldig på innvilgelsesdatoen`() {
+        val fullstendig = lagFerdigFaktagrunnlag(LocalDate.of(1950, 1, 1))
+        val utløptType = Rettighetstype.skalEksportVurderes
+        val fakta =
+            fullstendig.opplysninger.map { (type, verdi) ->
+                if (type == utløptType) {
+                    opplysning(type, jsonVerdi(verdi), "2024-01-01", "2024-12-31")
+                } else {
+                    opplysning(type, jsonVerdi(verdi))
+                }
+            }
+
+        rapid.sendTestMessage(melding(fakta))
+
+        rapid.inspektør
+            .message(0)["manglendeOpplysninger"]
+            .values()
+            .map { it.asString() } shouldBe
+            listOf(utløptType.id.uuid.toString())
         verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
     }
 
@@ -163,6 +237,64 @@ class MigrerYtelseMottakTest {
         behandlingsopplysninger.har(Opphold.oppfyllerKravet) shouldBe false
         forhåndskjøring.finnOpplysning(Dagpengegrunnlag.grunnlag).id shouldNotBe
             behandlingsopplysninger.finnOpplysning(Dagpengegrunnlag.grunnlag).id
+    }
+
+    @Test
+    fun `overstyrer standardverdier og legger til andre fakta før regelkjøringen`() {
+        val resultat =
+            lagFerdigFaktagrunnlag(
+                fødselsdato = LocalDate.of(1950, 1, 1),
+                overstyringer =
+                    listOf(
+                        Tilleggsopplysning(Rettighetstype.ordinærArbeid, false),
+                        Tilleggsopplysning(ReellArbeidssøker.ønsketArbeidstid, 20.0),
+                        Tilleggsopplysning(ReellArbeidssøker.erArbeidsfør, false),
+                        Tilleggsopplysning(Dagpengegrunnlag.grunnlag, Beløp(310630)),
+                    ),
+            )
+
+        resultat.rapport.erFerdig() shouldBe true
+        resultat.forhåndskjøring.finnOpplysning(Rettighetstype.ordinærArbeid).verdi shouldBe false
+        resultat.forhåndskjøring.finnOpplysning(ReellArbeidssøker.ønsketArbeidstid).verdi shouldBe 20.0
+        resultat.forhåndskjøring.finnOpplysning(ReellArbeidssøker.erArbeidsfør).verdi shouldBe false
+        resultat.forhåndskjøring.finnOpplysning(ReellArbeidssøker.kanJobbeDeltid).verdi shouldBe true
+        resultat.forhåndskjøring.finnOpplysning(Dagpengegrunnlag.grunnlag).verdi shouldBe Beløp(310630)
+        resultat.forhåndskjøring.finnOpplysning(Rettighetstype.lønnsgaranti).verdi shouldBe false
+    }
+
+    @Test
+    fun `standardfakta beskriver ordinær ytelse med bosted i Norge og reell arbeidssøker`() {
+        val opplysninger = lagFerdigFaktagrunnlag(LocalDate.of(1950, 1, 1)).forhåndskjøring
+
+        opplysninger.finnOpplysning(Søknadstidspunkt.ønsketdato).verdi shouldBe
+            opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi
+        listOf(
+            Opphold.bostedsland,
+            ReellArbeidssøker.kanJobbeDeltid,
+            ReellArbeidssøker.kanJobbeHvorSomHelst,
+            ReellArbeidssøker.erArbeidsfør,
+            ReellArbeidssøker.villigTilEthvertArbeid,
+            Rettighetstype.skalReellArbeidssøkerVurderes,
+            Rettighetstype.ordinærArbeid,
+        ).forEach { opplysninger.finnOpplysning(it).verdi shouldBe true }
+        opplysninger.finnOpplysning(ReellArbeidssøker.ønsketArbeidstid).verdi shouldBe 37.5
+        listOf(
+            Utdanning.tarUtdanning,
+            Verneplikt.avtjentVerneplikt,
+            Rettighetstype.skalPermitteringVurderes,
+            Rettighetstype.skalPermitteringFiskeforedlingVurderes,
+            Rettighetstype.skalVernepliktVurderes,
+            Rettighetstype.skalGjenopptakVurderes,
+            Rettighetstype.skalEksportVurderes,
+            Rettighetstype.skalEtableringVurderes,
+            Rettighetstype.lønnsgaranti,
+        ).forEach { opplysninger.finnOpplysning(it).verdi shouldBe false }
+    }
+
+    @Test
+    fun `sjekk hva som mangler`() {
+        val ferdigFaktagrunnlag = lagFerdigFaktagrunnlag(LocalDate.of(1980, 1, 1))
+        print(ferdigFaktagrunnlag)
     }
 
     @Test
@@ -253,8 +385,8 @@ class MigrerYtelseMottakTest {
                     Tilleggsopplysning(ReellArbeidssøker.ønsketArbeidstid, 37.5),
                     Tilleggsopplysning(Rettighetstype.skalPermitteringVurderes, false),
                     Tilleggsopplysning(Rettighetstype.skalPermitteringFiskeforedlingVurderes, false),
-                    lagTilleggsopplysning(opplysningstyper.single { it.behovId == Behov.Ordinær }, true),
-                    lagTilleggsopplysning(opplysningstyper.single { it.behovId == Behov.Lønnsgaranti }, false),
+                    Tilleggsopplysning(Rettighetstype.ordinærArbeid, true),
+                    Tilleggsopplysning(Rettighetstype.lønnsgaranti, false),
                     Tilleggsopplysning(Verneplikt.avtjentVerneplikt, false),
                     Tilleggsopplysning(Opphold.bostedsland, true),
                     Tilleggsopplysning(TapAvArbeidsinntektOgArbeidstid.kravPåLønn, false),
@@ -269,7 +401,7 @@ class MigrerYtelseMottakTest {
                     Tilleggsopplysning(Samordning.uføre, false),
                     Tilleggsopplysning(SamordingUtenforFolketrygden.andreYtelser, false),
                     Tilleggsopplysning(DagpengenesStørrelse.barn, BarnListe(barn = emptyList())),
-                    lagTilleggsopplysning(opplysningstyper.single { it.behovId == Behov.Sanksjon }, false),
+                    Tilleggsopplysning(Sanksjonsperiode.oppgirSelvforskyldtArbeidsløshet, false),
                 ),
             )
         val opplysninger = event.lagFaktagrunnlag()
@@ -314,7 +446,7 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
-    fun `leser tilleggsopplysninger fra objektformatet`() {
+    fun `avviser tilleggsopplysninger fra objektformatet`() {
         val type = DagpengenesStørrelse.antallBarn
         val packet =
             JsonMessage
@@ -322,10 +454,101 @@ class MigrerYtelseMottakTest {
                     "migrering_startet",
                     mapOf("opplysninger" to mapOf(type.behovId to 2)),
                 ).apply { interestedIn("opplysninger") }
-        val opplysninger = packet["opplysninger"].tilleggsopplysninger(opplysningstyper)
+        shouldThrow<IllegalArgumentException> {
+            packet["opplysninger"].tilleggsopplysninger(opplysningstyper)
+        }.message shouldBe "opplysninger må være en liste"
+    }
 
-        opplysninger.single().opplysningstype shouldBe type
-        opplysninger.single().verdi shouldBe 2
+    @Test
+    fun `krever opplysningsliste og gyldighetsperiode`() {
+        listOf("{}", """{"opplysninger":null}""", """{"opplysninger":"feil"}""").forEach { json ->
+            shouldThrow<IllegalArgumentException> {
+                jsonMapper.readTree(json).path("opplysninger").tilleggsopplysninger(opplysningstyper)
+            }
+        }
+        val utenPeriode =
+            jsonMapper.valueToTree<JsonNode>(
+                listOf(
+                    mapOf(
+                        "uuid" to
+                            Verneplikt.avtjentVerneplikt.id.uuid
+                                .toString(),
+                        "verdi" to false,
+                    ),
+                ),
+            )
+        shouldThrow<IllegalArgumentException> {
+            utenPeriode.tilleggsopplysninger(opplysningstyper)
+        }.message shouldBe "Opplysning ${Verneplikt.avtjentVerneplikt.id.uuid} mangler gyldig gyldigFraOgMed"
+    }
+
+    @Test
+    fun `leser påkrevd barneliste med fødselsdato og forsørgeransvar`() {
+        val verdi =
+            mapOf(
+                "barn" to
+                    listOf(
+                        mapOf("fødselsdato" to "2020-03-01", "kvalifiserer" to true, "forsørgeransvar" to false),
+                    ),
+            )
+        val node =
+            jsonMapper.valueToTree<JsonNode>(
+                listOf(opplysning(DagpengenesStørrelse.barn, verdi)),
+            )
+
+        val oppgitt = node.tilleggsopplysninger(opplysningstyper).single()
+
+        oppgitt.opplysningstype shouldBe DagpengenesStørrelse.barn
+        oppgitt.verdi shouldBe
+            BarnListe(
+                barn = listOf(Barn(fødselsdato = LocalDate.of(2020, 3, 1), kvalifiserer = true, forsørgeransvar = false)),
+            )
+    }
+
+    @Test
+    fun `leser inntekt med klassifisering beløp og gyldighetsperiode`() {
+        val inntektsId = UUIDv7.ny().toString()
+        val verdi =
+            jsonMapper.readTree(
+                """
+                {
+                  "inntektsId": "$inntektsId",
+                  "sisteAvsluttendeKalenderMåned": "2025-11",
+                  "inntektsListe": [{
+                    "årMåned": "2025-10",
+                    "klassifiserteInntekter": [{
+                      "beløp": 50000.25,
+                      "inntektKlasse": "ARBEIDSINNTEKT"
+                    }],
+                    "harAvvik": true
+                  }]
+                }
+                """.trimIndent(),
+            )
+        val node =
+            jsonMapper.valueToTree<JsonNode>(
+                listOf(opplysning(Minsteinntekt.inntektFraSkatt, verdi, "2026-01-05")),
+            )
+
+        val oppgitt = node.tilleggsopplysninger(opplysningstyper).single()
+        val inntekt = (oppgitt.verdi as Inntekt).verdi
+
+        oppgitt.opplysningstype shouldBe Minsteinntekt.inntektFraSkatt
+        oppgitt.gyldighetsperiode shouldBe Gyldighetsperiode(LocalDate.of(2026, 1, 5))
+        inntekt.inntektsId shouldBe inntektsId
+        inntekt.sisteAvsluttendeKalenderMåned shouldBe YearMonth.of(2025, 11)
+        inntekt.manueltRedigert shouldBe false
+        inntekt.inntektsListe shouldBe
+            listOf(
+                KlassifisertInntektMåned(
+                    årMåned = YearMonth.of(2025, 10),
+                    klassifiserteInntekter = listOf(KlassifisertInntekt("50000.25".toBigDecimal(), InntektKlasse.ARBEIDSINNTEKT)),
+                    harAvvik = true,
+                ),
+            )
+        val redigert = (verdi as tools.jackson.databind.node.ObjectNode).put("manueltRedigert", true)
+        val redigertNode = jsonMapper.valueToTree<JsonNode>(listOf(opplysning(Minsteinntekt.inntektFraSkatt, redigert)))
+        (redigertNode.tilleggsopplysninger(opplysningstyper).single().verdi as Inntekt).verdi.manueltRedigert shouldBe true
     }
 
     @Test
@@ -335,7 +558,7 @@ class MigrerYtelseMottakTest {
             JsonMessage
                 .newMessage(
                     "migrering_startet",
-                    mapOf("opplysninger" to mapOf(type.behovId to "to")),
+                    mapOf("opplysninger" to listOf(opplysning(type, "to"))),
                 ).apply { interestedIn("opplysninger") }
 
         shouldThrow<IllegalArgumentException> {
@@ -396,8 +619,38 @@ class MigrerYtelseMottakTest {
             tilleggsopplysninger = tilleggsopplysninger,
         )
 
-    private fun lagFerdigFaktagrunnlag(fødselsdato: LocalDate): FerdigFaktagrunnlag {
+    private fun lagFerdigFaktagrunnlag(
+        fødselsdato: LocalDate,
+        overstyringer: List<Tilleggsopplysning<*>> = emptyList(),
+    ): FerdigFaktagrunnlag {
         val opplysninger = linkedMapOf<Opplysningstype<*>, Any>(Alderskrav.fødselsdato to fødselsdato)
+        påkrevdeMigreringsopplysninger().forEach { type ->
+            opplysninger[type] = syntetiskVerdi(type)
+        }
+        val standardfakta =
+            listOf(
+                Tilleggsopplysning(Søknadstidspunkt.ønsketdato, LocalDate.of(2026, 1, 5)),
+                Tilleggsopplysning(Opphold.bostedsland, true),
+                Tilleggsopplysning(ReellArbeidssøker.kanJobbeDeltid, true),
+                Tilleggsopplysning(ReellArbeidssøker.kanJobbeHvorSomHelst, true),
+                Tilleggsopplysning(ReellArbeidssøker.erArbeidsfør, true),
+                Tilleggsopplysning(ReellArbeidssøker.villigTilEthvertArbeid, true),
+                Tilleggsopplysning(ReellArbeidssøker.ønsketArbeidstid, 37.5),
+                Tilleggsopplysning(Utdanning.tarUtdanning, false),
+                Tilleggsopplysning(Verneplikt.avtjentVerneplikt, false),
+                Tilleggsopplysning(Rettighetstype.ordinærArbeid, true),
+                Tilleggsopplysning(Rettighetstype.skalReellArbeidssøkerVurderes, true),
+                Tilleggsopplysning(Rettighetstype.skalPermitteringVurderes, false),
+                Tilleggsopplysning(Rettighetstype.skalPermitteringFiskeforedlingVurderes, false),
+                Tilleggsopplysning(Rettighetstype.skalVernepliktVurderes, false),
+                Tilleggsopplysning(Rettighetstype.skalGjenopptakVurderes, false),
+                Tilleggsopplysning(Rettighetstype.skalEksportVurderes, false),
+                Tilleggsopplysning(Rettighetstype.skalEtableringVurderes, false),
+                Tilleggsopplysning(Rettighetstype.lønnsgaranti, false),
+            )
+        (standardfakta + overstyringer).forEach { opplysning ->
+            opplysninger[opplysning.opplysningstype] = opplysning.verdi
+        }
 
         repeat(30) {
             val event =
@@ -428,19 +681,84 @@ class MigrerYtelseMottakTest {
 
     private fun syntetiskVerdi(type: Opplysningstype<*>): Any =
         when (type.datatype) {
-            Boolsk -> false
-            Dato -> LocalDate.of(2024, 1, 1)
-            Desimaltall -> 1.0
-            Heltall -> 1
-            Penger -> Beløp(100000)
-            Tekst -> "Norge"
-            else -> error("Kan ikke lage migreringsfaktum for ${type.navn} (${type.datatype})")
+            Boolsk -> {
+                false
+            }
+
+            Dato -> {
+                LocalDate.of(2024, 1, 1)
+            }
+
+            Desimaltall -> {
+                1.0
+            }
+
+            Heltall -> {
+                1
+            }
+
+            Penger -> {
+                Beløp(100000)
+            }
+
+            Tekst -> {
+                "Norge"
+            }
+
+            InntektDataType -> {
+                Inntekt(
+                    InntektV1(
+                        inntektsId = UUIDv7.ny().toString(),
+                        sisteAvsluttendeKalenderMåned = YearMonth.of(2025, 11),
+                        inntektsListe =
+                            (0L..11L).map { måned ->
+                                KlassifisertInntektMåned(
+                                    årMåned = YearMonth.of(2025, 11).minusMonths(måned),
+                                    klassifiserteInntekter =
+                                        listOf(
+                                            KlassifisertInntekt(
+                                                beløp = 50000.toBigDecimal(),
+                                                inntektKlasse = InntektKlasse.ARBEIDSINNTEKT,
+                                            ),
+                                        ),
+                                    harAvvik = false,
+                                )
+                            },
+                    ),
+                )
+            }
+
+            BarnDatatype -> {
+                BarnListe(barn = emptyList())
+            }
+
+            else -> {
+                error("Kan ikke lage migreringsfaktum for ${type.navn} (${type.datatype})")
+            }
         }
 
     private fun jsonVerdi(verdi: Any): Any =
         when (verdi) {
             is Beløp -> verdi.verdien
             is LocalDate -> verdi.toString()
+            is BarnListe -> mapOf("barn" to verdi.barn)
+            is Inntekt ->
+                mapOf(
+                    "inntektsId" to verdi.verdi.inntektsId,
+                    "sisteAvsluttendeKalenderMåned" to verdi.verdi.sisteAvsluttendeKalenderMåned.toString(),
+                    "manueltRedigert" to verdi.verdi.manueltRedigert,
+                    "inntektsListe" to
+                        verdi.verdi.inntektsListe.map { måned ->
+                            mapOf(
+                                "årMåned" to måned.årMåned.toString(),
+                                "harAvvik" to måned.harAvvik,
+                                "klassifiserteInntekter" to
+                                    måned.klassifiserteInntekter.map { inntekt ->
+                                        mapOf("beløp" to inntekt.beløp, "inntektKlasse" to inntekt.inntektKlasse.name)
+                                    },
+                            )
+                        },
+                )
             else -> verdi
         }
 

@@ -41,8 +41,8 @@ object Rettighetstype {
             synlig = { !kravPåDagpenger(it) || !it.erSann(skalReellArbeidssøkerVurderes) },
         )
 
-    private val ordinærArbeid = boolsk(OrdinærId, beskrivelse = "Har rett til ordinære dagpenger gjennom arbeidsforhold", behovId = Ordinær)
-    private val lønnsgaranti =
+    val ordinærArbeid = boolsk(OrdinærId, beskrivelse = "Har rett til ordinære dagpenger gjennom arbeidsforhold", behovId = Ordinær)
+    val lønnsgaranti =
         boolsk(LønnsgarantiId, beskrivelse = "Forskutterte lønnsgarantimidler i form av dagpenger", behovId = Lønnsgaranti)
 
     val skalPermitteringFiskeforedlingVurderes =

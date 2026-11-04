@@ -12,31 +12,50 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.dagpenger.inntekt.v1.InntektKlasse
+import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
+import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.modell.hendelser.MigreringId
+import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
+import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.opplysning.Tekst
+import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
+import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.hendelse.MigrerYtelseHendelse
 import no.nav.dagpenger.regel.hendelse.MigrertYtelse
 import no.nav.dagpenger.regel.hendelse.Tilleggsopplysning
+import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
+import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
+import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
+import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
+import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.node.ObjectNode
 import tools.jackson.module.kotlin.jsonMapper
+import tools.jackson.module.kotlin.kotlinModule
 import java.time.LocalDate
+import java.time.YearMonth
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
+import no.nav.dagpenger.inntekt.v1.Inntekt as InntektV1
 
-private val migreringSvarSerializer = jsonMapper {}
+private val migreringSvarSerializer = jsonMapper { addModule(kotlinModule()) }
 
 internal data class Migreringsavbrudd(
     val kode: String,
@@ -84,11 +103,38 @@ fun toJsonMessage(
     return JsonMessage(json, MessageProblems(json))
 }
 
+internal fun påkrevdeMigreringsopplysninger(): Set<Opplysningstype<*>> =
+    setOf(
+        Søknadstidspunkt.ønsketdato,
+        Verneplikt.avtjentVerneplikt,
+        DagpengenesStørrelse.barn,
+        Opphold.bostedsland,
+        TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
+        ReellArbeidssøker.ønsketArbeidstid,
+        ReellArbeidssøker.kanJobbeDeltid,
+        ReellArbeidssøker.kanJobbeHvorSomHelst,
+        ReellArbeidssøker.erArbeidsfør,
+        ReellArbeidssøker.villigTilEthvertArbeid,
+        Utdanning.tarUtdanning,
+        Rettighetstype.skalPermitteringVurderes,
+        Rettighetstype.skalPermitteringFiskeforedlingVurderes,
+        Rettighetstype.skalReellArbeidssøkerVurderes,
+        Rettighetstype.skalVernepliktVurderes,
+        Rettighetstype.skalGjenopptakVurderes,
+        Rettighetstype.skalEksportVurderes,
+        Rettighetstype.skalEtableringVurderes,
+        Rettighetstype.ordinærArbeid,
+        Rettighetstype.lønnsgaranti,
+        Sanksjonsperiode.oppgirSelvforskyldtArbeidsløshet,
+    )
+
 class MigrerYtelseMottak(
     rapidsConnection: RapidsConnection,
     private val hendelseMottaker: HendelseMottaker,
     private val opplysningstyper: Set<Opplysningstype<*>>,
 ) : River.PacketListener {
+    private val påkrevdeOpplysninger = påkrevdeMigreringsopplysninger()
+
     init {
         River(rapidsConnection)
             .apply {
@@ -99,8 +145,9 @@ class MigrerYtelseMottak(
                         "sakId",
                         "innvilgetFraOgMed",
                         "migreringId",
+                        "opplysninger",
                     )
-                    it.interestedIn("innvilgetTilOgMed", "initiertAv", "opplysninger")
+                    it.interestedIn("innvilgetTilOgMed", "initiertAv")
                 }
             }.register(this)
     }
@@ -128,17 +175,22 @@ class MigrerYtelseMottak(
 
         val message = MigrerYtelseMessage(packet, opplysningstyper)
         val faktagrunnlag = message.hendelse.lagFaktagrunnlag()
+        val prøvingsdato = packet["innvilgetFraOgMed"].asLocalDate()
+        val manglendePåkrevdeOpplysninger =
+            påkrevdeOpplysninger.filterNot { type ->
+                faktagrunnlag.somListe().any { it.opplysningstype == type && it.gyldighetsperiode.inneholder(prøvingsdato) }
+            }
         val rapport =
             message.hendelse.forretningsprosess
                 .regelkjøring(faktagrunnlag)
                 .evaluer()
 
-        if (!rapport.erFerdig()) {
-            val manglendeOpplysninger =
-                rapport.mangler
-                    .map { it.id.uuid.toString() }
-                    .distinct()
-                    .sorted()
+        val manglendeOpplysninger =
+            (rapport.mangler + manglendePåkrevdeOpplysninger)
+                .map { it.id.uuid.toString() }
+                .distinct()
+                .sorted()
+        if (!rapport.erFerdig() || manglendeOpplysninger.isNotEmpty()) {
             logger.info { "Migrering av sakId $sakId mangler opplysninger $manglendeOpplysninger" }
             context.avbrytMigrering(
                 sakId,
@@ -203,25 +255,8 @@ class MigrerYtelseMessage(
 }
 
 internal fun JsonNode.tilleggsopplysninger(opplysningstyper: Set<Opplysningstype<*>>): List<Tilleggsopplysning<*>> {
-    if (isMissingNode || isNull) return emptyList()
-    return when {
-        isObject -> {
-            properties().toList().map { (behovId, verdi) ->
-                val type =
-                    opplysningstyper.singleOrNull { it.behovId == behovId }
-                        ?: throw IllegalArgumentException("Ukjent opplysningstype: $behovId")
-                type.tilleggsopplysning(verdi)
-            }
-        }
-
-        isArray -> {
-            values().map { it.tilleggsopplysning(opplysningstyper) }
-        }
-
-        else -> {
-            throw IllegalArgumentException("opplysninger må være et objekt eller en liste")
-        }
-    }
+    require(isArray) { "opplysninger må være en liste" }
+    return values().map { it.tilleggsopplysning(opplysningstyper) }
 }
 
 private fun JsonNode.tilleggsopplysning(opplysningstyper: Set<Opplysningstype<*>>): Tilleggsopplysning<*> {
@@ -263,13 +298,65 @@ private fun <T : Any> Opplysningstype<T>.tilleggsopplysning(
 
     val konvertert: Any =
         when (datatype) {
-            Boolsk -> verdi.also { it.krev(it.isBoolean, "boolsk") }.asBoolean()
-            Heltall -> verdi.also { it.krev(it.isIntegralNumber, "heltall") }.asInt()
-            Desimaltall -> verdi.also { it.krev(it.isNumber, "tall") }.asDouble()
-            Penger -> verdi.also { it.krev(it.isNumber || it.isString, "beløp") }.asString().let { Beløp(it.toBigDecimal()) }
-            Dato -> verdi.also { it.krev(it.isString, "dato (ISO-8601)") }.asLocalDate()
-            Tekst -> verdi.also { it.krev(it.isString, "tekst") }.asString()
-            else -> throw IllegalArgumentException("Opplysning $behovId har datatype ${datatype.javaClass.simpleName} som ikke støttes")
+            Boolsk -> {
+                verdi.also { it.krev(it.isBoolean, "boolsk") }.asBoolean()
+            }
+
+            Heltall -> {
+                verdi.also { it.krev(it.isIntegralNumber, "heltall") }.asInt()
+            }
+
+            Desimaltall -> {
+                verdi.also { it.krev(it.isNumber, "tall") }.asDouble()
+            }
+
+            Penger -> {
+                verdi.also { it.krev(it.isNumber || it.isString, "beløp") }.asString().let { Beløp(it.toBigDecimal()) }
+            }
+
+            Dato -> {
+                verdi.also { it.krev(it.isString, "dato (ISO-8601)") }.asLocalDate()
+            }
+
+            Tekst -> {
+                verdi.also { it.krev(it.isString, "tekst") }.asString()
+            }
+
+            BarnDatatype -> {
+                verdi.krev(verdi.isObject && verdi["barn"]?.isArray == true, "et objekt med en barneliste")
+                migreringSvarSerializer.treeToValue(verdi, BarnListe::class.java)
+            }
+
+            InntektDataType -> {
+                verdi.krev(verdi.isObject && verdi["inntektsListe"]?.isArray == true, "et inntektsobjekt med inntektsListe")
+                Inntekt(
+                    InntektV1(
+                        inntektsId = verdi["inntektsId"].asString(),
+                        sisteAvsluttendeKalenderMåned = YearMonth.parse(verdi["sisteAvsluttendeKalenderMåned"].asString()),
+                        inntektsListe =
+                            verdi["inntektsListe"].toList().map { måned ->
+                                require(måned["klassifiserteInntekter"]?.isArray == true) { "Inntektsmåned mangler klassifiserteInntekter" }
+                                KlassifisertInntektMåned(
+                                    årMåned = YearMonth.parse(måned["årMåned"].asString()),
+                                    klassifiserteInntekter =
+                                        måned["klassifiserteInntekter"].toList().map { inntekt ->
+                                            require(inntekt["beløp"]?.isNumber == true) { "Inntektsbeløp må være et tall" }
+                                            KlassifisertInntekt(
+                                                beløp = inntekt["beløp"].decimalValue(),
+                                                inntektKlasse = InntektKlasse.valueOf(inntekt["inntektKlasse"].asString()),
+                                            )
+                                        },
+                                    harAvvik = måned["harAvvik"].asBoolean(),
+                                )
+                            },
+                        manueltRedigert = verdi["manueltRedigert"]?.asBoolean() ?: false,
+                    ),
+                )
+            }
+
+            else -> {
+                throw IllegalArgumentException("Opplysning $behovId har datatype ${datatype.javaClass.simpleName} som ikke støttes")
+            }
         }
     return Tilleggsopplysning(this, konvertert as T, gyldighetsperiode)
 }

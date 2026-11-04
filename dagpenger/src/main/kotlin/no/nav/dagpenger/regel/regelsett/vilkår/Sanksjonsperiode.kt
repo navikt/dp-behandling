@@ -39,7 +39,7 @@ object Sanksjonsperiode {
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
-    private val oppgirSelvforskyldtArbeidsløshet =
+    val oppgirSelvforskyldtArbeidsløshet =
         Opplysningstype.boolsk(
             OpplysningsTyper.oppgirSelvforskyldtArbeidsløshetId,
             "Bruker oppgir selvforskyldt arbeidsløshet",
