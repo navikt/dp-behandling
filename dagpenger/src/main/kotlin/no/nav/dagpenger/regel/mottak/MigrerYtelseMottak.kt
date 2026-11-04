@@ -68,11 +68,16 @@ internal data class MigreringAvbruttDto(
     val arsak: Migreringsavbrudd,
 )
 
+internal data class ManglendeMigreringsopplysning(
+    val uuid: String,
+    val navn: String,
+)
+
 internal data class MigreringAvbruttMedOpplysningerDto(
     val sakId: Int,
     val arsak: Migreringsavbrudd,
     val mottatteOpplysninger: List<String>,
-    val manglendeOpplysninger: List<String>,
+    val manglendeOpplysninger: List<ManglendeMigreringsopplysning>,
 )
 
 internal fun MessageContext.avbrytMigrering(
@@ -87,7 +92,7 @@ internal fun MessageContext.avbrytMigrering(
     sakId: Int,
     arsak: Migreringsavbrudd,
     mottatteOpplysninger: List<String>,
-    manglendeOpplysninger: List<String>,
+    manglendeOpplysninger: List<ManglendeMigreringsopplysning>,
 ) {
     val dto = MigreringAvbruttMedOpplysningerDto(sakId, arsak, mottatteOpplysninger, manglendeOpplysninger)
     publish(toJsonMessage("migrering_feilet", dto).toJson())
@@ -181,23 +186,27 @@ class MigrerYtelseMottak(
                 faktagrunnlag.somListe().any { it.opplysningstype == type && it.gyldighetsperiode.inneholder(prøvingsdato) }
             }
         val rapport =
-            message.hendelse.forretningsprosess
-                .regelkjøring(faktagrunnlag)
-                .evaluer()
+            if (manglendePåkrevdeOpplysninger.isEmpty()) {
+                message.hendelse.forretningsprosess
+                    .regelkjøring(faktagrunnlag)
+                    .evaluer()
+            } else {
+                null
+            }
 
         val manglendeOpplysninger =
-            (rapport.mangler + manglendePåkrevdeOpplysninger)
-                .map { it.id.uuid.toString() }
-                .distinct()
-                .sorted()
-        if (!rapport.erFerdig() || manglendeOpplysninger.isNotEmpty()) {
+            (rapport?.mangler.orEmpty() + manglendePåkrevdeOpplysninger)
+                .distinctBy { it.id.uuid }
+                .map { ManglendeMigreringsopplysning(it.id.uuid.toString(), it.navn) }
+                .sortedBy { it.uuid }
+        if (rapport?.erFerdig() != true || manglendeOpplysninger.isNotEmpty()) {
             logger.info { "Migrering av sakId $sakId mangler opplysninger $manglendeOpplysninger" }
             context.avbrytMigrering(
                 sakId,
                 Migreringsavbrudd(
                     kode = "MANGLENDE_OPPLYSNINGER",
                     melding = "Mangler påkrevde opplysninger",
-                    detaljer = manglendeOpplysninger,
+                    detaljer = manglendeOpplysninger.map { it.uuid },
                 ),
                 mottatteOpplysninger = message.mottatteOpplysninger,
                 manglendeOpplysninger = manglendeOpplysninger,

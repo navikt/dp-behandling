@@ -3,10 +3,12 @@ package no.nav.dagpenger.regel.mottak
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
+import com.spun.util.persistence.Loader
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.mockk
+import io.mockk.mockkConstructor
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.dagpenger.inntekt.v1.InntektKlasse
@@ -14,6 +16,7 @@ import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.modell.hendelser.MigreringId
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
+import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
@@ -33,10 +36,12 @@ import no.nav.dagpenger.opplysning.verdier.BarnListe
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.DagpengerRegistrering
+import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.hendelse.MigrerYtelseHendelse
 import no.nav.dagpenger.regel.hendelse.MigrertYtelse
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Tilleggsopplysning
+import no.nav.dagpenger.regel.prosess.Migreringsprosess
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden
@@ -56,9 +61,13 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.uuid.UUIDv7
+import org.approvaltests.Approvals
+import org.approvaltests.core.Options
+import org.approvaltests.namer.NamerWrapper
 import org.junit.jupiter.api.Test
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.json.JsonMapper
+import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
@@ -77,34 +86,35 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
-    fun `rapporterer mangler fra produksjonsregelkjøringen uten å starte behandling`() {
-        val event = hendelse()
-        val rapport =
-            event.forretningsprosess
-                .regelkjøring(event.lagFaktagrunnlag())
-                .evaluer()
+    fun `krever søknadsfakta og velgere før regelkjøringen starter`() {
         val forventedeMangler =
-            (rapport.mangler + påkrevdeMigreringsopplysninger())
+            påkrevdeMigreringsopplysninger()
                 .map { it.id.uuid.toString() }
-                .distinct()
                 .sorted()
 
-        rapid.sendTestMessage(melding())
+        mockkConstructor(Migreringsprosess::class) {
+            rapid.sendTestMessage(melding())
+
+            verify(exactly = 0) { anyConstructed<Migreringsprosess>().regelkjøring(any()) }
+        }
 
         val feilet = rapid.inspektør.message(0)
         feilet["@event_name"].asString() shouldBe "migrering_feilet"
         feilet["sakId"].asInt() shouldBe 13699879
         feilet["arsak"]["kode"].asString() shouldBe "MANGLENDE_OPPLYSNINGER"
         feilet["mottatteOpplysninger"].size() shouldBe 0
-        feilet["manglendeOpplysninger"].values().map { it.asString() } shouldBe forventedeMangler
+        feilet["manglendeOpplysninger"].values().map { it["uuid"].asString() } shouldBe forventedeMangler
         feilet["arsak"]["detaljer"].values().map { it.asString() } shouldBe forventedeMangler
-        feilet["manglendeOpplysninger"].values().map { UUID.fromString(it.asString()) }
+        feilet["manglendeOpplysninger"].values().forEach {
+            val type = opplysningstyper.single { type -> type.id.uuid == UUID.fromString(it["uuid"].asString()) }
+            it["navn"].asString() shouldBe type.navn
+        }
         rapid.inspektør.size shouldBe 1
         verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
     }
 
     @Test
-    fun `krever søknadsfakta og rettighetstypevelgere selv når regelkjøringen er ferdig`() {
+    fun `avviser hver manglende påkrevd opplysning før regelkjøring`() {
         val fullstendig =
             lagFerdigFaktagrunnlag(
                 fødselsdato = LocalDate.of(1980, 1, 1),
@@ -120,18 +130,17 @@ class MigrerYtelseMottakTest {
         påkrevde.forEach { manglendeType ->
             rapid.reset()
             val fakta = fullstendig.opplysninger.filterNot { it.first == manglendeType }
-            val event = hendelse(fakta.map { (type, verdi) -> lagTilleggsopplysning(type, verdi) })
-            event.forretningsprosess
-                .regelkjøring(event.lagFaktagrunnlag())
-                .evaluer()
-                .erFerdig() shouldBe true
+            mockkConstructor(Migreringsprosess::class) {
+                rapid.sendTestMessage(melding(fakta.map { (type, verdi) -> opplysning(type, jsonVerdi(verdi)) }))
 
-            rapid.sendTestMessage(melding(fakta.map { (type, verdi) -> opplysning(type, jsonVerdi(verdi)) }))
+                verify(exactly = 0) { anyConstructed<Migreringsprosess>().regelkjøring(any()) }
+            }
 
             val feilet = rapid.inspektør.message(0)
             feilet["arsak"]["kode"].asString() shouldBe "MANGLENDE_OPPLYSNINGER"
-            feilet["manglendeOpplysninger"].values().map { it.asString() } shouldBe
+            feilet["manglendeOpplysninger"].values().map { it["uuid"].asString() } shouldBe
                 listOf(manglendeType.id.uuid.toString())
+            feilet["manglendeOpplysninger"][0]["navn"].asString() shouldBe manglendeType.navn
             feilet["mottatteOpplysninger"].values().map { it.asString() } shouldBe
                 fakta
                     .map {
@@ -168,7 +177,7 @@ class MigrerYtelseMottakTest {
         rapid.inspektør
             .message(0)["manglendeOpplysninger"]
             .values()
-            .map { it.asString() } shouldBe
+            .map { it["uuid"].asString() } shouldBe
             listOf(utløptType.id.uuid.toString())
         verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
     }
@@ -189,13 +198,13 @@ class MigrerYtelseMottakTest {
 
         val feilet = rapid.inspektør.message(0)
         feilet["mottatteOpplysninger"].values().map { it.asString() } shouldBe mottatteUuid
-        feilet["manglendeOpplysninger"].values().map { it.asString() } shouldBe
+        feilet["manglendeOpplysninger"].values().map { it["uuid"].asString() } shouldBe
             feilet["manglendeOpplysninger"]
                 .values()
-                .map { it.asString() }
+                .map { it["uuid"].asString() }
                 .distinct()
                 .sorted()
-        feilet["manglendeOpplysninger"].values().map { UUID.fromString(it.asString()) }
+        feilet["manglendeOpplysninger"].values().map { UUID.fromString(it["uuid"].asString()) }
         feilet.toString().contains("1990-01-01") shouldBe false
         feilet.toString().contains("\"verdi\"") shouldBe false
         verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
@@ -237,6 +246,11 @@ class MigrerYtelseMottakTest {
         behandlingsopplysninger.har(Opphold.oppfyllerKravet) shouldBe false
         forhåndskjøring.finnOpplysning(Dagpengegrunnlag.grunnlag).id shouldNotBe
             behandlingsopplysninger.finnOpplysning(Dagpengegrunnlag.grunnlag).id
+        val søknadId = forhåndskjøring.finnOpplysning(Søknadstidspunkt.søknadIdOpplysningstype).verdi
+        UUID.fromString(søknadId).version() shouldBe 4
+        behandlingsopplysninger.finnOpplysning(Søknadstidspunkt.søknadIdOpplysningstype).verdi shouldBe søknadId
+        event.lagFaktagrunnlag().finnOpplysning(Søknadstidspunkt.søknadIdOpplysningstype).verdi shouldBe søknadId
+        hendelse().lagFaktagrunnlag().finnOpplysning(Søknadstidspunkt.søknadIdOpplysningstype).verdi shouldNotBe søknadId
     }
 
     @Test
@@ -292,12 +306,6 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
-    fun `sjekk hva som mangler`() {
-        val ferdigFaktagrunnlag = lagFerdigFaktagrunnlag(LocalDate.of(1980, 1, 1))
-        print(ferdigFaktagrunnlag)
-    }
-
-    @Test
     fun `starter behandling når rapporten er ferdig også når beregnet vilkår er false`() {
         val ferdigFaktagrunnlag = lagFerdigFaktagrunnlag(LocalDate.of(1950, 1, 1))
         ferdigFaktagrunnlag.rapport.erFerdig() shouldBe true
@@ -347,6 +355,108 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
+    fun `supplerer kun etterspurte fakta fra tom melding og oppretter behandling med innvilget dagpenger`() {
+        val standardverdier =
+            (
+                standardfakta() +
+                    listOf(
+                        Tilleggsopplysning(Alderskrav.fødselsdato, LocalDate.of(1990, 1, 1)),
+                        Tilleggsopplysning(RegistrertArbeidssøker.registrertArbeidssøker, true),
+                    )
+            ).associate { it.opplysningstype to it.verdi }
+        val typerEtterUuid = opplysningstyper.associateBy { it.id.uuid.toString() }
+        val sendteFakta = linkedMapOf<String, Map<String, Any?>>()
+        val startetHendelse = slot<MigrerYtelseHendelse>()
+        val dialog = Migreringsdialog()
+        var feilrunder = 0
+        val meldinger = mutableListOf<String>()
+
+        for (runde in 0 until 30) {
+            rapid.reset()
+            val sendtMelding = melding(sendteFakta.values.toList())
+            dialog.sendt(runde + 1, sendtMelding)
+            meldinger.add(sendtMelding)
+            rapid.sendTestMessage(sendtMelding)
+
+            if (rapid.inspektør.size == 0) {
+                verify(exactly = 1) { hendelseMottaker.behandle(capture(startetHendelse), any(), any()) }
+                break
+            }
+
+            verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+            rapid.inspektør.size shouldBe 1
+            val feilet = rapid.inspektør.message(0)
+            meldinger.add(feilet.toString())
+            dialog.mottatt(runde + 1, feilet)
+            feilet["@event_name"].asString() shouldBe "migrering_feilet"
+            feilet["arsak"]["kode"].asString() shouldBe "MANGLENDE_OPPLYSNINGER"
+            feilet["mottatteOpplysninger"].values().map { it.asString() } shouldBe sendteFakta.keys.sorted()
+            val manglende = feilet["manglendeOpplysninger"].values().map { it["uuid"].asString() }
+            manglende.contains(
+                Søknadstidspunkt.søknadIdOpplysningstype.id.uuid
+                    .toString(),
+            ) shouldBe false
+            manglende.contains(
+                Søknadstidspunkt.søknadsdato.id.uuid
+                    .toString(),
+            ) shouldBe false
+            manglende.isNotEmpty() shouldBe true
+            manglende.none { it in sendteFakta } shouldBe true
+            feilrunder++
+
+            manglende.forEach { uuid ->
+                val type = typerEtterUuid.getValue(uuid)
+                val verdi = standardverdier[type] ?: syntetiskVerdi(type)
+                sendteFakta[uuid] = opplysning(type, jsonVerdi(verdi), "2026-01-05")
+            }
+        }
+
+        startetHendelse.isCaptured shouldBe true
+        (feilrunder > 1) shouldBe true
+        startetHendelse.captured.eksternId shouldBe MigreringId(migreringId)
+        val behandling =
+            (startetHendelse.captured.behandling(null, TemporalCollection()) as StartHendelseResultat.Opprettet).behandling
+        val opplysninger = behandling.opplysninger
+        opplysninger.har(KravPåDagpenger.harLøpendeRett) shouldBe false
+        UUID.fromString(opplysninger.finnOpplysning(Søknadstidspunkt.søknadIdOpplysningstype).verdi).version() shouldBe 4
+
+        val prosess = startetHendelse.captured.forretningsprosess
+        val rapport = prosess.regelkjøring(opplysninger).evaluer()
+        rapport.erFerdig() shouldBe true
+        rapport.mangler shouldBe emptyList()
+        prosess.kjørRegelkjøringFerdig(Prosesskontekst(opplysninger))
+
+        listOf(
+            Alderskrav.kravTilAlder,
+            Minsteinntekt.minsteinntekt,
+            RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker,
+            ReellArbeidssøker.kravTilArbeidssøker,
+            KravPåDagpenger.harLøpendeRett,
+        ).forEach { opplysninger.finnOpplysning(it).verdi shouldBe true }
+        opplysninger.finnOpplysning(Minsteinntekt.inntekt12).verdi shouldBe Beløp(600000)
+        opplysninger.finnOpplysning(Søknadstidspunkt.prøvingsdato).verdi shouldBe LocalDate.of(2026, 1, 5)
+        opplysninger.finnOpplysning(Søknadstidspunkt.tidligsteVurderingsdato).verdi shouldBe LocalDate.of(2026, 1, 5)
+        opplysninger.finnOpplysning(SøknadInnsendtHendelse.fagsakIdOpplysningstype).verdi shouldBe 13699879
+        RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Innvilgelse
+        val opprinneligNamer = Approvals.namerCreater
+        try {
+            val path =
+                Paths
+                    .get("../docs")
+                    .toAbsolutePath()
+                    .normalize()
+                    .toString()
+            Approvals.namerCreater = Loader { NamerWrapper({ "migrering-meldingsdialog" }, { path }) }
+            Approvals.verify(
+                dialog.markdown(RegelverkDagpenger.avgjørelse(opplysninger).toString()),
+                Options().forFile().withExtension(".md"),
+            )
+        } finally {
+            Approvals.namerCreater = opprinneligNamer
+        }
+    }
+
+    @Test
     fun `migrerte råfakta gir rett til dagpenger med tilstrekkelig inntekt alder og registrert arbeidssøker`() {
         val sisteInntektsmåned = YearMonth.of(2025, 11)
         val inntekt =
@@ -374,7 +484,6 @@ class MigrerYtelseMottakTest {
             hendelse(
                 listOf(
                     Tilleggsopplysning(Alderskrav.fødselsdato, LocalDate.of(1990, 1, 1)),
-                    Tilleggsopplysning(Søknadstidspunkt.søknadIdOpplysningstype, UUIDv7.ny().toString()),
                     Tilleggsopplysning(Søknadstidspunkt.ønsketdato, LocalDate.of(2026, 1, 5)),
                     Tilleggsopplysning(Minsteinntekt.inntektFraSkatt, inntekt),
                     Tilleggsopplysning(RegistrertArbeidssøker.registrertArbeidssøker, true),
@@ -457,6 +566,21 @@ class MigrerYtelseMottakTest {
         shouldThrow<IllegalArgumentException> {
             packet["opplysninger"].tilleggsopplysninger(opplysningstyper)
         }.message shouldBe "opplysninger må være en liste"
+    }
+
+    @Test
+    fun `identifiserer innsendte opplysninger med UUID uavhengig av navn`() {
+        val type = Verneplikt.avtjentVerneplikt
+        val oppgitt = opplysning(type, false, "2026-01-05")
+        listOf(oppgitt, oppgitt - "navn", oppgitt + ("navn" to "Et annet navn")).forEach { fakta ->
+            val node = jsonMapper.valueToTree<JsonNode>(listOf(fakta))
+
+            val lest = node.tilleggsopplysninger(opplysningstyper).single()
+
+            lest.opplysningstype shouldBe type
+            lest.verdi shouldBe false
+            lest.gyldighetsperiode shouldBe Gyldighetsperiode(LocalDate.of(2026, 1, 5))
+        }
     }
 
     @Test
@@ -601,8 +725,12 @@ class MigrerYtelseMottakTest {
 
     @Test
     fun `lar tekniske feil fra regelkjøringen forplante seg`() {
+        val fakta =
+            påkrevdeMigreringsopplysninger().map { type ->
+                opplysning(type, jsonVerdi(syntetiskVerdi(type)), LocalDate.MAX.toString())
+            }
         shouldThrow<IllegalArgumentException> {
-            rapid.sendTestMessage(melding(innvilgetFraOgMed = LocalDate.MAX.toString()))
+            rapid.sendTestMessage(melding(fakta, innvilgetFraOgMed = LocalDate.MAX.toString()))
         }
 
         rapid.inspektør.size shouldBe 0
@@ -627,28 +755,7 @@ class MigrerYtelseMottakTest {
         påkrevdeMigreringsopplysninger().forEach { type ->
             opplysninger[type] = syntetiskVerdi(type)
         }
-        val standardfakta =
-            listOf(
-                Tilleggsopplysning(Søknadstidspunkt.ønsketdato, LocalDate.of(2026, 1, 5)),
-                Tilleggsopplysning(Opphold.bostedsland, true),
-                Tilleggsopplysning(ReellArbeidssøker.kanJobbeDeltid, true),
-                Tilleggsopplysning(ReellArbeidssøker.kanJobbeHvorSomHelst, true),
-                Tilleggsopplysning(ReellArbeidssøker.erArbeidsfør, true),
-                Tilleggsopplysning(ReellArbeidssøker.villigTilEthvertArbeid, true),
-                Tilleggsopplysning(ReellArbeidssøker.ønsketArbeidstid, 37.5),
-                Tilleggsopplysning(Utdanning.tarUtdanning, false),
-                Tilleggsopplysning(Verneplikt.avtjentVerneplikt, false),
-                Tilleggsopplysning(Rettighetstype.ordinærArbeid, true),
-                Tilleggsopplysning(Rettighetstype.skalReellArbeidssøkerVurderes, true),
-                Tilleggsopplysning(Rettighetstype.skalPermitteringVurderes, false),
-                Tilleggsopplysning(Rettighetstype.skalPermitteringFiskeforedlingVurderes, false),
-                Tilleggsopplysning(Rettighetstype.skalVernepliktVurderes, false),
-                Tilleggsopplysning(Rettighetstype.skalGjenopptakVurderes, false),
-                Tilleggsopplysning(Rettighetstype.skalEksportVurderes, false),
-                Tilleggsopplysning(Rettighetstype.skalEtableringVurderes, false),
-                Tilleggsopplysning(Rettighetstype.lønnsgaranti, false),
-            )
-        (standardfakta + overstyringer).forEach { opplysning ->
+        (standardfakta() + overstyringer).forEach { opplysning ->
             opplysninger[opplysning.opplysningstype] = opplysning.verdi
         }
 
@@ -672,6 +779,28 @@ class MigrerYtelseMottakTest {
 
         error("Fant ikke et komplett faktagrunnlag etter 30 produksjonskjøringer")
     }
+
+    private fun standardfakta(): List<Tilleggsopplysning<*>> =
+        listOf(
+            Tilleggsopplysning(Søknadstidspunkt.ønsketdato, LocalDate.of(2026, 1, 5)),
+            Tilleggsopplysning(Opphold.bostedsland, true),
+            Tilleggsopplysning(ReellArbeidssøker.kanJobbeDeltid, true),
+            Tilleggsopplysning(ReellArbeidssøker.kanJobbeHvorSomHelst, true),
+            Tilleggsopplysning(ReellArbeidssøker.erArbeidsfør, true),
+            Tilleggsopplysning(ReellArbeidssøker.villigTilEthvertArbeid, true),
+            Tilleggsopplysning(ReellArbeidssøker.ønsketArbeidstid, 37.5),
+            Tilleggsopplysning(Utdanning.tarUtdanning, false),
+            Tilleggsopplysning(Verneplikt.avtjentVerneplikt, false),
+            Tilleggsopplysning(Rettighetstype.ordinærArbeid, true),
+            Tilleggsopplysning(Rettighetstype.skalReellArbeidssøkerVurderes, true),
+            Tilleggsopplysning(Rettighetstype.skalPermitteringVurderes, false),
+            Tilleggsopplysning(Rettighetstype.skalPermitteringFiskeforedlingVurderes, false),
+            Tilleggsopplysning(Rettighetstype.skalVernepliktVurderes, false),
+            Tilleggsopplysning(Rettighetstype.skalGjenopptakVurderes, false),
+            Tilleggsopplysning(Rettighetstype.skalEksportVurderes, false),
+            Tilleggsopplysning(Rettighetstype.skalEtableringVurderes, false),
+            Tilleggsopplysning(Rettighetstype.lønnsgaranti, false),
+        )
 
     @Suppress("UNCHECKED_CAST")
     private fun lagTilleggsopplysning(
@@ -739,10 +868,19 @@ class MigrerYtelseMottakTest {
 
     private fun jsonVerdi(verdi: Any): Any =
         when (verdi) {
-            is Beløp -> verdi.verdien
-            is LocalDate -> verdi.toString()
-            is BarnListe -> mapOf("barn" to verdi.barn)
-            is Inntekt ->
+            is Beløp -> {
+                verdi.verdien
+            }
+
+            is LocalDate -> {
+                verdi.toString()
+            }
+
+            is BarnListe -> {
+                mapOf("barn" to verdi.barn)
+            }
+
+            is Inntekt -> {
                 mapOf(
                     "inntektsId" to verdi.verdi.inntektsId,
                     "sisteAvsluttendeKalenderMåned" to verdi.verdi.sisteAvsluttendeKalenderMåned.toString(),
@@ -759,7 +897,11 @@ class MigrerYtelseMottakTest {
                             )
                         },
                 )
-            else -> verdi
+            }
+
+            else -> {
+                verdi
+            }
         }
 
     private data class FerdigFaktagrunnlag(
@@ -792,6 +934,7 @@ class MigrerYtelseMottakTest {
     ): Map<String, Any?> =
         buildMap {
             put("uuid", type.id.uuid.toString())
+            put("navn", type.navn)
             put("verdi", verdi)
             put("gyldigFraOgMed", fraOgMed)
             tilOgMed?.let { put("gyldigTilOgMed", it) }

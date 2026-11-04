@@ -61,6 +61,9 @@ class MigrerYtelseHendelse(
 
     private val kilde = Systemkilde(meldingsreferanseId, opprettet)
 
+    // Vi har ingen søknad. Vi lager en random uuid. Søknadsfakta må komme fra migreringsmeldingen.
+    private val søknadId = UUID.randomUUID().toString()
+
     init {
         val eksplisitteDuplikater =
             tilleggsopplysninger
@@ -128,6 +131,7 @@ class MigrerYtelseHendelse(
         val standardfakta =
             listOf(
                 Tilleggsopplysning(Søknadstidspunkt.prøvingsdato, ytelse.innvilgetFraOgMed),
+                Tilleggsopplysning(Søknadstidspunkt.søknadIdOpplysningstype, søknadId),
                 Tilleggsopplysning(SøknadInnsendtHendelse.fagsakIdOpplysningstype, ytelse.sakId),
             )
         (standardfakta + tilleggsopplysninger)
@@ -141,6 +145,7 @@ class MigrerYtelseHendelse(
         val eksplisitteTyper =
             listOf(
                 Søknadstidspunkt.prøvingsdato,
+                Søknadstidspunkt.søknadIdOpplysningstype,
                 SøknadInnsendtHendelse.fagsakIdOpplysningstype,
             )
     }
