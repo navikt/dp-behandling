@@ -92,7 +92,7 @@ class MigrerYtelseHendelse(
 
     internal fun lagFaktagrunnlag(): Opplysninger =
         Opplysninger().also {
-            leggTilHendelseTypeFaktum(it)
+            it.leggTil(hendelseTypeFaktum)
             leggTilFakta(it)
         }
 

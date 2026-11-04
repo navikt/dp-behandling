@@ -56,20 +56,18 @@ abstract class StartHendelse(
     open val opplysninger: Opplysninger = Opplysninger()
 
     /** Faktumet for hvilken hendelsestype som opprettet behandlingen. */
-    private fun hendelseTypeFaktum() =
-        Faktum(
-            hendelseTypeOpplysningstype,
-            type,
-            gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
-            kilde = Systemkilde(meldingsreferanseId, opprettet),
-        )
-
-    protected fun leggTilHendelseTypeFaktum(opplysninger: Opplysninger) {
-        opplysninger.leggTil(hendelseTypeFaktum())
-    }
+    protected val hendelseTypeFaktum
+        by lazy {
+            Faktum(
+                hendelseTypeOpplysningstype,
+                type,
+                gyldighetsperiode = Gyldighetsperiode.kun(skjedde),
+                kilde = Systemkilde(meldingsreferanseId, opprettet),
+            )
+        }
 
     /**
-     * Oppretter en ny [Behandling] for denne hendelsen og legger til [hendelseTypeFaktum].
+     * Oppretter en ny [Behandling] for denne hendelsen og legger til [getHendelseTypeFaktum].
      * Konkrete [StartHendelse]-implementasjoner skal bruke denne fremfor å konstruere [Behandling] selv.
      * Opplysninger som avhenger av `forrigeBehandling` (kun tilgjengelig i [behandling]) legges til i etterkant
      * på den returnerte instansen.
@@ -94,6 +92,6 @@ abstract class StartHendelse(
             basertPå = basertPå,
             avklaringer = avklaringer,
         ).apply {
-            leggTilHendelseTypeFaktum(opplysninger)
+            opplysninger.leggTil(hendelseTypeFaktum)
         }
 }

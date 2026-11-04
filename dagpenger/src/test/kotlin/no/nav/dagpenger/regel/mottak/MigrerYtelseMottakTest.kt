@@ -14,7 +14,6 @@ import no.nav.dagpenger.inntekt.v1.KlassifisertInntekt
 import no.nav.dagpenger.inntekt.v1.KlassifisertInntektMåned
 import no.nav.dagpenger.modell.hendelser.MigreringId
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
-import no.nav.dagpenger.modell.hendelser.hendelseTypeOpplysningstype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
@@ -162,12 +161,6 @@ class MigrerYtelseMottakTest {
         behandlingsopplysninger.finnOpplysning(Dagpengegrunnlag.grunnlag).verdi shouldBe Beløp(310630)
         behandlingsopplysninger.har(DagpengenesStørrelse.antallBarn) shouldBe false
         behandlingsopplysninger.har(Opphold.oppfyllerKravet) shouldBe false
-        val forhåndskjørtHendelseType = forhåndskjøring.finnOpplysning(hendelseTypeOpplysningstype)
-        val behandletHendelseType = behandlingsopplysninger.finnOpplysning(hendelseTypeOpplysningstype)
-        forhåndskjørtHendelseType.verdi shouldBe behandletHendelseType.verdi
-        forhåndskjørtHendelseType.kilde?.meldingsreferanseId shouldBe event.meldingsreferanseId
-        behandletHendelseType.kilde?.meldingsreferanseId shouldBe event.meldingsreferanseId
-        forhåndskjørtHendelseType.id shouldNotBe behandletHendelseType.id
         forhåndskjøring.finnOpplysning(Dagpengegrunnlag.grunnlag).id shouldNotBe
             behandlingsopplysninger.finnOpplysning(Dagpengegrunnlag.grunnlag).id
     }

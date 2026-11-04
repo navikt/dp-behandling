@@ -9,7 +9,6 @@ import no.nav.dagpenger.opplysning.sanksjonerSortert
 import no.nav.dagpenger.opplysning.verdier.Beløp
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.opplysning.verdier.enhet.Timer
-import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.meldtITide
 import no.nav.dagpenger.regel.regelsett.beregning.BeregningsperiodeFabrikk.Dagstype.Helg
 import no.nav.dagpenger.regel.regelsett.beregning.BeregningsperiodeFabrikk.Dagstype.Hverdag
@@ -58,8 +57,9 @@ class BeregningsperiodeFabrikk(
         opplysninger.finnAlle(type).filter { it.gyldighetsperiode.tilOgMed.isBefore(meldeperiode.fraOgMed) }
 
     private fun hentStønadsdagerIgjen(): Int {
-        val forbrukteDager = finnAlleFørMeldeperioden(forbruk).count { it.verdi }
-        return opplysninger.finnOpplysning(antallStønadsdager).verdi - forbrukteDager
+        val innvilgetAntallStønadsdager = opplysninger.finnOpplysning(antallStønadsdager).verdi
+
+        return finnAlleFørMeldeperioden(Beregning.gjenståendeDager).lastOrNull()?.verdi ?: innvilgetAntallStønadsdager
     }
 
     private fun hentGjenståendeEgenandel(): Beløp {
