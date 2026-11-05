@@ -222,6 +222,25 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
+    fun `frode`() {
+        val oppgitt =
+            listOf(
+                Tilleggsopplysning(
+                    Alderskrav.fødselsdato,
+                    LocalDate.of(1950, 1, 1),
+                    Gyldighetsperiode(LocalDate.of(2024, 1, 1)),
+                ),
+            )
+
+        val event = hendelse(oppgitt)
+        val forhåndskjøring = event.lagFaktagrunnlag()
+
+        val regelkjøringsrapport = event.forretningsprosess.regelkjøring(forhåndskjøring).evaluer()
+
+        regelkjøringsrapport.mangler.size shouldBe 1
+    }
+
+    @Test
     fun `forhåndskjøring og behandling bygger separate fakta fra samme grunnlag`() {
         val oppgitt =
             Tilleggsopplysning(
