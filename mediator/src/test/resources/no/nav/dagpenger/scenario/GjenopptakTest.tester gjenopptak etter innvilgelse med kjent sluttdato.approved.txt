@@ -54,7 +54,6 @@ Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
-- AndreØkonomiskeYtelser
 - BarnetilleggV2
 - BostedslandErNorge
 - HelseTilAlleTyperJobb
@@ -73,6 +72,7 @@ Behov:
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
+- AndreØkonomiskeYtelser
 - ErUtestengt
 - Foreldrepenger
 - Omsorgspenger

@@ -42,7 +42,6 @@ Behov:
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behov:
-- AndreØkonomiskeYtelser
 - BarnetilleggV2
 - BostedslandErNorge
 - HelseTilAlleTyperJobb
@@ -59,6 +58,7 @@ Behov:
 - ØnskerDagpengerFraDato
 - ØnsketArbeidstid
 Behov:
+- AndreØkonomiskeYtelser
 - ErUtestengt
 - Foreldrepenger
 - Omsorgspenger

@@ -25,7 +25,6 @@ Laget avklaring om JobbetUtenforNorge
 Laget avklaring om HarOppgittPermittering
 Laget avklaring om BeregnetArbeidstid
 Behov:
-- AndreØkonomiskeYtelser
 - BostedslandErNorge
 - ErUtestengt
 - Foreldrepenger
@@ -53,8 +52,10 @@ Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
-Behandling endret tilstand til: ForslagTilVedtak
-Behandling endret tilstand til: Redigert
+Behov:
+- AndreØkonomiskeYtelser
+Behov:
+- AndreØkonomiskeYtelser
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning

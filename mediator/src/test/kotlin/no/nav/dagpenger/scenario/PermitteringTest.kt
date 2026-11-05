@@ -1,25 +1,158 @@
 package no.nav.dagpenger.scenario
 
+import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
+import no.nav.dagpenger.mediator.november
+import no.nav.dagpenger.mediator.oktober
+import no.nav.dagpenger.mediator.september
 import no.nav.dagpenger.opplysning.Avgjørelse.Endring
 import no.nav.dagpenger.opplysning.Avgjørelse.Stans
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.gjenståendePermittering
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.innenforFritaksperioden
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.skalOmgjøringUtenKlageVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Permittering.oppfyllerKravetTilPermittering
+import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringVurderes
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
+import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.ønsketdato
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntekt
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class PermitteringTest {
+    @Test
+    @Disabled(
+        "Fritaksperioden fjernes ikke når permittering overstyres til false i ny behandling." +
+            " Dette er en kjent feil som må fikses i dp-behandling",
+    )
+    fun `tilbakevirkende overstyring av permittering fjerner fritaksperioden før historisk meldekort beregnes`() {
+        val søknadsdato = 3.november(2026)
+        val virkningsdato = 5.oktober(2026)
+        val meldeperiode = Periode(28.september(2026), 11.oktober(2026))
+
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+            permittering = true
+        }.test {
+            person.søkDagpenger(søknadsdato)
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                opplysning(innenforFritaksperioden) {
+                    fra(søknadsdato) verdi true
+                }
+            }
+
+            saksbehandler.leggTilOpplysning(
+                søknadIdOpplysningstype,
+                requireNotNull(person.sisteSøknadId).toString(),
+                "Flytter søknaden tilbake i tid",
+                Gyldighetsperiode(virkningsdato),
+            )
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.leggTilOpplysning(
+                skalPermitteringVurderes,
+                false,
+                "Søknaden gjelder ordinære dagpenger, ikke permittering",
+                Gyldighetsperiode(virkningsdato),
+            )
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.leggTilOpplysning(ønsketdato, virkningsdato, "Tilbake i tid", Gyldighetsperiode(virkningsdato))
+            behovsløsere.løsTilForslag()
+            saksbehandler.leggTilOpplysning(
+                oppyllerKravTilRegistrertArbeidssøker,
+                true,
+                "Registrert fra virkningsdato",
+                Gyldighetsperiode(virkningsdato),
+            )
+            behovsløsere.løsTilForslag()
+            saksbehandler.leggTilOpplysning(prøvingsdato, virkningsdato, "Tilbake i tid", Gyldighetsperiode(virkningsdato))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                rettighetsperioder {
+                    fra(virkningsdato) harRett true
+                }
+                opplysning(skalPermitteringVurderes) {
+                    fra(virkningsdato) verdi false
+                }
+                withClue("Fritaksperioden skal ikke være gjeldende når permittering er overstyrt til false for hele perioden") {
+                    opplysninger(innenforFritaksperioden).shouldBeEmpty()
+                }
+            }
+
+            person.sendInnMeldekort(meldeperiode)
+            meldekortBatch()
+
+            behandlingsresultat(2) {
+                utfall shouldBe true
+                opplysninger(PermitteringFastsetting.forbruktPermittering).shouldBeEmpty()
+            }
+        }
+    }
+
+    @Test
+    @Disabled
+    fun `arvet fritaksperiode fjernes ikke når permittering overstyres til false i ny behandling`() {
+        val søknadsdato = 3.november(2026)
+
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+            permittering = true
+        }.test {
+            person.søkDagpenger(søknadsdato)
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                opplysning(innenforFritaksperioden) {
+                    fra(søknadsdato) verdi true
+                }
+            }
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            saksbehandler.lagBehandling(søknadsdato)
+            saksbehandler.leggTilOpplysning(
+                skalPermitteringVurderes,
+                false,
+                "Ikke permittering likevel",
+                Gyldighetsperiode(søknadsdato),
+            )
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(2) {
+                opplysning(skalPermitteringVurderes) {
+                    fra(søknadsdato) verdi false
+                }
+                withClue("Arvet fritaksperiode er ikke i egne opplysninger og kan ikke ryddes bort") {
+                    opplysninger(innenforFritaksperioden).shouldBeEmpty()
+                }
+            }
+        }
+    }
+
     @Test
     fun `tester innvilgelse ved permittering og beregning av forbruk`() {
         nyttScenario {
@@ -121,6 +254,7 @@ class PermitteringTest {
                 "Permitteringen er satt på pause",
                 Gyldighetsperiode(2.juli(2018)),
             )
+            behovsløsere.løsTilForslag() shouldHaveSize 1
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
@@ -176,6 +310,52 @@ class PermitteringTest {
                 }
                 with(opplysninger(gjenståendePermittering)) {
                     this.last().verdi.verdi shouldBe 113
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `tilbakevirkende endring av pause ryddes riktig i senere perioder uten behovsløkke`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+            permittering = true
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.sendInnMeldekort(1)
+            meldekortBatch()
+
+            saksbehandler.lagBehandling(2.juli(2018))
+            saksbehandler.leggTilOpplysning(skalPermitteringVurderes, false, "Pause", Gyldighetsperiode(2.juli(2018)))
+            saksbehandler.leggTilOpplysning(oppfyllerKravetTilPermittering, false, "Pause", Gyldighetsperiode(2.juli(2018)))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.sendInnMeldekort(2)
+            meldekortBatch()
+
+            // Saksbehandler fjerner pausen tilbake i tid, etter at senere perioder er behandlet
+            saksbehandler.lagBehandling(2.juli(2018))
+            saksbehandler.leggTilOpplysning(skalPermitteringVurderes, true, "Ingen pause likevel", Gyldighetsperiode(2.juli(2018)))
+            saksbehandler.leggTilOpplysning(oppfyllerKravetTilPermittering, true, "Ingen pause likevel", Gyldighetsperiode(2.juli(2018)))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(5) {
+                with(opplysninger(skalPermitteringVurderes)) {
+                    this.last().verdi.verdi shouldBe true
+                }
+                with(opplysninger(oppfyllerKravetTilPermittering)) {
+                    this.last().verdi.verdi shouldBe true
                 }
             }
         }

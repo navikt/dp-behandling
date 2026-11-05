@@ -14,10 +14,13 @@ import java.time.LocalDate
 abstract class Regel<T : Any> internal constructor(
     internal val produserer: Opplysningstype<T>,
     // todo: Bør dette være et Set? Vi er ikke avhengig av rekkefølge
-    internal val avhengerAv: List<Opplysningstype<out Any>> = emptyList(),
+    avhengerAv: List<Opplysningstype<out Any>> = emptyList(),
+    private val avhengigheter: Avhengigheter = Avhengigheter.Faste(avhengerAv),
 ) {
+    internal val avhengerAv = avhengigheter.mulige
+
     init {
-        require(avhengerAv.none { it == produserer }) {
+        require(this.avhengerAv.none { it == produserer }) {
             "Regel ${this::class.java.simpleName} kan ikke produsere samme opplysning ${produserer.navn} den er avhengig av"
         }
     }
@@ -52,19 +55,18 @@ abstract class Regel<T : Any> internal constructor(
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {
-        avhengerAv.forEach { avhengighet ->
-            produsenter[avhengighet]?.lagPlan(opplysninger, plan, produsenter, besøkt)
-        }
+        val løsning = planleggAvhengigheter(opplysninger, plan, produsenter, besøkt)
+        val nødvendige = løsning.nødvendige
 
         // Hvis noen avhengigheter er planlagt, men ikke ferdig, må vi vente med å planlegge denne regelen
-        if (avhengerAv.any { produsenter[it]?.let(plan::avventer) == true }) {
+        if (løsning is LøsteAvhengigheter.Uavklart || nødvendige.any { produsenter[it]?.let(plan::avventer) == true }) {
             plan.avvent(this)
             return
         }
 
-        val avhengigheter = opplysninger.finnFlere(avhengerAv)
+        val grunnlag = opplysninger.finnFlere(nødvendige)
 
-        if (avhengigheter.size == avhengerAv.size) {
+        if (grunnlag.size == nødvendige.size) {
             plan.add(this)
         } else {
             plan.avvent(this)
@@ -79,9 +81,10 @@ abstract class Regel<T : Any> internal constructor(
         besøkt: MutableSet<Regel<*>>,
     ) {
         // Oppstrøms regler planlegges først, slik at utdaterte produkter oppdages transitivt
-        avhengerAv.forEach { produsenter[it]?.lagPlan(opplysninger, plan, produsenter, besøkt) }
+        val løsning = planleggAvhengigheter(opplysninger, plan, produsenter, besøkt)
+        val nødvendige = løsning.nødvendige
 
-        if (avhengerAv.any { produsenter[it]?.let(plan::avventer) == true }) {
+        if (løsning is LøsteAvhengigheter.Uavklart || nødvendige.any { produsenter[it]?.let(plan::avventer) == true }) {
             plan.avvent(this)
             return
         }
@@ -89,7 +92,7 @@ abstract class Regel<T : Any> internal constructor(
         // Planlegges en intern oppstrøms regel blir også dette produktet utdatert, selv om det fortsatt
         // stemmer overens med oppstrøms produkter som snart erstattes
         val internAvhengighetSkalBeregnesPåNytt =
-            avhengerAv.any { type ->
+            nødvendige.any { type ->
                 val produsent = produsenter[type] ?: return@any false
 
                 produsent !is Ekstern<*> &&
@@ -98,12 +101,28 @@ abstract class Regel<T : Any> internal constructor(
             }
 
         // Produktet er utdatert om det er utledet av noe annet enn det som gjelder nå
-        val gjeldende = opplysninger.finnFlere(avhengerAv)
+        val gjeldende = opplysninger.finnFlere(nødvendige)
         val sammeGrunnlag = gjeldende.toSet() == utledning.opplysninger.toSet()
 
         if (sammeGrunnlag && !internAvhengighetSkalBeregnesPåNytt) return
 
         lagPlanNårAvhengerErErstattet(opplysninger, plan, produsenter, besøkt)
+    }
+
+    private fun planleggAvhengigheter(
+        opplysninger: LesbarOpplysninger,
+        plan: Regelplanlegger,
+        produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
+        besøkt: MutableSet<Regel<*>>,
+    ): LøsteAvhengigheter {
+        // En eksisterende sjekkverdi kan være utdatert. Planlegg sjekken før vi velger gren.
+        avhengigheter.kontroller.forEach { produsenter[it]?.lagPlan(opplysninger, plan, produsenter, besøkt) }
+        val løsning =
+            avhengigheter.løs(opplysninger) { type ->
+                produsenter[type]?.let { plan.avventer(it) || plan.planlegger(it) } == true
+            }
+        løsning.nødvendige.forEach { produsenter[it]?.lagPlan(opplysninger, plan, produsenter, besøkt) }
+        return løsning
     }
 
     protected open fun lagPlanNårAvhengerErErstattet(
@@ -112,11 +131,17 @@ abstract class Regel<T : Any> internal constructor(
         produsenter: Map<Opplysningstype<out Any>, Regel<*>>,
         besøkt: MutableSet<Regel<*>>,
     ) {
-        if (opplysninger.finnFlere(avhengerAv).size == avhengerAv.size) plan.add(this)
+        val løsning = avhengigheter.løs(opplysninger)
+        if (løsning is LøsteAvhengigheter.Avklart && opplysninger.finnFlere(løsning.nødvendige).size == løsning.nødvendige.size) {
+            plan.add(this)
+        }
     }
 
     // Tidligere regler i samme runde kan ha gjort inndata ugyldig (f.eks. via tombstones). Da planlegges regelen på nytt neste runde.
-    internal open fun erKlarTilKjøring(opplysninger: LesbarOpplysninger) = opplysninger.finnFlere(avhengerAv).size == avhengerAv.size
+    internal open fun erKlarTilKjøring(opplysninger: LesbarOpplysninger): Boolean {
+        val løsning = avhengigheter.løs(opplysninger)
+        return løsning is LøsteAvhengigheter.Avklart && opplysninger.finnFlere(løsning.nødvendige).size == løsning.nødvendige.size
+    }
 
     abstract override fun toString(): String
 
@@ -136,7 +161,9 @@ abstract class Regel<T : Any> internal constructor(
             return Faktum(produserer, produkt)
         }
 
-        val basertPå = opplysninger.finnFlere(avhengerAv)
+        val løsning = avhengigheter.løs(opplysninger)
+        check(løsning is LøsteAvhengigheter.Avklart) { "Uavklart grenvalg for $produserer" }
+        val basertPå = opplysninger.finnFlere(løsning.nødvendige)
 
         val produkt = kjør(opplysninger, prøvingsdato)
         val erAlleFaktum = basertPå.all { it is Faktum<*> }

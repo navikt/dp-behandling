@@ -58,7 +58,6 @@ Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
-- AndreØkonomiskeYtelser
 - HelseTilAlleTyperJobb
 - KanJobbeDeltid
 - KanJobbeHvorSomHelst
@@ -75,6 +74,7 @@ Behov:
 Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Behov:
+- AndreØkonomiskeYtelser
 - ErUtestengt
 - Foreldrepenger
 - Omsorgspenger

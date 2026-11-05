@@ -60,7 +60,6 @@ Laget avklaring om BeregnetArbeidstid
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
 Behov:
-- AndreØkonomiskeYtelser
 - BostedslandErNorge
 - HelseTilAlleTyperJobb
 - KanJobbeDeltid
@@ -79,6 +78,7 @@ Laget avklaring om HattLukkedeSakerSiste8Uker
 Laget avklaring om MuligGjenopptak
 Laget avklaring om VirkningstidspunktForLangtFramItid
 Behov:
+- AndreØkonomiskeYtelser
 - BarnetilleggV2
 - ErUtestengt
 - Foreldrepenger
