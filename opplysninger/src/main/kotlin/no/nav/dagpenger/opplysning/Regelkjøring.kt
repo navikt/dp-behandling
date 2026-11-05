@@ -219,10 +219,12 @@ class Regelkjøring(
             opplysninger.fjernHvis {
                 val opplysningFraSaksbehandler = it.kilde is Saksbehandlerkilde
                 val opplysningFraHendelse = it.kilde is Systemkilde
+                // Svar fra behovsløsere kan trengs av en gren som først åpnes på en senere dato
+                val kanTrengesSenere = it.kilde is Behovsløserkilde && prøvingsdato != prøvingsperiode.last()
                 val trengsIkke = it.opplysningstype !in brukteOpplysninger
                 val tilhørerDenneRegelkjøringen = it.gyldighetsperiode.fraOgMed >= prøvingsdato || it.behandletVed == prøvingsdato
 
-                if (opplysningFraSaksbehandler || opplysningFraHendelse) return@fjernHvis false
+                if (opplysningFraSaksbehandler || opplysningFraHendelse || kanTrengesSenere) return@fjernHvis false
 
                 trengsIkke && tilhørerDenneRegelkjøringen
             }

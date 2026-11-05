@@ -108,19 +108,20 @@ class PermitteringTest {
             }
 
             // Stanser permittering og forbruker bare ordinær
-            saksbehandler.lagBehandling(2.juli(2018))
-            saksbehandler.leggTilOpplysning(
-                skalPermitteringVurderes,
-                false,
-                "Permitteringen er satt på pause",
-                Gyldighetsperiode(2.juli(2018)),
-            )
+            saksbehandler.omgjørBehandling(2.juli(2018))
             saksbehandler.leggTilOpplysning(
                 oppfyllerKravetTilPermittering,
                 false,
                 "Permitteringen er satt på pause",
                 Gyldighetsperiode(2.juli(2018)),
             )
+            saksbehandler.leggTilOpplysning(
+                skalPermitteringVurderes,
+                false,
+                "Permitteringen er satt på pause",
+                Gyldighetsperiode(2.juli(2018)),
+            )
+            behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
@@ -129,6 +130,7 @@ class PermitteringTest {
                 with(opplysninger(oppfyllerKravetTilPermittering)) {
                     this.last().verdi.verdi shouldBe false
                 }
+                rettighetsperioder.last().harRett shouldBe true
             }
 
             // Sender meldekort som ikke-permittert
