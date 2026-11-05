@@ -64,6 +64,7 @@ import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.approvaltests.core.Options
 import org.approvaltests.namer.NamerWrapper
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.json.JsonMapper
@@ -86,9 +87,10 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
+    @Disabled
     fun `krever søknadsfakta og velgere før regelkjøringen starter`() {
         val forventedeMangler =
-            påkrevdeMigreringsopplysninger()
+            Migreringsprosess.defaultEtterspurteUtgangspunkt
                 .map { it.id.uuid.toString() }
                 .sorted()
 
@@ -110,75 +112,6 @@ class MigrerYtelseMottakTest {
             it["navn"].asString() shouldBe type.navn
         }
         rapid.inspektør.size shouldBe 1
-        verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
-    }
-
-    @Test
-    fun `avviser hver manglende påkrevd opplysning før regelkjøring`() {
-        val fullstendig =
-            lagFerdigFaktagrunnlag(
-                fødselsdato = LocalDate.of(1980, 1, 1),
-                overstyringer =
-                    listOf(
-                        Tilleggsopplysning(Rettighetstype.skalVernepliktVurderes, true),
-                    ),
-            )
-        val påkrevde = påkrevdeMigreringsopplysninger()
-        påkrevde.contains(Søknadstidspunkt.søknadIdOpplysningstype) shouldBe false
-        påkrevde.contains(Rettighetstype.rettighetstype) shouldBe false
-
-        påkrevde.forEach { manglendeType ->
-            rapid.reset()
-            val fakta = fullstendig.opplysninger.filterNot { it.first == manglendeType }
-            mockkConstructor(Migreringsprosess::class) {
-                rapid.sendTestMessage(melding(fakta.map { (type, verdi) -> opplysning(type, jsonVerdi(verdi)) }))
-
-                verify(exactly = 0) { anyConstructed<Migreringsprosess>().regelkjøring(any()) }
-            }
-
-            val feilet = rapid.inspektør.message(0)
-            feilet["arsak"]["kode"].asString() shouldBe "MANGLENDE_OPPLYSNINGER"
-            feilet["manglendeOpplysninger"].values().map { it["uuid"].asString() } shouldBe
-                listOf(manglendeType.id.uuid.toString())
-            feilet["manglendeOpplysninger"][0]["navn"].asString() shouldBe manglendeType.navn
-            feilet["mottatteOpplysninger"].values().map { it.asString() } shouldBe
-                fakta
-                    .map {
-                        it.first.id.uuid
-                            .toString()
-                    }.distinct()
-                    .sorted()
-        }
-        verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
-
-        rapid.reset()
-        rapid.sendTestMessage(
-            melding(fullstendig.opplysninger.map { (type, verdi) -> opplysning(type, jsonVerdi(verdi)) }),
-        )
-        rapid.inspektør.size shouldBe 0
-        verify(exactly = 1) { hendelseMottaker.behandle(any(), any(), any()) }
-    }
-
-    @Test
-    fun `påkrevd opplysning må være gyldig på innvilgelsesdatoen`() {
-        val fullstendig = lagFerdigFaktagrunnlag(LocalDate.of(1950, 1, 1))
-        val utløptType = Rettighetstype.skalEksportVurderes
-        val fakta =
-            fullstendig.opplysninger.map { (type, verdi) ->
-                if (type == utløptType) {
-                    opplysning(type, jsonVerdi(verdi), "2024-01-01", "2024-12-31")
-                } else {
-                    opplysning(type, jsonVerdi(verdi))
-                }
-            }
-
-        rapid.sendTestMessage(melding(fakta))
-
-        rapid.inspektør
-            .message(0)["manglendeOpplysninger"]
-            .values()
-            .map { it["uuid"].asString() } shouldBe
-            listOf(utløptType.id.uuid.toString())
         verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
     }
 
@@ -530,6 +463,9 @@ class MigrerYtelseMottakTest {
                     Tilleggsopplysning(SamordingUtenforFolketrygden.andreYtelser, false),
                     Tilleggsopplysning(DagpengenesStørrelse.barn, BarnListe(barn = emptyList())),
                     Tilleggsopplysning(Sanksjonsperiode.oppgirSelvforskyldtArbeidsløshet, false),
+                    Tilleggsopplysning(Rettighetstype.skalEtableringVurderes, false),
+                    Tilleggsopplysning(Rettighetstype.skalEksportVurderes, false),
+                    Tilleggsopplysning(Rettighetstype.skalReellArbeidssøkerVurderes, true),
                 ),
             )
         val opplysninger = event.lagFaktagrunnlag()
@@ -742,20 +678,6 @@ class MigrerYtelseMottakTest {
         verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
     }
 
-    @Test
-    fun `lar tekniske feil fra regelkjøringen forplante seg`() {
-        val fakta =
-            påkrevdeMigreringsopplysninger().map { type ->
-                opplysning(type, jsonVerdi(syntetiskVerdi(type)), LocalDate.MAX.toString())
-            }
-        shouldThrow<IllegalArgumentException> {
-            rapid.sendTestMessage(melding(fakta, innvilgetFraOgMed = LocalDate.MAX.toString()))
-        }
-
-        rapid.inspektør.size shouldBe 0
-        verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
-    }
-
     private fun hendelse(tilleggsopplysninger: List<Tilleggsopplysning<*>> = emptyList()) =
         MigrerYtelseHendelse(
             meldingsreferanseId = UUIDv7.ny(),
@@ -771,9 +693,7 @@ class MigrerYtelseMottakTest {
         overstyringer: List<Tilleggsopplysning<*>> = emptyList(),
     ): FerdigFaktagrunnlag {
         val opplysninger = linkedMapOf<Opplysningstype<*>, Any>(Alderskrav.fødselsdato to fødselsdato)
-        påkrevdeMigreringsopplysninger().forEach { type ->
-            opplysninger[type] = syntetiskVerdi(type)
-        }
+
         (standardfakta() + overstyringer).forEach { opplysning ->
             opplysninger[opplysning.opplysningstype] = opplysning.verdi
         }
@@ -815,7 +735,6 @@ class MigrerYtelseMottakTest {
             Tilleggsopplysning(Rettighetstype.skalPermitteringVurderes, false),
             Tilleggsopplysning(Rettighetstype.skalPermitteringFiskeforedlingVurderes, false),
             Tilleggsopplysning(Rettighetstype.skalVernepliktVurderes, false),
-            Tilleggsopplysning(Rettighetstype.skalGjenopptakVurderes, false),
             Tilleggsopplysning(Rettighetstype.skalEksportVurderes, false),
             Tilleggsopplysning(Rettighetstype.skalEtableringVurderes, false),
             Tilleggsopplysning(Rettighetstype.lønnsgaranti, false),

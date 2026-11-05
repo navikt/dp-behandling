@@ -20,6 +20,7 @@ import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.prosess.Migreringsprosess
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -133,6 +134,7 @@ class MigrerYtelseHendelse(
                 Tilleggsopplysning(Søknadstidspunkt.prøvingsdato, ytelse.innvilgetFraOgMed),
                 Tilleggsopplysning(Søknadstidspunkt.søknadIdOpplysningstype, søknadId),
                 Tilleggsopplysning(SøknadInnsendtHendelse.fagsakIdOpplysningstype, ytelse.sakId),
+                Tilleggsopplysning(Rettighetstype.skalGjenopptakVurderes, false),
             )
         (standardfakta + tilleggsopplysninger)
             .map { it.faktum(ytelse.innvilgetPeriode, kilde) }
@@ -147,6 +149,7 @@ class MigrerYtelseHendelse(
                 Søknadstidspunkt.prøvingsdato,
                 Søknadstidspunkt.søknadIdOpplysningstype,
                 SøknadInnsendtHendelse.fagsakIdOpplysningstype,
+                Rettighetstype.skalGjenopptakVurderes,
             )
     }
 }

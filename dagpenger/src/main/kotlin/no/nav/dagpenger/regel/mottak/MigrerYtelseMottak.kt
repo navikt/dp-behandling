@@ -34,15 +34,6 @@ import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.hendelse.MigrerYtelseHendelse
 import no.nav.dagpenger.regel.hendelse.MigrertYtelse
 import no.nav.dagpenger.regel.hendelse.Tilleggsopplysning
-import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
-import no.nav.dagpenger.regel.regelsett.vilkår.Opphold
-import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
-import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
-import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
-import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid
-import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
-import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import tools.jackson.databind.JsonNode
@@ -108,38 +99,11 @@ fun toJsonMessage(
     return JsonMessage(json, MessageProblems(json))
 }
 
-internal fun påkrevdeMigreringsopplysninger(): Set<Opplysningstype<*>> =
-    setOf(
-        Søknadstidspunkt.ønsketdato,
-        Verneplikt.avtjentVerneplikt,
-        DagpengenesStørrelse.barn,
-        Opphold.bostedsland,
-        TapAvArbeidsinntektOgArbeidstid.kravPåLønn,
-        ReellArbeidssøker.ønsketArbeidstid,
-        ReellArbeidssøker.kanJobbeDeltid,
-        ReellArbeidssøker.kanJobbeHvorSomHelst,
-        ReellArbeidssøker.erArbeidsfør,
-        ReellArbeidssøker.villigTilEthvertArbeid,
-        Utdanning.tarUtdanning,
-        Rettighetstype.skalPermitteringVurderes,
-        Rettighetstype.skalPermitteringFiskeforedlingVurderes,
-        Rettighetstype.skalReellArbeidssøkerVurderes,
-        Rettighetstype.skalVernepliktVurderes,
-        Rettighetstype.skalGjenopptakVurderes,
-        Rettighetstype.skalEksportVurderes,
-        Rettighetstype.skalEtableringVurderes,
-        Rettighetstype.ordinærArbeid,
-        Rettighetstype.lønnsgaranti,
-        Sanksjonsperiode.oppgirSelvforskyldtArbeidsløshet,
-    )
-
 class MigrerYtelseMottak(
     rapidsConnection: RapidsConnection,
     private val hendelseMottaker: HendelseMottaker,
     private val opplysningstyper: Set<Opplysningstype<*>>,
 ) : River.PacketListener {
-    private val påkrevdeOpplysninger = påkrevdeMigreringsopplysninger()
-
     init {
         River(rapidsConnection)
             .apply {
@@ -181,25 +145,19 @@ class MigrerYtelseMottak(
         val message = MigrerYtelseMessage(packet, opplysningstyper)
         val faktagrunnlag = message.hendelse.lagFaktagrunnlag()
         val prøvingsdato = packet["innvilgetFraOgMed"].asLocalDate()
-        val manglendePåkrevdeOpplysninger =
-            påkrevdeOpplysninger.filterNot { type ->
-                faktagrunnlag.somListe().any { it.opplysningstype == type && it.gyldighetsperiode.inneholder(prøvingsdato) }
-            }
+
         val rapport =
-            if (manglendePåkrevdeOpplysninger.isEmpty()) {
-                message.hendelse.forretningsprosess
-                    .regelkjøring(faktagrunnlag)
-                    .evaluer()
-            } else {
-                null
-            }
+            message.hendelse.forretningsprosess
+                .regelkjøring(faktagrunnlag)
+                .evaluer()
 
         val manglendeOpplysninger =
-            (rapport?.mangler.orEmpty() + manglendePåkrevdeOpplysninger)
+            rapport.mangler
                 .distinctBy { it.id.uuid }
                 .map { ManglendeMigreringsopplysning(it.id.uuid.toString(), it.navn) }
                 .sortedBy { it.uuid }
-        if (rapport?.erFerdig() != true || manglendeOpplysninger.isNotEmpty()) {
+
+        if (!rapport.erFerdig() || manglendeOpplysninger.isNotEmpty()) {
             logger.info { "Migrering av sakId $sakId mangler opplysninger $manglendeOpplysninger" }
             context.avbrytMigrering(
                 sakId,
