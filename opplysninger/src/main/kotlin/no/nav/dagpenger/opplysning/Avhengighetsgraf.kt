@@ -16,6 +16,7 @@ internal class Avhengighetsgraf(
      */
     fun nødvendigeOpplysninger(
         opplysninger: Opplysninger,
+        opplysningerPåPrøvingsdato: LesbarOpplysninger,
         ønsketResultat: Collection<Opplysningstype<*>>,
     ): Set<Opplysningstype<*>> {
         val nødvendigeOpplysninger = mutableSetOf<Opplysningstype<*>>()
@@ -29,7 +30,7 @@ internal class Avhengighetsgraf(
         for (ønsket in ønsketResultat) {
             val regel = reglerEtterOutput[ønsket] ?: throw IllegalStateException("Fant ikke regel for $ønsket")
             nødvendigeOpplysninger.add(regel.produserer)
-            leggTilAvhengigheter(regel, nødvendigeOpplysninger)
+            leggTilAvhengigheter(regel, opplysningerPåPrøvingsdato, nødvendigeOpplysninger)
         }
 
         return nødvendigeOpplysninger
@@ -40,13 +41,14 @@ internal class Avhengighetsgraf(
      */
     private fun leggTilAvhengigheter(
         regel: Regel<*>,
+        opplysningerPåPrøvingsdato: LesbarOpplysninger,
         nødvendigeOpplysninger: MutableSet<Opplysningstype<*>>,
     ) {
-        for (avhengighet in regel.avhengerAv) {
+        for (avhengighet in regel.avhengigheterForOpprydding(opplysningerPåPrøvingsdato)) {
             val avhengigRegel = reglerEtterOutput[avhengighet] ?: throw IllegalStateException("Fant ikke regel for $avhengighet")
 
             if (nødvendigeOpplysninger.add(avhengigRegel.produserer)) {
-                leggTilAvhengigheter(avhengigRegel, nødvendigeOpplysninger)
+                leggTilAvhengigheter(avhengigRegel, opplysningerPåPrøvingsdato, nødvendigeOpplysninger)
             }
         }
     }

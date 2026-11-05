@@ -111,6 +111,9 @@ abstract class Regel<T : Any> internal constructor(
     // Avhengigheter som styrer planlegging og utledning akkurat nå. Regler med valgfrie grener kan snevre dette inn.
     protected open fun relevanteAvhengigheter(opplysninger: LesbarOpplysninger): List<Opplysningstype<out Any>> = avhengerAv
 
+    internal open fun avhengigheterForOpprydding(opplysninger: LesbarOpplysninger): List<Opplysningstype<out Any>> =
+        relevanteAvhengigheter(opplysninger)
+
     protected open fun lagPlanNårAvhengerErErstattet(
         opplysninger: LesbarOpplysninger,
         plan: Regelplanlegger,

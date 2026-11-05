@@ -16,6 +16,12 @@ class HvisSannMedResultat<T : Any>(
         return listOf(sjekk, if (opplysninger.finnOpplysning(sjekk).verdi) hvisSann else hvisUsann)
     }
 
+    override fun avhengigheterForOpprydding(opplysninger: LesbarOpplysninger): List<Opplysningstype<out Any>> {
+        // Uten sjekkverdi vet vi ikke hvilken gren som kan ryddes bort.
+        if (opplysninger.mangler(sjekk)) return avhengerAv
+        return relevanteAvhengigheter(opplysninger)
+    }
+
     override fun kjør(
         opplysninger: LesbarOpplysninger,
         prøvingsdato: LocalDate,

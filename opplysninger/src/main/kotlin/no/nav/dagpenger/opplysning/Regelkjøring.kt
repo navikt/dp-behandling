@@ -204,7 +204,15 @@ class Regelkjøring(
         // Guard: Ikke fjern opplysninger når det finnes uløste informasjonsbehov, fordi
         // ønsketResultat kan være ufullstendig (regelsett med skalKjøres=false pga manglende data).
         if (kjøreplan.siste.eksterneRegler.isEmpty()) {
-            val brukteOpplysninger = avhengighetsgraf.nødvendigeOpplysninger(opplysninger, kjøreplan.siste.ønsketResultat)
+            // En opplysning kan gjelde frem i tid, så grenvalget må være likt på alle datoer der grunnlaget endrer seg.
+            val datoer =
+                (listOf(prøvingsdato) + opplysninger.somListe().map { it.gyldighetsperiode.fraOgMed }.filter { it > prøvingsdato })
+                    .distinct()
+            val brukteOpplysninger =
+                datoer
+                    .flatMap {
+                        avhengighetsgraf.nødvendigeOpplysninger(opplysninger, opplysninger.forDato(it), kjøreplan.siste.ønsketResultat)
+                    }.toSet()
             opplysninger.fjernHvis {
                 val opplysningFraSaksbehandler = it.kilde is Saksbehandlerkilde
                 val opplysningFraHendelse = it.kilde is Systemkilde

@@ -238,6 +238,7 @@ internal class SimulertDagpengerSystem(
         }
 
         if (avklar || markerFerdig) {
+            behovsløsere.løsTilForslag().shouldBeEmpty()
             saksbehandler.åpneAvklaringer().shouldBeEmpty()
             påbegynteMeldekort.forEach { eksternMeldekortId ->
                 // Marker som ferdig (vi klarer ikke å fange det i VedtakFattetMottak)
