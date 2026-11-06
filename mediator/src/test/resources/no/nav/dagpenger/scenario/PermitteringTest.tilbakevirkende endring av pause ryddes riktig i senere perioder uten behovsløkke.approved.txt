@@ -54,8 +54,8 @@ Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behov:
 - AndreØkonomiskeYtelser
-Behov:
-- AndreØkonomiskeYtelser
+Behandling endret tilstand til: ForslagTilVedtak
+Behandling endret tilstand til: Redigert
 Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: TilGodkjenning
 Behandling endret tilstand til: TilBeslutning

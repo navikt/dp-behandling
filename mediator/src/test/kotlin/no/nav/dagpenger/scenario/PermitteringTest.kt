@@ -691,6 +691,7 @@ class PermitteringTest {
 
             saksbehandler.omgjørBehandling(2.juli(2018))
             saksbehandler.leggTilOpplysning(skalPermitteringVurderes, false, "Pause", Gyldighetsperiode(2.juli(2018)))
+            behovsløsere.løsTilForslag()
             saksbehandler.leggTilOpplysning(oppfyllerKravetTilPermittering, false, "Pause", Gyldighetsperiode(2.juli(2018)))
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
