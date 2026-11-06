@@ -20,37 +20,38 @@ internal class Avhengighetsgraf(
         ønsketResultat: Collection<Opplysningstype<*>>,
         gjeldende: LesbarOpplysninger = opplysninger,
     ): Set<Opplysningstype<*>> {
-        val nødvendigeOpplysninger = mutableSetOf<Opplysningstype<*>>()
-        nødvendigeOpplysninger.addAll(ønsketResultat)
-
         // Identifiser eksisterende opplysninger som ikke produseres av noen regel
         val opplysningerUtenRegel = opplysninger.typerMedOpplysning().filter { it !in reglerEtterOutput }
-        nødvendigeOpplysninger.addAll(opplysningerUtenRegel)
-
-        // Traverser fra ønskede outputs og legg til avhengigheter
-        for (ønsket in ønsketResultat) {
-            val regel = reglerEtterOutput[ønsket] ?: throw IllegalStateException("Fant ikke regel for $ønsket")
-            nødvendigeOpplysninger.add(regel.produserer)
-            leggTilAvhengigheter(regel, gjeldende, nødvendigeOpplysninger)
-        }
-
-        return nødvendigeOpplysninger
+        return aktivGraf(ønsketResultat, gjeldende).noder + opplysningerUtenRegel
     }
 
     /**
-     * Legger rekursivt til avhengigheter for en gitt regel i mengden av nødvendige opplysninger.
+     * Bygger grafen av avhengigheter som er aktive for [gjeldende], fra [ønsketResultat] og bakover.
+     * Sammenlign grafer fra to runder med [AktivGraf.lukketSammenlignetMed] for å finne stier som er lukket.
      */
-    private fun leggTilAvhengigheter(
-        regel: Regel<*>,
+    fun aktivGraf(
+        ønsketResultat: Collection<Opplysningstype<*>>,
         gjeldende: LesbarOpplysninger,
-        nødvendigeOpplysninger: MutableSet<Opplysningstype<*>>,
-    ) {
-        for (avhengighet in regel.aktiveAvhengigheter(gjeldende)) {
-            val avhengigRegel = reglerEtterOutput[avhengighet] ?: throw IllegalStateException("Fant ikke regel for $avhengighet")
-
-            if (nødvendigeOpplysninger.add(avhengigRegel.produserer)) {
-                leggTilAvhengigheter(avhengigRegel, gjeldende, nødvendigeOpplysninger)
-            }
+    ): AktivGraf {
+        val kanter = linkedMapOf<Opplysningstype<*>, List<Opplysningstype<*>>>()
+        val kø = ArrayDeque(ønsketResultat)
+        while (kø.isNotEmpty()) {
+            val type = kø.removeFirst()
+            if (type in kanter) continue
+            val regel = reglerEtterOutput[type] ?: throw IllegalStateException("Fant ikke regel for $type")
+            val aktive = regel.aktiveAvhengigheter(gjeldende)
+            kanter[type] = aktive
+            kø.addAll(aktive)
         }
+        return AktivGraf(kanter)
+    }
+
+    class AktivGraf(
+        val kanter: Map<Opplysningstype<*>, List<Opplysningstype<*>>>,
+    ) {
+        val noder: Set<Opplysningstype<*>> get() = kanter.keys
+
+        // Opplysninger som var nådbare før og ikke lenger er det, f.eks. fordi en gren er valgt bort
+        fun lukketSammenlignetMed(forrige: AktivGraf): Set<Opplysningstype<*>> = forrige.noder - noder
     }
 }

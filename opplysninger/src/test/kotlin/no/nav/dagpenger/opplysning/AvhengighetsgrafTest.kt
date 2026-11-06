@@ -1,7 +1,9 @@
 package no.nav.dagpenger.opplysning
 
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.opplysning.regel.Ekstern
+import no.nav.dagpenger.opplysning.regel.HvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.MinstAv
 import no.nav.dagpenger.uuid.UUIDv7
 import org.junit.jupiter.api.Test
@@ -42,6 +44,29 @@ class AvhengighetsgrafTest {
         val resultat = vasken.nødvendigeOpplysninger(opplysninger, ønsketResultat)
 
         resultat shouldContainExactly setOf(opplysningstypeA, opplysningstypeB, opplysningstypeC, opplysningstypeE)
+    }
+
+    @Test
+    fun `stien lukkes når HvisSannMedResultat bytter gren`() {
+        val sjekk = Opplysningstype.boolsk(Opplysningstype.Id(UUIDv7.ny(), Boolsk), "sjekk")
+        val sann = opplysningstype("sann")
+        val usann = opplysningstype("usann")
+        val resultat = opplysningstype("resultat")
+        val regler =
+            setOf(
+                Ekstern(sjekk, emptyList()),
+                Ekstern(sann, emptyList()),
+                Ekstern(usann, emptyList()),
+                HvisSannMedResultat(resultat, sjekk, sann, usann),
+            )
+        val graf = Avhengighetsgraf(regler)
+
+        val medSann = graf.aktivGraf(listOf(resultat), Opplysninger.med(Faktum(sjekk, true)))
+        val medUsann = graf.aktivGraf(listOf(resultat), Opplysninger.med(Faktum(sjekk, false)))
+
+        medSann.noder shouldContainExactly setOf(resultat, sjekk, sann)
+        medUsann.lukketSammenlignetMed(medSann) shouldBe setOf(sann)
+        medSann.lukketSammenlignetMed(medSann) shouldBe emptySet()
     }
 
     private fun opplysningstype(navn: String) = Opplysningstype.desimaltall(Opplysningstype.Id(UUIDv7.ny(), Desimaltall), navn)
