@@ -236,6 +236,8 @@ Hva dette løser:
 
 Start med memoisert `status()` per runde. Inkrementell oppdatering mellom runder er en senere optimalisering som må måles først.
 
+**Målt (ScenarioTest):** Av ca. 8 700 evaluerte datoer hadde ca. 8 350 en tom plan (0 runder). Under 400 kjørte 1–25 runder. Et forsøk på å hoppe over planlegging for uendrede datoer ga identiske resultater i alle tester, men ingen målbar tidsgevinst (14,1 s mot 13,5 s, innenfor støy), og ble reversert. Gevinsten ved statusmodellen er derfor diagnostikk og klarere modell, ikke ytelse. Bølgemodellen kutter bare runder på de få datoene som faktisk kjører regler, og endrer rekkefølgen i approved-filene.
+
 ### 4.4 Hooks i stedet for override av planleggingen
 
 | Regel | I dag | Foreslått |
@@ -269,6 +271,8 @@ Start med memoisert `status()` per runde. Inkrementell oppdatering mellom runder
 
 * Steg 1–3 er gjennomført: `Regel.aktiveAvhengigheter(opplysninger)` brukes i planlegging, `lagProdukt` (utledning), `Regelplanlegger.lagProduksjonsplan`, `Avhengighetsgraf` (evaluert på prøvingsdatoens view) og `informasjonsbehov`. `HvisSannMedResultat` har ikke lenger egne overstyringer av planlegging, bare `aktiveAvhengigheter` og `kjør`.
 * Designreview: statusen må beregnes på dato-view (`forDato`), og tombstone-skjult arv må ikke gi falsk `Blokkert`. Dette må på plass før steg 4 (full statusmodell). Syklusdeteksjon (in-progress-markering) skal med i steg 4.
+* Statusregistrering er gjennomført: `RegelStatus` (`Gyldig`, `Overstyrt`, `Kjørbar`, `Blokkert(venterPå)`) registreres per regel i `Regelplanlegger` uten å endre oppførsel, og brukes i loop-feilmeldingen. `Avhengighetsgraf.aktivGraf` gir aktiv graf og `lukketSammenlignetMed` for stier som er lukket mellom runder.
+* `PrøvingsdatoLoopTest` er aktivert igjen og er grønn.
 * Merk: eksisterende lagrede utledninger for `HvisSannMedResultat` inneholder begge ben. Ved omgjøring regnes slike produkter som utdaterte én gang og beregnes på nytt.
 
 ### Lærdom fra implementeringen
