@@ -211,19 +211,12 @@ fun interface GyldighetsperiodeStrategi<T> {
                 )
             }
 
-        // Arver gyldighetsperioden til den grenen (hvisSann/hvisUsann) som faktisk ble valgt av
-        // en tilhørende hvisSannMedResultat-regel, slått opp på opplysningstype (ikke posisjon i
-        // avhengerAv-listen). Brukes når selve resultatverdien skal "låne" gyldighetsperioden til
-        // den valgte grenen, i stedet for en periode utledet fra alle avhengighetene samlet.
-        fun <P : Any> arvFraValgtGren(
-            sjekk: Opplysningstype<Boolean>,
-            hvisSann: Opplysningstype<P>,
-            hvisUsann: Opplysningstype<P>,
-        ) = GyldighetsperiodeStrategi<P> { _, basertPå, _ ->
-            val sjekkVerdi = basertPå.single { it.opplysningstype == sjekk }.verdi as Boolean
-            val valgtGren = if (sjekkVerdi) hvisSann else hvisUsann
-            basertPå.single { it.opplysningstype == valgtGren }.gyldighetsperiode
-        }
+        // Arver gyldighetsperioden til den valgte grenen i en hvisSannMedResultat. Siden regelen bare er
+        // basert på sjekken og den valgte grenen, er grenen den eneste avhengigheten som ikke er sjekken.
+        fun <P : Any> arvFraValgtGren(sjekk: Opplysningstype<Boolean>) =
+            GyldighetsperiodeStrategi<P> { _, basertPå, _ ->
+                basertPå.single { it.opplysningstype != sjekk }.gyldighetsperiode
+            }
 
         fun basertPåTilOgMed(sluttDato: Opplysningstype<LocalDate>): GyldighetsperiodeStrategi<Boolean> =
             GyldighetsperiodeStrategi { _, basertPå, _ ->

@@ -23,7 +23,7 @@ class DagensDato internal constructor(
 
         // Sjekk om dagens dato har endret seg siden sist
         val dag = opplysninger.finnOpplysning(produserer).verdi
-        if (dagensDato.isEqual(dag)) {
+        if (!dagensDato.isEqual(dag)) {
             plan.add(this)
         }
     }

@@ -74,7 +74,7 @@ object Eksport {
         Opplysningstype.dato(
             eksportGjenopptakId,
             "Dato for gjenopptak av dagpenger",
-            gyldighetsperiode = arvFraValgtGren(registrertInnenFrist, skalHaEksportFra, registrertIVertslandFra),
+            gyldighetsperiode = arvFraValgtGren(registrertInnenFrist),
             synlig = aldriSynlig,
         )
     val oppfyllerVilkårForEksport =
