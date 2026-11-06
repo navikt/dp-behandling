@@ -26,7 +26,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.ønsketdato
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntekt
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.Opplysningsperiode
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
@@ -559,7 +558,6 @@ class PermitteringTest {
         }
     }
 
-    @Disabled("Feiler inntil periodebevisst rydding er på plass")
     @Test
     fun `tilbakevirkende overstyring av permittering fjerner fritaksperioden før historisk meldekort beregnes`() {
         val søknadsdato = 3.november(2026)
@@ -633,9 +631,8 @@ class PermitteringTest {
         }
     }
 
-    @Disabled("Feiler inntil periodebevisst rydding er på plass")
     @Test
-    fun `arvet fritaksperiode fjernes ikke når permittering overstyres til false i ny behandling`() {
+    fun `arvet fritaksperiode fjernes når permittering overstyres til false i ny behandling`() {
         val søknadsdato = 3.november(2026)
 
         nyttScenario {
@@ -670,14 +667,13 @@ class PermitteringTest {
                 opplysning(skalPermitteringVurderes) {
                     fra(søknadsdato) verdi false
                 }
-                withClue("Arvet fritaksperiode er ikke i egne opplysninger og kan ikke ryddes bort") {
+                withClue("Arvet fritaksperiode skal ikke lenger gjelde") {
                     opplysninger(innenforFritaksperioden).shouldBeEmpty()
                 }
             }
         }
     }
 
-    @Disabled("Feiler inntil periodebevisst rydding er på plass")
     @Test
     fun `tilbakevirkende endring av pause ryddes riktig i senere perioder uten behovsløkke`() {
         nyttScenario {

@@ -28,15 +28,14 @@ typealias Regelkjøringsdato = Iterable<LocalDate>
 class Regelplanlegger {
     private val regler = mutableSetOf<Regel<*>>()
     private val ventende = mutableSetOf<Regel<*>>()
-    private val statuser = linkedMapOf<Regel<*>, RegelStatus>()
-
-    val status: Map<Regel<*>, RegelStatus> get() = statuser
+    val status: Map<Regel<*>, RegelStatus>
+        field = linkedMapOf<Regel<*>, RegelStatus>()
 
     fun registrer(
         regel: Regel<*>,
         status: RegelStatus,
     ) {
-        statuser[regel] = status
+        this.status[regel] = status
     }
 
     fun add(regel: Regel<*>) {
@@ -244,6 +243,11 @@ class Regelkjøring(
 
                 trengsIkke && tilhørerDenneRegelkjøringen
             }
+            val lukkedeOpplysninger =
+                avhengighetsgraf.lukkedeOpplysninger(kjøreplan.siste.ønsketResultat, kjøreplan.siste.opplysningerPåPrøvingsdato)
+            opplysninger.tombstoneArvedeHvis(prøvingsdato) {
+                it.kilde !is Systemkilde && it.kilde !is Behovsløserkilde && it.opplysningstype in lukkedeOpplysninger
+            }
         }
 
         opplysninger.markerBehandlet(prøvingsdato)
@@ -290,7 +294,9 @@ class Regelkjøring(
                     """Går i loop! Planlegger samme plan vi har fra før. Planlegger ${siste.prøvingsdato} og vil kjøre:
                     |${siste.plan.joinToString("\n") { it.beskrivMedAvhengigheter(siste.opplysningerPåPrøvingsdato) }}
                     |Blokkerte regler:
-                    |${siste.blokkerte().joinToString("\n") { (regel, blokkert) -> "- $regel venter på ${blokkert.venterPå.joinToString { it.navn }}" }}
+                    |${siste.blokkerte().joinToString(
+                        "\n",
+                    ) { (regel, blokkert) -> "- $regel venter på ${blokkert.venterPå.joinToString { it.navn }}" }}
                     """.trimMargin(),
                 ).also {
                     Span.current().recordException(it)

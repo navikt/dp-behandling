@@ -26,6 +26,24 @@ internal class Avhengighetsgraf(
     }
 
     /**
+     * Opplysninger som kan nås fra [ønsketResultat] via en gren som er valgt bort for [gjeldende],
+     * og som ikke også nås via en aktiv sti. Typer utenfor ønsket resultat er ikke lukket, bare ikke ønsket.
+     */
+    fun lukkedeOpplysninger(
+        ønsketResultat: Collection<Opplysningstype<*>>,
+        gjeldende: LesbarOpplysninger,
+    ): Set<Opplysningstype<*>> {
+        val mulige = mutableSetOf<Opplysningstype<*>>()
+        val kø = ArrayDeque(ønsketResultat)
+        while (kø.isNotEmpty()) {
+            val type = kø.removeFirst()
+            if (!mulige.add(type)) continue
+            reglerEtterOutput[type]?.let { kø.addAll(it.avhengerAv) }
+        }
+        return mulige - aktivGraf(ønsketResultat, gjeldende).noder
+    }
+
+    /**
      * Bygger grafen av avhengigheter som er aktive for [gjeldende], fra [ønsketResultat] og bakover.
      * Sammenlign grafer fra to runder med [AktivGraf.lukketSammenlignetMed] for å finne stier som er lukket.
      */

@@ -273,6 +273,7 @@ Start med memoisert `status()` per runde. Inkrementell oppdatering mellom runder
 * Designreview: statusen må beregnes på dato-view (`forDato`), og tombstone-skjult arv må ikke gi falsk `Blokkert`. Dette må på plass før steg 4 (full statusmodell). Syklusdeteksjon (in-progress-markering) skal med i steg 4.
 * Statusregistrering er gjennomført: `RegelStatus` (`Gyldig`, `Overstyrt`, `Kjørbar`, `Blokkert(venterPå)`) registreres per regel i `Regelplanlegger` uten å endre oppførsel, og brukes i loop-feilmeldingen. `Avhengighetsgraf.aktivGraf` gir aktiv graf og `lukketSammenlignetMed` for stier som er lukket mellom runder.
 * `PrøvingsdatoLoopTest` er aktivert igjen og er grønn.
+* Lukkede stier tombstones: i `evaluerDag` skjules arvede opplysninger for typer i `Avhengighetsgraf.lukkedeOpplysninger` (nåbare via `avhengerAv` fra ønsket resultat, men ikke i `aktivGraf`) fra prøvingsdatoen. `Systemkilde` og `Behovsløserkilde` beholdes. Det er bare lukkede stier som ryddes, ikke alt som er «uønsket»: meldekort- og stansprosesser har smalt ønsket resultat og arver legitimt typer utenfor det. De tre `PermitteringTest`-testene er aktivert igjen.
 * Merk: eksisterende lagrede utledninger for `HvisSannMedResultat` inneholder begge ben. Ved omgjøring regnes slike produkter som utdaterte én gang og beregnes på nytt.
 
 ### Lærdom fra implementeringen

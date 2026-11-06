@@ -317,6 +317,19 @@ class Opplysninger private constructor(
             }
     }
 
+    /**
+     * Arvede opplysninger kan ikke fjernes, så de som skal bort skjules med tombstones fra [fraOgMed] og utover.
+     */
+    fun tombstoneArvedeHvis(
+        fraOgMed: LocalDate,
+        block: (Opplysning<*>) -> Boolean,
+    ) {
+        indeks
+            .typerMedGjeldende()
+            .filter { type -> indeks.gjeldende(type).any { erArvet(it) && block(it) } }
+            .forEach { tombstone(it, Gyldighetsperiode(fraOgMed, fraOgMed)) }
+    }
+
     companion object {
         fun med(opplysninger: Collection<Opplysning<*>>) = Opplysninger(UUIDv7.ny(), opplysninger.toList())
 
