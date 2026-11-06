@@ -206,17 +206,33 @@ internal class HvisSannMedResultatTest {
             regelkjøring.evaluer().mangler shouldBe setOf(hvisUsannVerdi)
         }
 
-        private fun lagRegelkjøring(opplysninger: Opplysninger): Regelkjøring {
+        @Test
+        fun `sjekk uten produsent blokkerer regelen uten å feile`() {
+            val opplysninger = Opplysninger()
+            val rapport = lagRegelkjøring(opplysninger, medProdusentForSjekk = false).evaluer()
+
+            rapport.kjørteRegler shouldBe emptySet()
+            opplysninger.mangler(resultat) shouldBe true
+        }
+
+        private fun lagRegelkjøring(
+            opplysninger: Opplysninger,
+            medProdusentForSjekk: Boolean = true,
+        ): Regelkjøring {
+            val sjekkRegelsett =
+                vilkår("TestSjekk") {
+                    skalVurderes { medProdusentForSjekk }
+                    regel(a) { innhentes }
+                }
             val regelsett =
                 vilkår("TestKunResultat") {
-                    regel(a) { innhentes }
                     regel(hvisSannVerdi) { innhentes }
                     regel(hvisUsannVerdi) { innhentes }
                     regel(resultat) { hvisSannMedResultat(a, hvisSannVerdi, hvisUsannVerdi) }
                     ønsketResultat(resultat)
                 }
             val prosess =
-                object : Forretningsprosess(Regelverk(navn = RegelverkType("Test"), regelsett = arrayOf(regelsett))) {
+                object : Forretningsprosess(Regelverk(navn = RegelverkType("Test"), regelsett = arrayOf(sjekkRegelsett, regelsett))) {
                     override fun regelkjøring(opplysninger: Opplysninger) = throw NotImplementedError()
 
                     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate = 23.mai(2024)

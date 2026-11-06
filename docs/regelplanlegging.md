@@ -224,6 +224,18 @@ Hva dette løser:
 | F6 | I2 følger av at `Kjørbar` krever at alle avhengigheter er `Gyldig`. En regel kan aldri avhenge av noe annet i planen. `lagProduksjonsplan`-etterfilteret og `erKlarTilKjøring` blir overflødige (behold som assert) |
 | F4 | Domenehooks blir små, navngitte predikater på `Regel` (se under) i stedet for overstyring av planlegging |
 
+### 4.3.1 `Blokkert` bærer årsaken (`venterPå`)
+
+`Blokkert(venterPå: Set<Opplysningstype>)` er mengden aktive avhengigheter som ikke er `Gyldig`. Det gir:
+
+* **Omvendt graf:** `opplysning → regler som venter på den`. Når en regel kjøres, vet vi hvilke regler som kan bli `Kjørbar`, uten å replanlegge alt.
+* **Bølger:** regler som blir klare etter en kjøring planlegges i neste bølge, aldri i samme (I2 uten etterfilter).
+* **Informasjonsbehov som projeksjon:** `Innhentes`-regler er bladene i ventegrafen. Dagens `informasjonsbehov`-filter blir overflødig.
+* **Diagnostikk:** «X venter på Y, som venter på Ekstern Z» kan logges, og er nyttig mot behovsløkker.
+* **Betingede grener:** ventemengden til `HvisSannMedResultat` avhenger av verdien til `sjekk` og må ugyldiggjøres når den endrer seg. Ventemengden gjelder per prøvingsdato.
+
+Start med memoisert `status()` per runde. Inkrementell oppdatering mellom runder er en senere optimalisering som må måles først.
+
 ### 4.4 Hooks i stedet for override av planleggingen
 
 | Regel | I dag | Foreslått |
@@ -259,7 +271,29 @@ Hva dette løser:
 * Designreview: statusen må beregnes på dato-view (`forDato`), og tombstone-skjult arv må ikke gi falsk `Blokkert`. Dette må på plass før steg 4 (full statusmodell). Syklusdeteksjon (in-progress-markering) skal med i steg 4.
 * Merk: eksisterende lagrede utledninger for `HvisSannMedResultat` inneholder begge ben. Ved omgjøring regnes slike produkter som utdaterte én gang og beregnes på nytt.
 
-## 6. Åpne spørsmål
+### Lærdom fra implementeringen
+
+* **Behovssvar og dato-view:** Svar fra behovsløsere (`Behovsløserkilde`) får gyldighet fra behandlingens start, men en betinget gren kan først åpnes på en senere dato. Cleanup per dato fjernet svaret for tidlig og ga behovsløkke (permitteringspause). Midlertidig løsning: behovssvar ryddes bare på siste dato i prøvingsperioden. Statusmodellen må løse dette riktig: «trengs» må vurderes over hele gyldighetsperioden, ikke bare på én dato.
+* **Overstyringer uten `utledetAv`:** Å stoppe `Avhengighetsgraf` ved slike opplysninger brøt to `ScenarioTest`-tester, trolig fordi en overstyring bare dekker deler av perioden og kjeden bak den trengs på andre datoer. I5 (ikke gå forbi overstyring) må derfor gjelde per dato-view.
+* **`arvFraValgtGren(sjekk)`:** beholdt, men forenklet til å arve fra den eneste avhengigheten som ikke er `sjekk`. `minsteMulige` ga feil `fraOgMed` (Eksport).
+* **`DagensDato`** planlegger nå når lagret dato er ulik i dag (var invertert).
+* **`HvisSann.sjekk` uten produsent** blokkerer (som andre regler) og kaster ikke. Låst med test.
+
+### Designreview av statusmodellen (steg 4–6)
+
+Anbefalt rekkefølge:
+
+1. **Invalidering først.** `produsenter` beregnes per runde og avhenger av `skalKjøres`/`skalRevurderes`. Ventemengden må ugyldiggjøres når produsentmengden endres, ikke bare når `sjekk` endrer verdi, ellers kan regler bli permanent `Blokkert`.
+2. **Periodebevisst «trengs».** Behovssvar må vurderes over hele gjenstående prøvingsperiode, ikke bare på én dato. Ellers kommer behovsløkka tilbake når den midlertidige løsningen (rydd på siste dato) fjernes.
+3. **Datoskopet overstyringsbarriere.** «Ikke se forbi opplysning uten `utledetAv`» gjelder bare når overstyringen er synlig i akkurat den `forDato`-viewen.
+4. **`Blokkert(venterPå)` med omvendt graf og bølger**, bygget på 1–3.
+5. **Fjern gamle sikkerhetsnett sist.** Behold `erKlarTilKjøring`, `lagProduksjonsplan`-etterfilteret og loop-deteksjonen som asserts til de nye bølgene er bevist likeverdige i tester.
+
+Mest utsatte tester: `FjernHvisGuardTest`, `HvisSannMedResultatTest`, `PrøvingsdatoLoopTest`, `PermitteringTest` (+ approved-filer).
+
+Svakhet i dagens cleanup: `Avhengighetsgraf.nødvendigeOpplysninger` beholder alle typer uten regel globalt (ikke datobevisst). Rettes sammen med steg 3.
+
+## 6. Åpne spørsmål (avklart i 4 av 4: se over)
 
 * Skal `Ukjent` (ingen produsent pga. `skalKjøres=false`) være en feil for `HvisSannMedResultat.sjekk`, slik `produsenter.finn` gjør i dag, eller skal det gi `Blokkert` som for andre regler?
 * `DagensDato`: er `isEqual` ment slik, eller skal den planlegge når datoen *ikke* er lik i dag?
