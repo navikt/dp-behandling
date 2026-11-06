@@ -10,6 +10,7 @@ import io.opentelemetry.api.trace.Span
 import no.nav.dagpenger.opplysning.Regelkjøring.Regelkjøringstilstand.Companion.aktiver
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.Regel
+import no.nav.dagpenger.opplysning.regel.RegelStatus
 import java.time.LocalDate
 
 // Regelverksdato: Datoen regelverket gjelder fra. Som hovedregel tidspunktet søknaden ble fremmet.
@@ -27,15 +28,30 @@ typealias Regelkjøringsdato = Iterable<LocalDate>
 class Regelplanlegger {
     private val regler = mutableSetOf<Regel<*>>()
     private val ventende = mutableSetOf<Regel<*>>()
+    private val statuser = linkedMapOf<Regel<*>, RegelStatus>()
+
+    val status: Map<Regel<*>, RegelStatus> get() = statuser
+
+    fun registrer(
+        regel: Regel<*>,
+        status: RegelStatus,
+    ) {
+        statuser[regel] = status
+    }
 
     fun add(regel: Regel<*>) {
         regler.add(regel)
+        registrer(regel, RegelStatus.Kjørbar)
     }
 
     fun planlegger(regel: Regel<*>) = regel in regler
 
-    fun avvent(regel: Regel<*>) {
+    fun avvent(
+        regel: Regel<*>,
+        venterPå: Set<Opplysningstype<*>>,
+    ) {
         ventende.add(regel)
+        registrer(regel, RegelStatus.Blokkert(venterPå))
     }
 
     fun avventer(regel: Regel<*>) = regel in ventende || (regel is Ekstern<*> && planlegger(regel))
@@ -273,6 +289,8 @@ class Regelkjøring(
                 throw RegelkjøringLoopException(
                     """Går i loop! Planlegger samme plan vi har fra før. Planlegger ${siste.prøvingsdato} og vil kjøre:
                     |${siste.plan.joinToString("\n") { it.beskrivMedAvhengigheter(siste.opplysningerPåPrøvingsdato) }}
+                    |Blokkerte regler:
+                    |${siste.blokkerte().joinToString("\n") { (regel, blokkert) -> "- $regel venter på ${blokkert.venterPå.joinToString { it.navn }}" }}
                     """.trimMargin(),
                 ).also {
                     Span.current().recordException(it)
@@ -360,7 +378,10 @@ class Regelkjøring(
         val ønsketResultat: Set<Opplysningstype<*>>,
         val plan: Set<Regel<*>>,
         val eksterneRegler: Set<Regel<*>>,
+        val status: Map<Regel<*>, RegelStatus> = emptyMap(),
     ) {
+        fun blokkerte() = status.mapNotNull { (regel, status) -> (status as? RegelStatus.Blokkert)?.let { regel to it } }
+
         val trenger: Set<Opplysningstype<*>> = eksterneRegler.map { it.produserer }.toSet()
 
         companion object {
@@ -392,6 +413,7 @@ class Regelkjøring(
                     ønsketResultat = ønsketResultat,
                     plan = intern,
                     eksterneRegler = ekstern,
+                    status = planlegger.status,
                 )
             }
         }

@@ -42,6 +42,7 @@ abstract class Regel<T : Any> internal constructor(
 
             else -> {
                 // opplysningen er ikke utledet av noe ELLER overstyrt av saksbehandler
+                plan.registrer(this, RegelStatus.Overstyrt)
             }
         }
     }
@@ -61,8 +62,9 @@ abstract class Regel<T : Any> internal constructor(
         }
 
         // Hvis noen avhengigheter er planlagt, men ikke ferdig, må vi vente med å planlegge denne regelen
-        if (aktive.any { produsenter[it]?.let(plan::avventer) == true }) {
-            plan.avvent(this)
+        val venterPåProdusent = aktive.filter { produsenter[it]?.let(plan::avventer) == true }
+        if (venterPåProdusent.isNotEmpty()) {
+            plan.avvent(this, venterPåProdusent.toSet())
             return
         }
 
@@ -71,7 +73,7 @@ abstract class Regel<T : Any> internal constructor(
         if (avhengigheter.size == aktive.size) {
             plan.add(this)
         } else {
-            plan.avvent(this)
+            plan.avvent(this, aktive.manglende(opplysninger))
         }
     }
 
@@ -86,8 +88,9 @@ abstract class Regel<T : Any> internal constructor(
         val aktive = aktiveAvhengigheter(opplysninger)
         aktive.forEach { produsenter[it]?.lagPlan(opplysninger, plan, produsenter, besøkt) }
 
-        if (aktive.any { produsenter[it]?.let(plan::avventer) == true }) {
-            plan.avvent(this)
+        val venterPåProdusent = aktive.filter { produsenter[it]?.let(plan::avventer) == true }
+        if (venterPåProdusent.isNotEmpty()) {
+            plan.avvent(this, venterPåProdusent.toSet())
             return
         }
 
@@ -106,7 +109,10 @@ abstract class Regel<T : Any> internal constructor(
         val gjeldende = opplysninger.finnFlere(aktive)
         val sammeGrunnlag = gjeldende.toSet() == utledning.opplysninger.toSet()
 
-        if (sammeGrunnlag && !internAvhengighetSkalBeregnesPåNytt) return
+        if (sammeGrunnlag && !internAvhengighetSkalBeregnesPåNytt) {
+            plan.registrer(this, RegelStatus.Gyldig)
+            return
+        }
 
         lagPlanNårAvhengerErErstattet(opplysninger, plan, produsenter, besøkt)
     }
@@ -118,8 +124,14 @@ abstract class Regel<T : Any> internal constructor(
         besøkt: MutableSet<Regel<*>>,
     ) {
         val aktive = aktiveAvhengigheter(opplysninger)
-        if (opplysninger.finnFlere(aktive).size == aktive.size) plan.add(this)
+        if (opplysninger.finnFlere(aktive).size == aktive.size) {
+            plan.add(this)
+        } else {
+            plan.avvent(this, aktive.manglende(opplysninger))
+        }
     }
+
+    private fun List<Opplysningstype<out Any>>.manglende(opplysninger: LesbarOpplysninger) = filter { opplysninger.mangler(it) }.toSet()
 
     // Tidligere regler i samme runde kan ha gjort inndata ugyldig (f.eks. via tombstones). Da planlegges regelen på nytt neste runde.
     internal open fun erKlarTilKjøring(opplysninger: LesbarOpplysninger) =
