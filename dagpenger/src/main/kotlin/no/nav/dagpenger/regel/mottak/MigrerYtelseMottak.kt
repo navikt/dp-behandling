@@ -131,7 +131,7 @@ class MigrerYtelseMottak(
     ) {
         logger.info { "Mottok melding om migrering av ytelse" }
         val sakId = packet["sakId"].asInt()
-        if (sakId == 13699878) {
+        if (sakId == 13782955) {
             logger.info { "Skipper migrering med sakId $sakId" }
             context.avbrytMigrering(
                 sakId,
