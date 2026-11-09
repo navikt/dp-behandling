@@ -112,7 +112,7 @@ class MigrerYtelseMottak(
                     it.requireKey(
                         "ident",
                         "sakId",
-                        "migrereringTidspunkt",
+                        "migreringTidspunkt",
                         "migreringId",
                         "opplysninger",
                     )
@@ -214,7 +214,7 @@ class MigrerYtelseMessage(
             opprettet = opprettet,
             ytelse =
                 MigrertYtelse(
-                    migrereringTidspunkt = packet["migrereringTidspunkt"].asLocalDate(),
+                    migreringTidspunkt = packet["migreringTidspunkt"].asLocalDate(),
                     innvilgetTilOgMed = packet["innvilgetTilOgMed"].asOptionalLocalDate(),
                     sakId = packet["sakId"].asInt(),
                 ),

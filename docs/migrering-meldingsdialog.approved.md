@@ -34,7 +34,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
-  "migrereringTidspunkt" : "2026-01-05",
+  "migreringTidspunkt" : "2026-01-05",
   "opplysninger" : [ ]
 }
 ```
@@ -56,7 +56,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
-  "migrereringTidspunkt" : "2026-01-05",
+  "migreringTidspunkt" : "2026-01-05",
   "opplysninger" : [ ],
   "@id" : "<@id>",
   "@opprettet" : "<@opprettet>",
@@ -101,7 +101,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
-  "migrereringTidspunkt" : "2026-01-05",
+  "migreringTidspunkt" : "2026-01-05",
   "opplysninger" : [ {
     "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
     "navn" : "Fødselsdato",
@@ -137,7 +137,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
-  "migrereringTidspunkt" : "2026-01-05",
+  "migreringTidspunkt" : "2026-01-05",
   "opplysninger" : [ {
     "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
     "navn" : "Fødselsdato",
@@ -223,7 +223,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
-  "migrereringTidspunkt" : "2026-01-05",
+  "migreringTidspunkt" : "2026-01-05",
   "opplysninger" : [ {
     "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
     "navn" : "Fødselsdato",
@@ -404,7 +404,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
-  "migrereringTidspunkt" : "2026-01-05",
+  "migreringTidspunkt" : "2026-01-05",
   "opplysninger" : [ {
     "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
     "navn" : "Fødselsdato",
@@ -653,7 +653,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
-  "migrereringTidspunkt" : "2026-01-05",
+  "migreringTidspunkt" : "2026-01-05",
   "opplysninger" : [ {
     "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
     "navn" : "Fødselsdato",
@@ -900,7 +900,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
-  "migrereringTidspunkt" : "2026-01-05",
+  "migreringTidspunkt" : "2026-01-05",
   "opplysninger" : [ {
     "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
     "navn" : "Fødselsdato",
@@ -1173,7 +1173,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
-  "migrereringTidspunkt" : "2026-01-05",
+  "migreringTidspunkt" : "2026-01-05",
   "opplysninger" : [ {
     "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
     "navn" : "Fødselsdato",

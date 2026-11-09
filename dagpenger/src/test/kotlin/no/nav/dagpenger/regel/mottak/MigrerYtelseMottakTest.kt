@@ -863,7 +863,7 @@ class MigrerYtelseMottakTest {
     private fun melding(
         opplysninger: List<Map<String, Any?>> = emptyList(),
         sakId: Int = 13699879,
-        migrereringTidspunkt: String = "2026-01-05",
+        migreringTidspunkt: String = "2026-01-05",
         simulering: Boolean? = null,
     ) = jsonMapper.writeValueAsString(
         mapOf(
@@ -871,7 +871,7 @@ class MigrerYtelseMottakTest {
             "sakId" to sakId,
             "migreringId" to migreringId.toString(),
             "ident" to "12345678910",
-            "migrereringTidspunkt" to migrereringTidspunkt,
+            "migreringTidspunkt" to migreringTidspunkt,
             "opplysninger" to opplysninger,
         ) + (simulering?.let { mapOf("simulering" to it) } ?: emptyMap()),
     )
