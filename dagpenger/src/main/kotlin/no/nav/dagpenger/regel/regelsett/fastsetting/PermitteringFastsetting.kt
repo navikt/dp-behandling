@@ -51,7 +51,7 @@ object PermitteringFastsetting {
     val gjenståendePermittering = heltall(gjenståendePermitteringId, "Antall fritaksperiodedager som gjenstår", enhet = Enhet.Dager)
     private val sistePermitteringsdag = dato(sistePermitteringsdagId, "Siste forbruksdato av fritaksperiode", synlig = aldriSynlig)
     private val sisteGjenståendePermittering =
-        heltall(sisteGjenståendePermitteringId, "Siste antall fridagsperiodedager som gjenstår", enhet = Enhet.Dager, synlig = aldriSynlig)
+        heltall(sisteGjenståendePermitteringId, "Siste antall fritaksperiodedager som gjenstår", enhet = Enhet.Dager, synlig = aldriSynlig)
 
     // Om § 4-3 sitt tap-av-lønn-vilkår skal presumeres oppfylt fordi bruker er permittert. Sann som
     // utgangspunkt (fra søknadstidspunktet), men skrives eksplisitt til usann av KvotetellingsSkriver
