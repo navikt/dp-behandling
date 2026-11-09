@@ -197,7 +197,8 @@ class MigrerYtelseMessage(
 ) : KafkaMelding(packet) {
     override val ident: String = packet["ident"].asString()
 
-    private val tilleggsopplysninger = packet["opplysninger"].tilleggsopplysninger(opplysningstyper)
+    val migreringTidspunkt = packet["migreringTidspunkt"].asLocalDate()
+    private val tilleggsopplysninger = packet["opplysninger"].tilleggsopplysninger(migreringTidspunkt, opplysningstyper)
     internal val mottatteOpplysninger =
         tilleggsopplysninger
             .map {
@@ -223,12 +224,18 @@ class MigrerYtelseMessage(
         )
 }
 
-internal fun JsonNode.tilleggsopplysninger(opplysningstyper: Set<Opplysningstype<*>>): List<Tilleggsopplysning<*>> {
+internal fun JsonNode.tilleggsopplysninger(
+    migreringTidspunkt: LocalDate,
+    opplysningstyper: Set<Opplysningstype<*>>,
+): List<Tilleggsopplysning<*>> {
     require(isArray) { "opplysninger må være en liste" }
-    return values().map { it.tilleggsopplysning(opplysningstyper) }
+    return values().map { it.tilleggsopplysning(migreringTidspunkt, opplysningstyper) }
 }
 
-private fun JsonNode.tilleggsopplysning(opplysningstyper: Set<Opplysningstype<*>>): Tilleggsopplysning<*> {
+private fun JsonNode.tilleggsopplysning(
+    migreringTidspunkt: LocalDate,
+    opplysningstyper: Set<Opplysningstype<*>>,
+): Tilleggsopplysning<*> {
     require(isObject) { "Hver opplysning må være et objekt" }
     val uuid =
         get("uuid")
@@ -245,7 +252,7 @@ private fun JsonNode.tilleggsopplysning(opplysningstyper: Set<Opplysningstype<*>
         get("gyldigFraOgMed")
             ?.takeIf { it.isString }
             ?.asLocalDate()
-            ?: throw IllegalArgumentException("Opplysning $uuid mangler gyldig gyldigFraOgMed")
+            ?: migreringTidspunkt
     val gyldigTilOgMed =
         get("gyldigTilOgMed")
             ?.takeUnless { it.isMissingNode || it.isNull }

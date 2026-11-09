@@ -79,6 +79,7 @@ class MigrerYtelseMottakTest {
     private val jsonMapper = JsonMapper.builder().build()
     private val rapid = TestRapid()
     private val migreringId = UUIDv7.ny()
+    private val migreringTidspunkt = LocalDate.of(2026, 1, 10)
     private val hendelseMottaker = mockk<HendelseMottaker>(relaxed = true)
     private val opplysningstyper = DagpengerRegistrering().opplysningstyper
 
@@ -530,7 +531,7 @@ class MigrerYtelseMottakTest {
                     mapOf("opplysninger" to mapOf(type.behovId to 2)),
                 ).apply { interestedIn("opplysninger") }
         shouldThrow<IllegalArgumentException> {
-            packet["opplysninger"].tilleggsopplysninger(opplysningstyper)
+            packet["opplysninger"].tilleggsopplysninger(migreringTidspunkt, opplysningstyper)
         }.message shouldBe "opplysninger må være en liste"
     }
 
@@ -541,7 +542,7 @@ class MigrerYtelseMottakTest {
         listOf(oppgitt, oppgitt - "navn", oppgitt + ("navn" to "Et annet navn")).forEach { fakta ->
             val node = jsonMapper.valueToTree<JsonNode>(listOf(fakta))
 
-            val lest = node.tilleggsopplysninger(opplysningstyper).single()
+            val lest = node.tilleggsopplysninger(migreringTidspunkt, opplysningstyper).single()
 
             lest.opplysningstype shouldBe type
             lest.verdi shouldBe false
@@ -550,26 +551,37 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
-    fun `krever opplysningsliste og gyldighetsperiode`() {
+    fun `krever opplysningsliste`() {
         listOf("{}", """{"opplysninger":null}""", """{"opplysninger":"feil"}""").forEach { json ->
             shouldThrow<IllegalArgumentException> {
-                jsonMapper.readTree(json).path("opplysninger").tilleggsopplysninger(opplysningstyper)
+                jsonMapper.readTree(json).path("opplysninger").tilleggsopplysninger(migreringTidspunkt, opplysningstyper)
             }
         }
+    }
+
+    @Test
+    fun `bruker migreringstidspunkt når gyldig fra og med mangler og bevarer sluttdato`() {
+        val type = Verneplikt.avtjentVerneplikt
         val utenPeriode =
             jsonMapper.valueToTree<JsonNode>(
                 listOf(
                     mapOf(
-                        "uuid" to
-                            Verneplikt.avtjentVerneplikt.id.uuid
-                                .toString(),
+                        "uuid" to type.id.uuid.toString(),
                         "verdi" to false,
                     ),
+                    opplysning(type, true, tilOgMed = "2026-06-30") - "gyldigFraOgMed",
                 ),
             )
-        shouldThrow<IllegalArgumentException> {
-            utenPeriode.tilleggsopplysninger(opplysningstyper)
-        }.message shouldBe "Opplysning ${Verneplikt.avtjentVerneplikt.id.uuid} mangler gyldig gyldigFraOgMed"
+
+        val lest = utenPeriode.tilleggsopplysninger(migreringTidspunkt, opplysningstyper)
+
+        lest.map { it.opplysningstype } shouldBe listOf(type, type)
+        lest.map { it.verdi } shouldBe listOf(false, true)
+        lest.map { it.gyldighetsperiode } shouldBe
+            listOf(
+                Gyldighetsperiode(migreringTidspunkt),
+                Gyldighetsperiode(migreringTidspunkt, LocalDate.of(2026, 6, 30)),
+            )
     }
 
     @Test
@@ -586,7 +598,7 @@ class MigrerYtelseMottakTest {
                 listOf(opplysning(DagpengenesStørrelse.barn, verdi)),
             )
 
-        val oppgitt = node.tilleggsopplysninger(opplysningstyper).single()
+        val oppgitt = node.tilleggsopplysninger(migreringTidspunkt, opplysningstyper).single()
 
         oppgitt.opplysningstype shouldBe DagpengenesStørrelse.barn
         oppgitt.verdi shouldBe
@@ -620,7 +632,7 @@ class MigrerYtelseMottakTest {
                 listOf(opplysning(Minsteinntekt.inntektFraSkatt, verdi, "2026-01-05")),
             )
 
-        val oppgitt = node.tilleggsopplysninger(opplysningstyper).single()
+        val oppgitt = node.tilleggsopplysninger(migreringTidspunkt, opplysningstyper).single()
         val inntekt = (oppgitt.verdi as Inntekt).verdi
 
         oppgitt.opplysningstype shouldBe Minsteinntekt.inntektFraSkatt
@@ -638,7 +650,8 @@ class MigrerYtelseMottakTest {
             )
         val redigert = (verdi as tools.jackson.databind.node.ObjectNode).put("manueltRedigert", true)
         val redigertNode = jsonMapper.valueToTree<JsonNode>(listOf(opplysning(Minsteinntekt.inntektFraSkatt, redigert)))
-        (redigertNode.tilleggsopplysninger(opplysningstyper).single().verdi as Inntekt).verdi.manueltRedigert shouldBe true
+        (redigertNode.tilleggsopplysninger(migreringTidspunkt, opplysningstyper).single().verdi as Inntekt).verdi.manueltRedigert shouldBe
+            true
     }
 
     @Test
@@ -652,7 +665,7 @@ class MigrerYtelseMottakTest {
                 ).apply { interestedIn("opplysninger") }
 
         shouldThrow<IllegalArgumentException> {
-            packet["opplysninger"].tilleggsopplysninger(opplysningstyper)
+            packet["opplysninger"].tilleggsopplysninger(migreringTidspunkt, opplysningstyper)
         }
     }
 
@@ -675,7 +688,7 @@ class MigrerYtelseMottakTest {
                 ).apply { interestedIn("opplysninger") }
 
         shouldThrow<IllegalArgumentException> {
-            packet["opplysninger"].tilleggsopplysninger(opplysningstyper)
+            packet["opplysninger"].tilleggsopplysninger(migreringTidspunkt, opplysningstyper)
         }
     }
 
