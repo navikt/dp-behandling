@@ -28,13 +28,13 @@ import java.util.UUID
 
 /** Eksplisitt kontrakt for en ytelse som flyttes over fra et annet system. */
 data class MigrertYtelse(
-    val migereringTidspunkt: LocalDate,
+    val migrereringTidspunkt: LocalDate,
     val innvilgetTilOgMed: LocalDate?,
     val sakId: Int,
 ) {
     val innvilgetPeriode get() =
-        innvilgetTilOgMed?.let { Gyldighetsperiode(migereringTidspunkt, it) }
-            ?: Gyldighetsperiode(migereringTidspunkt)
+        innvilgetTilOgMed?.let { Gyldighetsperiode(migrereringTidspunkt, it) }
+            ?: Gyldighetsperiode(migrereringTidspunkt)
 }
 
 /**
@@ -59,7 +59,7 @@ class MigrerYtelseHendelse(
     private val ytelse: MigrertYtelse,
     private val tilleggsopplysninger: List<Tilleggsopplysning<*>> = emptyList(),
     opprettetAv: Aktør = Systemaktør.dpSak,
-) : StartHendelse(meldingsreferanseId, ident, eksternId, ytelse.migereringTidspunkt, opprettet, opprettetAv) {
+) : StartHendelse(meldingsreferanseId, ident, eksternId, ytelse.migrereringTidspunkt, opprettet, opprettetAv) {
     override val forretningsprosess: Forretningsprosess = Migreringsprosess()
 
     private val kilde = Systemkilde(meldingsreferanseId, opprettet)
@@ -133,7 +133,7 @@ class MigrerYtelseHendelse(
     private fun leggTilFakta(opplysninger: Opplysninger) {
         val standardfakta =
             listOf(
-                Tilleggsopplysning(Søknadstidspunkt.prøvingsdato, ytelse.migereringTidspunkt),
+                Tilleggsopplysning(Søknadstidspunkt.prøvingsdato, ytelse.migrereringTidspunkt),
                 Tilleggsopplysning(Søknadstidspunkt.søknadIdOpplysningstype, søknadId),
                 Tilleggsopplysning(SøknadInnsendtHendelse.fagsakIdOpplysningstype, ytelse.sakId),
                 Tilleggsopplysning(Rettighetstype.skalGjenopptakVurderes, false),

@@ -112,7 +112,7 @@ class MigrerYtelseMottak(
                     it.requireKey(
                         "ident",
                         "sakId",
-                        "migereringTidspunkt",
+                        "migrereringTidspunkt",
                         "migreringId",
                         "opplysninger",
                     )
@@ -145,7 +145,6 @@ class MigrerYtelseMottak(
 
         val message = MigrerYtelseMessage(packet, opplysningstyper)
         val faktagrunnlag = message.hendelse.lagFaktagrunnlag()
-        val prøvingsdato = packet["migereringTidspunkt"].asLocalDate()
         val simulering = packet["simulering"].asBoolean(false)
 
         val rapport =
@@ -215,7 +214,7 @@ class MigrerYtelseMessage(
             opprettet = opprettet,
             ytelse =
                 MigrertYtelse(
-                    migereringTidspunkt = packet["migereringTidspunkt"].asLocalDate(),
+                    migrereringTidspunkt = packet["migrereringTidspunkt"].asLocalDate(),
                     innvilgetTilOgMed = packet["innvilgetTilOgMed"].asOptionalLocalDate(),
                     sakId = packet["sakId"].asInt(),
                 ),

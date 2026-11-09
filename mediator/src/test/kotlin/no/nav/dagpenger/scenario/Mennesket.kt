@@ -215,7 +215,7 @@ internal class Mennesket(
                     "migrer_ytelse",
                     mapOf(
                         "ident" to ident,
-                        "migereringTidspunkt" to fraDato,
+                        "migrereringTidspunkt" to fraDato,
                         "innvilgedeStønadsuker" to 104,
                         "gjenståendeStønadsdager" to 520,
                         "dagsats" to "800",
