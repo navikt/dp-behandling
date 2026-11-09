@@ -112,11 +112,12 @@ class MigrerYtelseMottak(
                     it.requireKey(
                         "ident",
                         "sakId",
-                        "innvilgetFraOgMed",
+                        "migereringTidspunkt",
                         "migreringId",
                         "opplysninger",
                     )
-                    it.interestedIn("innvilgetTilOgMed", "initiertAv")
+                    it.interestedIn("innvilgetTilOgMed", "initiertAv", "simulering")
+                    it.forbid("manglendeOpplysninger", "rapport")
                 }
             }.register(this)
     }
@@ -144,7 +145,8 @@ class MigrerYtelseMottak(
 
         val message = MigrerYtelseMessage(packet, opplysningstyper)
         val faktagrunnlag = message.hendelse.lagFaktagrunnlag()
-        val prøvingsdato = packet["innvilgetFraOgMed"].asLocalDate()
+        val prøvingsdato = packet["migereringTidspunkt"].asLocalDate()
+        val simulering = packet["simulering"].asBoolean(false)
 
         val rapport =
             message.hendelse.forretningsprosess
@@ -159,16 +161,17 @@ class MigrerYtelseMottak(
 
         if (!rapport.erFerdig() || manglendeOpplysninger.isNotEmpty()) {
             logger.info { "Migrering av sakId $sakId mangler opplysninger $manglendeOpplysninger" }
-            context.avbrytMigrering(
-                sakId,
-                Migreringsavbrudd(
-                    kode = "MANGLENDE_OPPLYSNINGER",
-                    melding = "Mangler påkrevde opplysninger",
-                    detaljer = manglendeOpplysninger.map { it.uuid },
-                ),
-                mottatteOpplysninger = message.mottatteOpplysninger,
-                manglendeOpplysninger = manglendeOpplysninger,
-            )
+            packet["manglendeOpplysninger"] =
+                manglendeOpplysninger
+            context.publish(packet.toJson())
+            return
+        }
+
+        if (simulering) {
+            logger.info { "Migrering skal kun simuleres" }
+            packet["rapport"] =
+                rapport
+            context.publish(packet.toJson())
             return
         }
 
@@ -212,7 +215,7 @@ class MigrerYtelseMessage(
             opprettet = opprettet,
             ytelse =
                 MigrertYtelse(
-                    innvilgetFraOgMed = packet["innvilgetFraOgMed"].asLocalDate(),
+                    migereringTidspunkt = packet["migereringTidspunkt"].asLocalDate(),
                     innvilgetTilOgMed = packet["innvilgetTilOgMed"].asOptionalLocalDate(),
                     sakId = packet["sakId"].asInt(),
                 ),

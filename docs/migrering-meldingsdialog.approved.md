@@ -6,13 +6,13 @@ Opplysningstype-UUID-er, faktaverdier og gyldighetsdatoer er beholdt.
 | Runde | Retning | Melding | Opplysninger |
 | --- | --- | --- | --- |
 | 1 | Avsender → mottak | `migrering_startet` | 0 totalt (nye: 0) |
-| 1 | Mottak → avsender | `migrering_feilet` | 1 mangler |
+| 1 | Mottak → avsender | `migrering_startet` | 1 mangler |
 | 2 | Avsender → mottak | `migrering_startet` | 1 totalt (nye: 1) |
-| 2 | Mottak → avsender | `migrering_feilet` | 10 mangler |
+| 2 | Mottak → avsender | `migrering_startet` | 10 mangler |
 | 3 | Avsender → mottak | `migrering_startet` | 11 totalt (nye: 10) |
-| 3 | Mottak → avsender | `migrering_feilet` | 16 mangler |
+| 3 | Mottak → avsender | `migrering_startet` | 16 mangler |
 | 4 | Avsender → mottak | `migrering_startet` | 27 totalt (nye: 16) |
-| 4 | Mottak → avsender | `migrering_feilet` | 2 mangler |
+| 4 | Mottak → avsender | `migrering_startet` | 2 mangler |
 | 5 | Avsender → mottak | `migrering_startet` | 29 totalt (nye: 2) |
 
 ## Runde 1
@@ -34,7 +34,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
-  "innvilgetFraOgMed" : "2026-01-05",
+  "migereringTidspunkt" : "2026-01-05",
   "opplysninger" : [ ]
 }
 ```
@@ -52,24 +52,25 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
 
 ```json
 {
+  "@event_name" : "migrering_startet",
   "sakId" : 13699879,
-  "arsak" : {
-    "kode" : "MANGLENDE_OPPLYSNINGER",
-    "melding" : "Mangler påkrevde opplysninger",
-    "detaljer" : [ "0194881f-940b-76ff-acf5-ba7bcb367233" ]
-  },
-  "mottatteOpplysninger" : [ ],
-  "manglendeOpplysninger" : [ {
-    "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
-    "navn" : "Fødselsdato"
-  } ],
-  "@event_name" : "migrering_feilet",
+  "migreringId" : "<migreringId>",
+  "ident" : "<ident>",
+  "migereringTidspunkt" : "2026-01-05",
+  "opplysninger" : [ ],
   "@id" : "<@id>",
   "@opprettet" : "<@opprettet>",
   "system_read_count" : 0,
   "system_participating_services" : [ {
     "id" : "<id>",
     "time" : "<time>"
+  }, {
+    "id" : "<id>",
+    "time" : "<time>"
+  } ],
+  "manglendeOpplysninger" : [ {
+    "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
+    "navn" : "Fødselsdato"
   } ],
   "@forårsaket_av" : {
     "id" : "<id>",
@@ -100,7 +101,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
-  "innvilgetFraOgMed" : "2026-01-05",
+  "migereringTidspunkt" : "2026-01-05",
   "opplysninger" : [ {
     "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
     "navn" : "Fødselsdato",
@@ -132,13 +133,27 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
 
 ```json
 {
+  "@event_name" : "migrering_startet",
   "sakId" : 13699879,
-  "arsak" : {
-    "kode" : "MANGLENDE_OPPLYSNINGER",
-    "melding" : "Mangler påkrevde opplysninger",
-    "detaljer" : [ "0194881f-9413-77ce-92ec-d29700f04244", "0194881f-9442-707b-a6ee-e96c06877be0", "0194881f-9444-7a73-a458-0af81c034d85", "0194881f-9444-7a73-a458-0af81c034d86", "0194881f-9444-7a73-a458-0af81c034d87", "0194881f-9444-7a73-a458-0af81c034d88", "01948d3c-4bea-7802-9d18-5342a5e2be99", "0194ff86-a035-7eb0-9c60-21899f7cc0c1", "019f608d-f9c5-7ccc-a6f3-c53531d1f00c", "01a0c316-a2e9-7088-acb1-da5596bd0055" ]
-  },
-  "mottatteOpplysninger" : [ "0194881f-940b-76ff-acf5-ba7bcb367233" ],
+  "migreringId" : "<migreringId>",
+  "ident" : "<ident>",
+  "migereringTidspunkt" : "2026-01-05",
+  "opplysninger" : [ {
+    "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
+    "navn" : "Fødselsdato",
+    "verdi" : "1990-01-01",
+    "gyldigFraOgMed" : "2026-01-05"
+  } ],
+  "@id" : "<@id>",
+  "@opprettet" : "<@opprettet>",
+  "system_read_count" : 0,
+  "system_participating_services" : [ {
+    "id" : "<id>",
+    "time" : "<time>"
+  }, {
+    "id" : "<id>",
+    "time" : "<time>"
+  } ],
   "manglendeOpplysninger" : [ {
     "uuid" : "0194881f-9413-77ce-92ec-d29700f04244",
     "navn" : "Inntektsopplysninger"
@@ -169,14 +184,6 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   }, {
     "uuid" : "01a0c316-a2e9-7088-acb1-da5596bd0055",
     "navn" : "Skal etablering vurderes"
-  } ],
-  "@event_name" : "migrering_feilet",
-  "@id" : "<@id>",
-  "@opprettet" : "<@opprettet>",
-  "system_read_count" : 0,
-  "system_participating_services" : [ {
-    "id" : "<id>",
-    "time" : "<time>"
   } ],
   "@forårsaket_av" : {
     "id" : "<id>",
@@ -216,7 +223,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
-  "innvilgetFraOgMed" : "2026-01-05",
+  "migereringTidspunkt" : "2026-01-05",
   "opplysninger" : [ {
     "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
     "navn" : "Fødselsdato",
@@ -393,13 +400,166 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
 
 ```json
 {
+  "@event_name" : "migrering_startet",
   "sakId" : 13699879,
-  "arsak" : {
-    "kode" : "MANGLENDE_OPPLYSNINGER",
-    "melding" : "Mangler påkrevde opplysninger",
-    "detaljer" : [ "0194881f-9433-70e9-a85b-c246150c45cd", "0194881f-9433-70e9-a85b-c246150c45ce", "0194881f-9433-70e9-a85b-c246150c45cf", "0194881f-9433-70e9-a85b-c246150c45d0", "0194881f-9433-70e9-a85b-c246150c45d1", "0194881f-9433-70e9-a85b-c246150c45d2", "0194881f-9433-70e9-a85b-c246150c45d3", "0194881f-9435-72a8-b1ce-9575cbc2a75e", "0194881f-9435-72a8-b1ce-9575cbc2a75f", "0194881f-9441-7d1b-a06a-6727543a141e", "0194881f-9442-707b-a6ee-e96c06877bd9", "0194881f-9442-707b-a6ee-e96c06877bdc", "0194881f-9442-707b-a6ee-e96c06877bde", "0194881f-9445-734c-a7ee-045edf29b522", "0194881f-9447-7e36-a569-3e9f42bff9f6", "0196ab10-0cff-7301-99d6-65be50a50201" ]
-  },
-  "mottatteOpplysninger" : [ "0194881f-940b-76ff-acf5-ba7bcb367233", "0194881f-9413-77ce-92ec-d29700f04244", "0194881f-9442-707b-a6ee-e96c06877be0", "0194881f-9444-7a73-a458-0af81c034d85", "0194881f-9444-7a73-a458-0af81c034d86", "0194881f-9444-7a73-a458-0af81c034d87", "0194881f-9444-7a73-a458-0af81c034d88", "01948d3c-4bea-7802-9d18-5342a5e2be99", "0194ff86-a035-7eb0-9c60-21899f7cc0c1", "019f608d-f9c5-7ccc-a6f3-c53531d1f00c", "01a0c316-a2e9-7088-acb1-da5596bd0055" ],
+  "migreringId" : "<migreringId>",
+  "ident" : "<ident>",
+  "migereringTidspunkt" : "2026-01-05",
+  "opplysninger" : [ {
+    "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
+    "navn" : "Fødselsdato",
+    "verdi" : "1990-01-01",
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9413-77ce-92ec-d29700f04244",
+    "navn" : "Inntektsopplysninger",
+    "verdi" : {
+      "inntektsId" : "<inntektsId>",
+      "sisteAvsluttendeKalenderMåned" : "2025-11",
+      "manueltRedigert" : false,
+      "inntektsListe" : [ {
+        "årMåned" : "2025-11",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-10",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-09",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-08",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-07",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-06",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-05",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-04",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-03",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-02",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-01",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2024-12",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      } ]
+    },
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9442-707b-a6ee-e96c06877be0",
+    "navn" : "Registrert som arbeidssøker",
+    "verdi" : true,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9444-7a73-a458-0af81c034d85",
+    "navn" : "Har rett til ordinære dagpenger gjennom arbeidsforhold",
+    "verdi" : true,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9444-7a73-a458-0af81c034d86",
+    "navn" : "Skal permittering vurderes",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9444-7a73-a458-0af81c034d87",
+    "navn" : "Forskutterte lønnsgarantimidler i form av dagpenger",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9444-7a73-a458-0af81c034d88",
+    "navn" : "Skal permittert fra fiskeindustrien vurderes",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "01948d3c-4bea-7802-9d18-5342a5e2be99",
+    "navn" : "Avtjent verneplikt",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194ff86-a035-7eb0-9c60-21899f7cc0c1",
+    "navn" : "Skal reell arbeidssøker vurderes",
+    "verdi" : true,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "019f608d-f9c5-7ccc-a6f3-c53531d1f00c",
+    "navn" : "Skal eksport vurderes",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "01a0c316-a2e9-7088-acb1-da5596bd0055",
+    "navn" : "Skal etablering vurderes",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  } ],
+  "@id" : "<@id>",
+  "@opprettet" : "<@opprettet>",
+  "system_read_count" : 0,
+  "system_participating_services" : [ {
+    "id" : "<id>",
+    "time" : "<time>"
+  }, {
+    "id" : "<id>",
+    "time" : "<time>"
+  } ],
   "manglendeOpplysninger" : [ {
     "uuid" : "0194881f-9433-70e9-a85b-c246150c45cd",
     "navn" : "Sykepenger etter lovens kapittel 8"
@@ -449,14 +609,6 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
     "uuid" : "0196ab10-0cff-7301-99d6-65be50a50201",
     "navn" : "Bostedsland er Norge"
   } ],
-  "@event_name" : "migrering_feilet",
-  "@id" : "<@id>",
-  "@opprettet" : "<@opprettet>",
-  "system_read_count" : 0,
-  "system_participating_services" : [ {
-    "id" : "<id>",
-    "time" : "<time>"
-  } ],
   "@forårsaket_av" : {
     "id" : "<id>",
     "opprettet" : "<opprettet>",
@@ -501,7 +653,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
-  "innvilgetFraOgMed" : "2026-01-05",
+  "migereringTidspunkt" : "2026-01-05",
   "opplysninger" : [ {
     "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
     "navn" : "Fødselsdato",
@@ -744,27 +896,252 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
 
 ```json
 {
+  "@event_name" : "migrering_startet",
   "sakId" : 13699879,
-  "arsak" : {
-    "kode" : "MANGLENDE_OPPLYSNINGER",
-    "melding" : "Mangler påkrevde opplysninger",
-    "detaljer" : [ "0194881f-9428-74d5-b160-f63a4c61a23b", "0194881f-942e-7cb0-aa59-05ea449d88e0" ]
-  },
-  "mottatteOpplysninger" : [ "0194881f-940b-76ff-acf5-ba7bcb367233", "0194881f-9413-77ce-92ec-d29700f04244", "0194881f-9433-70e9-a85b-c246150c45cd", "0194881f-9433-70e9-a85b-c246150c45ce", "0194881f-9433-70e9-a85b-c246150c45cf", "0194881f-9433-70e9-a85b-c246150c45d0", "0194881f-9433-70e9-a85b-c246150c45d1", "0194881f-9433-70e9-a85b-c246150c45d2", "0194881f-9433-70e9-a85b-c246150c45d3", "0194881f-9435-72a8-b1ce-9575cbc2a75e", "0194881f-9435-72a8-b1ce-9575cbc2a75f", "0194881f-9441-7d1b-a06a-6727543a141e", "0194881f-9442-707b-a6ee-e96c06877bd9", "0194881f-9442-707b-a6ee-e96c06877bdc", "0194881f-9442-707b-a6ee-e96c06877bde", "0194881f-9442-707b-a6ee-e96c06877be0", "0194881f-9444-7a73-a458-0af81c034d85", "0194881f-9444-7a73-a458-0af81c034d86", "0194881f-9444-7a73-a458-0af81c034d87", "0194881f-9444-7a73-a458-0af81c034d88", "0194881f-9445-734c-a7ee-045edf29b522", "0194881f-9447-7e36-a569-3e9f42bff9f6", "01948d3c-4bea-7802-9d18-5342a5e2be99", "0194ff86-a035-7eb0-9c60-21899f7cc0c1", "0196ab10-0cff-7301-99d6-65be50a50201", "019f608d-f9c5-7ccc-a6f3-c53531d1f00c", "01a0c316-a2e9-7088-acb1-da5596bd0055" ],
-  "manglendeOpplysninger" : [ {
-    "uuid" : "0194881f-9428-74d5-b160-f63a4c61a23b",
-    "navn" : "Barn fra register/søknad/saksbehandler"
+  "migreringId" : "<migreringId>",
+  "ident" : "<ident>",
+  "migereringTidspunkt" : "2026-01-05",
+  "opplysninger" : [ {
+    "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
+    "navn" : "Fødselsdato",
+    "verdi" : "1990-01-01",
+    "gyldigFraOgMed" : "2026-01-05"
   }, {
-    "uuid" : "0194881f-942e-7cb0-aa59-05ea449d88e0",
-    "navn" : "Oppgitt andre ytelser utenfor NAV i søknaden"
+    "uuid" : "0194881f-9413-77ce-92ec-d29700f04244",
+    "navn" : "Inntektsopplysninger",
+    "verdi" : {
+      "inntektsId" : "<inntektsId>",
+      "sisteAvsluttendeKalenderMåned" : "2025-11",
+      "manueltRedigert" : false,
+      "inntektsListe" : [ {
+        "årMåned" : "2025-11",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-10",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-09",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-08",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-07",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-06",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-05",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-04",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-03",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-02",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2025-01",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      }, {
+        "årMåned" : "2024-12",
+        "harAvvik" : false,
+        "klassifiserteInntekter" : [ {
+          "beløp" : 50000,
+          "inntektKlasse" : "ARBEIDSINNTEKT"
+        } ]
+      } ]
+    },
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9442-707b-a6ee-e96c06877be0",
+    "navn" : "Registrert som arbeidssøker",
+    "verdi" : true,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9444-7a73-a458-0af81c034d85",
+    "navn" : "Har rett til ordinære dagpenger gjennom arbeidsforhold",
+    "verdi" : true,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9444-7a73-a458-0af81c034d86",
+    "navn" : "Skal permittering vurderes",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9444-7a73-a458-0af81c034d87",
+    "navn" : "Forskutterte lønnsgarantimidler i form av dagpenger",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9444-7a73-a458-0af81c034d88",
+    "navn" : "Skal permittert fra fiskeindustrien vurderes",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "01948d3c-4bea-7802-9d18-5342a5e2be99",
+    "navn" : "Avtjent verneplikt",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194ff86-a035-7eb0-9c60-21899f7cc0c1",
+    "navn" : "Skal reell arbeidssøker vurderes",
+    "verdi" : true,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "019f608d-f9c5-7ccc-a6f3-c53531d1f00c",
+    "navn" : "Skal eksport vurderes",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "01a0c316-a2e9-7088-acb1-da5596bd0055",
+    "navn" : "Skal etablering vurderes",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9433-70e9-a85b-c246150c45cd",
+    "navn" : "Sykepenger etter lovens kapittel 8",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9433-70e9-a85b-c246150c45ce",
+    "navn" : "Pleiepenger etter lovens kapittel 9",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9433-70e9-a85b-c246150c45cf",
+    "navn" : "Omsorgspenger etter lovens kapittel 9",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9433-70e9-a85b-c246150c45d0",
+    "navn" : "Opplæringspenger etter lovens kapittel 9",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9433-70e9-a85b-c246150c45d1",
+    "navn" : "Uføretrygd etter lovens kapittel 12",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9433-70e9-a85b-c246150c45d2",
+    "navn" : "Foreldrepenger etter lovens kapittel 14",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9433-70e9-a85b-c246150c45d3",
+    "navn" : "Svangerskapspenger etter lovens kapittel 14",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9435-72a8-b1ce-9575cbc2a75e",
+    "navn" : "Har krav på lønn fra arbeidsgiver",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9435-72a8-b1ce-9575cbc2a75f",
+    "navn" : "Ønsket arbeidstid",
+    "verdi" : 37.5,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9441-7d1b-a06a-6727543a141e",
+    "navn" : "Kan jobbe heltid og deltid",
+    "verdi" : true,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9442-707b-a6ee-e96c06877bd9",
+    "navn" : "Kan jobbe i hele Norge",
+    "verdi" : true,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9442-707b-a6ee-e96c06877bdc",
+    "navn" : "Kan ta alle typer arbeid",
+    "verdi" : true,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9442-707b-a6ee-e96c06877bde",
+    "navn" : "Villig til å bytte yrke",
+    "verdi" : true,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9445-734c-a7ee-045edf29b522",
+    "navn" : "Brukeren er under utdanning eller opplæring",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0194881f-9447-7e36-a569-3e9f42bff9f6",
+    "navn" : "Bruker er utestengt fra dagpenger",
+    "verdi" : false,
+    "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "0196ab10-0cff-7301-99d6-65be50a50201",
+    "navn" : "Bostedsland er Norge",
+    "verdi" : true,
+    "gyldigFraOgMed" : "2026-01-05"
   } ],
-  "@event_name" : "migrering_feilet",
   "@id" : "<@id>",
   "@opprettet" : "<@opprettet>",
   "system_read_count" : 0,
   "system_participating_services" : [ {
     "id" : "<id>",
     "time" : "<time>"
+  }, {
+    "id" : "<id>",
+    "time" : "<time>"
+  } ],
+  "manglendeOpplysninger" : [ {
+    "uuid" : "0194881f-9428-74d5-b160-f63a4c61a23b",
+    "navn" : "Barn fra register/søknad/saksbehandler"
+  }, {
+    "uuid" : "0194881f-942e-7cb0-aa59-05ea449d88e0",
+    "navn" : "Oppgitt andre ytelser utenfor NAV i søknaden"
   } ],
   "@forårsaket_av" : {
     "id" : "<id>",
@@ -796,7 +1173,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
-  "innvilgetFraOgMed" : "2026-01-05",
+  "migereringTidspunkt" : "2026-01-05",
   "opplysninger" : [ {
     "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
     "navn" : "Fødselsdato",

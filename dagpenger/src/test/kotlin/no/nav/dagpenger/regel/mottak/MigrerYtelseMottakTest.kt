@@ -8,7 +8,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.mockk
-import io.mockk.mockkConstructor
 import io.mockk.slot
 import io.mockk.verify
 import no.nav.dagpenger.inntekt.v1.InntektKlasse
@@ -41,7 +40,6 @@ import no.nav.dagpenger.regel.hendelse.MigrerYtelseHendelse
 import no.nav.dagpenger.regel.hendelse.MigrertYtelse
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Tilleggsopplysning
-import no.nav.dagpenger.regel.prosess.Migreringsprosess
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
 import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden
@@ -64,8 +62,10 @@ import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
 import org.approvaltests.core.Options
 import org.approvaltests.namer.NamerWrapper
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.NullSource
+import org.junit.jupiter.params.provider.ValueSource
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.json.JsonMapper
 import java.nio.file.Paths
@@ -87,36 +87,7 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
-    @Disabled
-    fun `krever søknadsfakta og velgere før regelkjøringen starter`() {
-        val forventedeMangler =
-            Migreringsprosess.defaultEtterspurteUtgangspunkt
-                .map { it.id.uuid.toString() }
-                .sorted()
-
-        mockkConstructor(Migreringsprosess::class) {
-            rapid.sendTestMessage(melding())
-
-            verify(exactly = 0) { anyConstructed<Migreringsprosess>().regelkjøring(any()) }
-        }
-
-        val feilet = rapid.inspektør.message(0)
-        feilet["@event_name"].asString() shouldBe "migrering_feilet"
-        feilet["sakId"].asInt() shouldBe 13699879
-        feilet["arsak"]["kode"].asString() shouldBe "MANGLENDE_OPPLYSNINGER"
-        feilet["mottatteOpplysninger"].size() shouldBe 0
-        feilet["manglendeOpplysninger"].values().map { it["uuid"].asString() } shouldBe forventedeMangler
-        feilet["arsak"]["detaljer"].values().map { it.asString() } shouldBe forventedeMangler
-        feilet["manglendeOpplysninger"].values().forEach {
-            val type = opplysningstyper.single { type -> type.id.uuid == UUID.fromString(it["uuid"].asString()) }
-            it["navn"].asString() shouldBe type.navn
-        }
-        rapid.inspektør.size shouldBe 1
-        verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
-    }
-
-    @Test
-    fun `oppgir bare UUID-er for fakta avsender faktisk sendte`() {
+    fun `bevarer innsendte fakta og gyldighetsperioder i melding med manglende opplysninger`() {
         val fødselsdato = Alderskrav.fødselsdato
         val antallBarn = DagpengenesStørrelse.antallBarn
         val opplysninger =
@@ -125,21 +96,22 @@ class MigrerYtelseMottakTest {
                 opplysning(antallBarn, 0, "2024-01-01", "2024-06-30"),
                 opplysning(antallBarn, 1, "2024-07-01"),
             )
-        val mottatteUuid = listOf(fødselsdato.id.uuid.toString(), antallBarn.id.uuid.toString()).sorted()
-
-        rapid.sendTestMessage(melding(opplysninger))
+        val sendtMelding = melding(opplysninger)
+        rapid.sendTestMessage(sendtMelding)
 
         val feilet = rapid.inspektør.message(0)
-        feilet["mottatteOpplysninger"].values().map { it.asString() } shouldBe mottatteUuid
+        feilet["@event_name"].asString() shouldBe "migrering_startet"
+        feilet["opplysninger"] shouldBe jsonMapper.readTree(sendtMelding)["opplysninger"]
         feilet["manglendeOpplysninger"].values().map { it["uuid"].asString() } shouldBe
             feilet["manglendeOpplysninger"]
                 .values()
                 .map { it["uuid"].asString() }
                 .distinct()
                 .sorted()
-        feilet["manglendeOpplysninger"].values().map { UUID.fromString(it["uuid"].asString()) }
-        feilet.toString().contains("1990-01-01") shouldBe false
-        feilet.toString().contains("\"verdi\"") shouldBe false
+        feilet["manglendeOpplysninger"].values().forEach { UUID.fromString(it["uuid"].asString()) }
+        rapid.inspektør.size shouldBe 1
+        rapid.sendTestMessage(feilet.toString())
+        rapid.inspektør.size shouldBe 1
         verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
     }
 
@@ -306,6 +278,45 @@ class MigrerYtelseMottakTest {
         behandling.opplysninger.finnOpplysning(Alderskrav.kravTilAlder).verdi shouldBe false
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = [true, false])
+    @NullSource
+    fun `simulering publiserer rapport mens false og utelatt felt starter behandling`(simulering: Boolean?) {
+        val faktagrunnlag = lagFerdigFaktagrunnlag(LocalDate.of(1990, 1, 1))
+        val sendtMelding =
+            melding(
+                opplysninger =
+                    faktagrunnlag.opplysninger.map { (type, verdi) ->
+                        opplysning(type, jsonVerdi(verdi))
+                    },
+                simulering = simulering,
+            )
+
+        rapid.sendTestMessage(sendtMelding)
+
+        if (simulering == true) {
+            verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+            rapid.inspektør.size shouldBe 1
+            val svar = rapid.inspektør.message(0)
+            svar["@event_name"].asString() shouldBe "migrering_startet"
+            svar["simulering"].asBoolean() shouldBe true
+            svar["opplysninger"] shouldBe jsonMapper.readTree(sendtMelding)["opplysninger"]
+            svar["rapport"]["mangler"].isArray shouldBe true
+            svar["rapport"]["mangler"].size() shouldBe 0
+            svar["rapport"]["kjørteRegler"].isArray shouldBe true
+            (svar["rapport"]["kjørteRegler"].size() > 0) shouldBe true
+
+            rapid.sendTestMessage(svar.toString())
+            rapid.inspektør.size shouldBe 1
+            verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+        } else {
+            val hendelse = slot<MigrerYtelseHendelse>()
+            verify(exactly = 1) { hendelseMottaker.behandle(capture(hendelse), any(), any()) }
+            hendelse.captured.eksternId shouldBe MigreringId(migreringId)
+            rapid.inspektør.size shouldBe 0
+        }
+    }
+
     @Test
     fun `supplerer kun etterspurte fakta fra tom melding og oppretter behandling med innvilget dagpenger`() {
         val standardverdier =
@@ -340,9 +351,9 @@ class MigrerYtelseMottakTest {
             val feilet = rapid.inspektør.message(0)
             meldinger.add(feilet.toString())
             dialog.mottatt(runde + 1, feilet)
-            feilet["@event_name"].asString() shouldBe "migrering_feilet"
-            feilet["arsak"]["kode"].asString() shouldBe "MANGLENDE_OPPLYSNINGER"
-            feilet["mottatteOpplysninger"].values().map { it.asString() } shouldBe sendteFakta.keys.sorted()
+            feilet["@event_name"].asString() shouldBe "migrering_startet"
+            feilet["opplysninger"].values().map { it["uuid"].asString() }.sorted() shouldBe sendteFakta.keys.sorted()
+            feilet["opplysninger"] shouldBe jsonMapper.readTree(sendtMelding)["opplysninger"]
             val manglende = feilet["manglendeOpplysninger"].values().map { it["uuid"].asString() }
             manglende.contains(
                 Søknadstidspunkt.søknadIdOpplysningstype.id.uuid
@@ -852,16 +863,17 @@ class MigrerYtelseMottakTest {
     private fun melding(
         opplysninger: List<Map<String, Any?>> = emptyList(),
         sakId: Int = 13699879,
-        innvilgetFraOgMed: String = "2026-01-05",
+        migereringTidspunkt: String = "2026-01-05",
+        simulering: Boolean? = null,
     ) = jsonMapper.writeValueAsString(
         mapOf(
             "@event_name" to "migrering_startet",
             "sakId" to sakId,
             "migreringId" to migreringId.toString(),
             "ident" to "12345678910",
-            "innvilgetFraOgMed" to innvilgetFraOgMed,
+            "migereringTidspunkt" to migereringTidspunkt,
             "opplysninger" to opplysninger,
-        ),
+        ) + (simulering?.let { mapOf("simulering" to it) } ?: emptyMap()),
     )
 
     private fun opplysning(

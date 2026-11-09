@@ -39,7 +39,7 @@ internal class Migreringsdialog {
             meldinger.forEach {
                 val navn = it.innhold["@event_name"].asString()
                 val antall =
-                    if (navn == "migrering_startet") {
+                    if (it.retning == "Avsender → mottak") {
                         "${it.innhold["opplysninger"].size()} totalt (nye: ${it.nyeFakta.size})"
                     } else {
                         "${it.innhold["manglendeOpplysninger"].size()} mangler"
@@ -50,7 +50,7 @@ internal class Migreringsdialog {
                 appendLine()
                 appendLine("## Runde $runde")
                 meldingerIRunden.forEach { melding ->
-                    val sendt = melding.innhold["@event_name"].asString() == "migrering_startet"
+                    val sendt = melding.retning == "Avsender → mottak"
                     appendLine()
                     appendLine("### ${melding.retning}")
                     appendLine()

@@ -48,7 +48,7 @@ class MigreringsprosessTest {
                 ident = "12345678910",
                 eksternId = MigreringId(UUID.randomUUID()),
                 opprettet = LocalDateTime.now(),
-                ytelse = MigrertYtelse(innvilgetFraOgMed = prøvingsdato, innvilgetTilOgMed = null, sakId = 13699879),
+                ytelse = MigrertYtelse(migereringTidspunkt = prøvingsdato, innvilgetTilOgMed = null, sakId = 13699879),
                 tilleggsopplysninger = listOf(Tilleggsopplysning(Alderskrav.fødselsdato, LocalDate.of(1990, 1, 1))),
             ).lagFaktagrunnlag()
     }
