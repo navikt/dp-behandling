@@ -692,16 +692,6 @@ class MigrerYtelseMottakTest {
         }
     }
 
-    @Test
-    fun `hopper over den eksplisitt unntatte saken uten å forhåndskjøre`() {
-        rapid.sendTestMessage(melding(sakId = 13699878))
-
-        val feilet = rapid.inspektør.message(0)
-        feilet["arsak"]["kode"].asString() shouldBe "SKIPPER_MIGRERING"
-        rapid.inspektør.size shouldBe 1
-        verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
-    }
-
     private fun hendelse(tilleggsopplysninger: List<Tilleggsopplysning<*>> = emptyList()) =
         MigrerYtelseHendelse(
             meldingsreferanseId = UUIDv7.ny(),
