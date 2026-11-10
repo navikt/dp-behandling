@@ -25,6 +25,7 @@ import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
+import no.nav.dagpenger.opplysning.RegelkjøringLoopException
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.opplysning.Tekst
@@ -48,57 +49,6 @@ import no.nav.dagpenger.inntekt.v1.Inntekt as InntektV1
 
 private val migreringSvarSerializer = jsonMapper { addModule(kotlinModule()) }
 
-internal data class Migreringsavbrudd(
-    val kode: String,
-    val melding: String,
-    val detaljer: List<String> = emptyList(),
-)
-
-internal data class MigreringAvbruttDto(
-    val sakId: Int,
-    val arsak: Migreringsavbrudd,
-)
-
-internal data class ManglendeMigreringsopplysning(
-    val uuid: String,
-    val navn: String,
-)
-
-internal data class MigreringAvbruttMedOpplysningerDto(
-    val sakId: Int,
-    val arsak: Migreringsavbrudd,
-    val mottatteOpplysninger: List<String>,
-    val manglendeOpplysninger: List<ManglendeMigreringsopplysning>,
-)
-
-internal fun MessageContext.avbrytMigrering(
-    sakId: Int,
-    arsak: Migreringsavbrudd,
-) {
-    val dto = MigreringAvbruttDto(sakId, arsak)
-    publish(toJsonMessage("migrering_feilet", dto).toJson())
-}
-
-internal fun MessageContext.avbrytMigrering(
-    sakId: Int,
-    arsak: Migreringsavbrudd,
-    mottatteOpplysninger: List<String>,
-    manglendeOpplysninger: List<ManglendeMigreringsopplysning>,
-) {
-    val dto = MigreringAvbruttMedOpplysningerDto(sakId, arsak, mottatteOpplysninger, manglendeOpplysninger)
-    publish(toJsonMessage("migrering_feilet", dto).toJson())
-}
-
-fun toJsonMessage(
-    eventName: String,
-    dto: Any,
-): JsonMessage {
-    val node = migreringSvarSerializer.valueToTree<ObjectNode>(dto)
-    node.put("@event_name", eventName)
-    val json = migreringSvarSerializer.writeValueAsString(node)
-    return JsonMessage(json, MessageProblems(json))
-}
-
 class MigrerYtelseMottak(
     rapidsConnection: RapidsConnection,
     private val hendelseMottaker: HendelseMottaker,
@@ -117,7 +67,7 @@ class MigrerYtelseMottak(
                         "opplysninger",
                     )
                     it.interestedIn("innvilgetTilOgMed", "initiertAv", "simulering")
-                    it.forbid("manglendeOpplysninger", "rapport")
+                    it.forbid("manglendeOpplysninger", "rapport", "simulerteOpplysninger")
                 }
             }.register(this)
     }
@@ -148,9 +98,24 @@ class MigrerYtelseMottak(
         val simulering = packet["simulering"].asBoolean(false)
 
         val rapport =
-            message.hendelse.forretningsprosess
-                .regelkjøring(faktagrunnlag)
-                .evaluer()
+            if (simulering) {
+                try {
+                    message.hendelse.forretningsprosess.simulerMigrering(faktagrunnlag)
+                } catch (_: RegelkjøringLoopException) {
+                    context.avbrytMigrering(
+                        sakId,
+                        Migreringsavbrudd(
+                            kode = "SIMULERING_REGELKJØRING_LOOP",
+                            melding = "Regelkjøringen ble ikke stabil under simulering",
+                        ),
+                    )
+                    return
+                }
+            } else {
+                message.hendelse.forretningsprosess
+                    .regelkjøring(faktagrunnlag)
+                    .evaluer()
+            }
 
         val manglendeOpplysninger =
             rapport.mangler
@@ -168,8 +133,8 @@ class MigrerYtelseMottak(
 
         if (simulering) {
             logger.info { "Migrering skal kun simuleres" }
-            packet["rapport"] =
-                rapport
+            packet["simulerteOpplysninger"] =
+                faktagrunnlag.simulerteOpplysninger()
             context.publish(packet.toJson())
             return
         }
@@ -199,13 +164,6 @@ class MigrerYtelseMessage(
 
     val migreringTidspunkt = packet["migreringTidspunkt"].asLocalDate()
     private val tilleggsopplysninger = packet["opplysninger"].tilleggsopplysninger(migreringTidspunkt, opplysningstyper)
-    internal val mottatteOpplysninger =
-        tilleggsopplysninger
-            .map {
-                it.opplysningstype.id.uuid
-                    .toString()
-            }.distinct()
-            .sorted()
 
     internal val hendelse =
         MigrerYtelseHendelse(
@@ -222,6 +180,40 @@ class MigrerYtelseMessage(
             tilleggsopplysninger = tilleggsopplysninger,
             opprettetAv = packet["initiertAv"].asStringOpt().getOrNull()?.let { Saksbehandler(it) } ?: Systemaktør.dpSak,
         )
+}
+
+internal data class Migreringsavbrudd(
+    val kode: String,
+    val melding: String,
+    val detaljer: List<String> = emptyList(),
+)
+
+internal data class MigreringAvbruttDto(
+    val sakId: Int,
+    val arsak: Migreringsavbrudd,
+)
+
+internal data class ManglendeMigreringsopplysning(
+    val uuid: String,
+    val navn: String,
+)
+
+internal fun MessageContext.avbrytMigrering(
+    sakId: Int,
+    arsak: Migreringsavbrudd,
+) {
+    val dto = MigreringAvbruttDto(sakId, arsak)
+    publish(toJsonMessage("migrering_feilet", dto).toJson())
+}
+
+fun toJsonMessage(
+    eventName: String,
+    dto: Any,
+): JsonMessage {
+    val node = migreringSvarSerializer.valueToTree<ObjectNode>(dto)
+    node.put("@event_name", eventName)
+    val json = migreringSvarSerializer.writeValueAsString(node)
+    return JsonMessage(json, MessageProblems(json))
 }
 
 internal fun JsonNode.tilleggsopplysninger(

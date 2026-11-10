@@ -5,8 +5,10 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.spun.util.persistence.Loader
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
@@ -26,7 +28,9 @@ import no.nav.dagpenger.opplysning.InntektDataType
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
+import no.nav.dagpenger.opplysning.ProsessPlugin
 import no.nav.dagpenger.opplysning.Prosesskontekst
+import no.nav.dagpenger.opplysning.RegelkjøringLoopException
 import no.nav.dagpenger.opplysning.Regelkjøringsrapport
 import no.nav.dagpenger.opplysning.Tekst
 import no.nav.dagpenger.opplysning.TemporalCollection
@@ -68,6 +72,7 @@ import org.junit.jupiter.params.provider.NullSource
 import org.junit.jupiter.params.provider.ValueSource
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.readValue
 import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -282,7 +287,7 @@ class MigrerYtelseMottakTest {
     @ParameterizedTest
     @ValueSource(booleans = [true, false])
     @NullSource
-    fun `simulering publiserer rapport mens false og utelatt felt starter behandling`(simulering: Boolean?) {
+    fun `simulering publiserer simulerteOpplysninger mens false og utelatt felt starter behandling`(simulering: Boolean?) {
         val faktagrunnlag = lagFerdigFaktagrunnlag(LocalDate.of(1990, 1, 1))
         val sendtMelding =
             melding(
@@ -302,10 +307,15 @@ class MigrerYtelseMottakTest {
             svar["@event_name"].asString() shouldBe "migrering_startet"
             svar["simulering"].asBoolean() shouldBe true
             svar["opplysninger"] shouldBe jsonMapper.readTree(sendtMelding)["opplysninger"]
-            svar["rapport"]["mangler"].isArray shouldBe true
-            svar["rapport"]["mangler"].size() shouldBe 0
-            svar["rapport"]["kjørteRegler"].isArray shouldBe true
-            (svar["rapport"]["kjørteRegler"].size() > 0) shouldBe true
+            svar["simulerteOpplysninger"].isArray shouldBe true
+            svar["simulerteOpplysninger"]
+                .values()
+                .single {
+                    it["uuid"].asString() ==
+                        KravPåDagpenger.harLøpendeRett.id.uuid
+                            .toString()
+                }["verdi"]
+                .isBoolean shouldBe true
 
             rapid.sendTestMessage(svar.toString())
             rapid.inspektør.size shouldBe 1
@@ -316,6 +326,180 @@ class MigrerYtelseMottakTest {
             hendelse.captured.eksternId shouldBe MigreringId(migreringId)
             rapid.inspektør.size shouldBe 0
         }
+    }
+
+    @Test
+    fun `simulering gir samme opplysninger som behandling inkludert dagsats og rettighetsperioder`() {
+        val inntekt =
+            Inntekt(
+                InntektV1(
+                    inntektsId = UUIDv7.ny().toString(),
+                    sisteAvsluttendeKalenderMåned = YearMonth.of(2025, 11),
+                    inntektsListe =
+                        (0L..35L).map { måned ->
+                            KlassifisertInntektMåned(
+                                årMåned = YearMonth.of(2025, 11).minusMonths(måned),
+                                klassifiserteInntekter =
+                                    listOf(KlassifisertInntekt(50000.toBigDecimal(), InntektKlasse.ARBEIDSINNTEKT)),
+                                harAvvik = false,
+                            )
+                        },
+                ),
+            )
+        val barn =
+            BarnListe(
+                barn = listOf(Barn(fødselsdato = LocalDate.of(2020, 3, 1), kvalifiserer = true)),
+            )
+        val grunnlag =
+            lagFerdigFaktagrunnlag(
+                LocalDate.of(1990, 1, 1),
+                listOf(
+                    Tilleggsopplysning(RegistrertArbeidssøker.registrertArbeidssøker, true),
+                    Tilleggsopplysning(Minsteinntekt.inntektFraSkatt, inntekt),
+                    Tilleggsopplysning(DagpengenesStørrelse.barn, barn),
+                ),
+            )
+        val fakta = grunnlag.opplysninger.map { (type, verdi) -> opplysning(type, jsonVerdi(verdi)) }
+
+        rapid.sendTestMessage(melding(fakta, simulering = true))
+
+        verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+        rapid.inspektør.size shouldBe 1
+        val svar = rapid.inspektør.message(0)
+        val simulerte = svar["simulerteOpplysninger"].values().toList()
+        simulerte.isNotEmpty() shouldBe true
+        simulerte.forEach {
+            it.has("kilde") shouldBe false
+            it.has("utledetAv") shouldBe false
+            it.has("erstatter") shouldBe false
+        }
+
+        fun simulert(type: Opplysningstype<*>) = simulerte.single { it["uuid"].asString() == type.id.uuid.toString() }
+        simulert(Alderskrav.kravTilAlder)["verdi"].asBoolean() shouldBe true
+        simulert(KravPåDagpenger.harLøpendeRett)["verdi"].asBoolean() shouldBe true
+        simulert(KravPåDagpenger.harLøpendeRett)["gyldigFraOgMed"].asString() shouldBe "2026-01-05"
+        jsonMapper.readValue<Map<String, Any?>>(simulert(Minsteinntekt.inntektFraSkatt)["verdi"].toString()) shouldBe
+            jsonMapper.readValue<Map<String, Any?>>(jsonMapper.writeValueAsString(jsonVerdi(inntekt)))
+        simulert(DagpengenesStørrelse.barn)["verdi"]["barn"][0]["fødselsdato"].asString() shouldBe "2020-03-01"
+        simulert(DagpengenesStørrelse.barn)["verdi"]["barn"][0]["forsørgeransvar"].asBoolean() shouldBe true
+        (svar.toString().toByteArray(Charsets.UTF_8).size < 1_000_000) shouldBe true
+
+        rapid.sendTestMessage(melding(fakta, simulering = false))
+
+        val startet = slot<MigrerYtelseHendelse>()
+        verify(exactly = 1) { hendelseMottaker.behandle(capture(startet), any(), any()) }
+        rapid.inspektør.size shouldBe 1
+        val behandling =
+            (startet.captured.behandling(null, TemporalCollection()) as StartHendelseResultat.Opprettet).behandling
+        behandling.håndter(startet.captured)
+        RegelverkDagpenger.avgjørelse(behandling.opplysninger) shouldBe Avgjørelse.Innvilgelse
+        simulert(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)["verdi"].decimalValue() shouldBe
+            behandling.opplysninger
+                .finnOpplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)
+                .verdi.verdien
+        val søknadIdUuid =
+            Søknadstidspunkt.søknadIdOpplysningstype.id.uuid
+                .toString()
+        val forventet =
+            behandling.opplysninger.simulerteOpplysninger().filterNot { it.uuid == søknadIdUuid }
+        val faktiskeVerdier =
+            jsonMapper.readValue<List<Map<String, Any?>>>(
+                jsonMapper.writeValueAsString(simulerte.filterNot { it["uuid"].asString() == søknadIdUuid }),
+            )
+        val forventedeVerdier =
+            jsonMapper.readValue<List<Map<String, Any?>>>(jsonMapper.writeValueAsString(forventet))
+        faktiskeVerdier.size shouldBe forventedeVerdier.size
+        forventedeVerdier.forEachIndexed { indeks, forventetOpplysning ->
+            withClue("Opplysning $indeks: ${forventetOpplysning["navn"]} (${forventetOpplysning["uuid"]})") {
+                val faktiskOpplysning = faktiskeVerdier[indeks]
+                if (forventetOpplysning["uuid"] ==
+                    DagpengenesStørrelse.barnSomGirTillegg.id.uuid
+                        .toString()
+                ) {
+                    val faktiskeBarn = faktiskOpplysning.getValue("verdi") as Map<*, *>
+                    val forventedeBarn = forventetOpplysning.getValue("verdi") as Map<*, *>
+                    UUID.fromString(faktiskeBarn["søknadbarnId"] as String)
+                    forventedeBarn["søknadbarnId"] shouldBe
+                        behandling.opplysninger
+                            .finnOpplysning(DagpengenesStørrelse.barn)
+                            .id
+                            .toString()
+                    faktiskOpplysning - "verdi" shouldBe forventetOpplysning - "verdi"
+                    faktiskeBarn - "søknadbarnId" shouldBe forventedeBarn - "søknadbarnId"
+                } else {
+                    faktiskOpplysning shouldBe forventetOpplysning
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `simulering med manglende fakta svarer med mangler uten simulerte opplysninger`() {
+        rapid.sendTestMessage(melding(simulering = true))
+
+        rapid.inspektør.size shouldBe 1
+        val svar = rapid.inspektør.message(0)
+        (svar["manglendeOpplysninger"].size() > 0) shouldBe true
+        svar.has("simulerteOpplysninger") shouldBe false
+        svar.has("rapport") shouldBe false
+        verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+    }
+
+    @Test
+    fun `simulering rekjører regler når plugin ber om det og beholder kjørte regler i rapporten`() {
+        val event = lagFerdigFaktagrunnlag(LocalDate.of(1990, 1, 1)).event
+        val plugin = mockk<ProsessPlugin>(relaxed = true)
+        var runder = 0
+        every { plugin.etterRegelkjøring(any()) } answers {
+            if (runder++ == 0) firstArg<Prosesskontekst>().beOmRekjøring()
+        }
+        event.forretningsprosess.registrer(plugin)
+        val fakta = event.lagFaktagrunnlag()
+
+        val rapport = event.forretningsprosess.simulerMigrering(fakta)
+
+        rapport.erFerdig() shouldBe true
+        rapport.kjørteRegler.isNotEmpty() shouldBe true
+        verify(exactly = 2) { plugin.etterRegelkjøring(any()) }
+        verify(exactly = 2) { plugin.regelkjøringFerdig(any()) }
+        fakta.har(KravPåDagpenger.harLøpendeRett) shouldBe true
+    }
+
+    @Test
+    fun `simulering returnerer nye mangler etter rekjøring`() {
+        val event = lagFerdigFaktagrunnlag(LocalDate.of(1990, 1, 1)).event
+        val plugin = mockk<ProsessPlugin>(relaxed = true)
+        var runder = 0
+        every { plugin.etterRegelkjøring(any()) } answers {
+            if (runder++ == 0) {
+                val kontekst = firstArg<Prosesskontekst>()
+                kontekst.opplysninger.fjern(kontekst.opplysninger.finnOpplysning(Alderskrav.fødselsdato).id)
+                kontekst.beOmRekjøring()
+            }
+        }
+        event.forretningsprosess.registrer(plugin)
+
+        val rapport = event.forretningsprosess.simulerMigrering(event.lagFaktagrunnlag())
+
+        rapport.erFerdig() shouldBe false
+        (Alderskrav.fødselsdato in rapport.mangler) shouldBe true
+        verify(exactly = 1) { plugin.regelkjøringFerdig(any()) }
+    }
+
+    @Test
+    fun `simulering avbryter når plugin alltid ber om rekjøring`() {
+        val event = lagFerdigFaktagrunnlag(LocalDate.of(1990, 1, 1)).event
+        val plugin = mockk<ProsessPlugin>(relaxed = true)
+        every { plugin.etterRegelkjøring(any()) } answers {
+            firstArg<Prosesskontekst>().beOmRekjøring()
+        }
+        event.forretningsprosess.registrer(plugin)
+
+        shouldThrow<RegelkjøringLoopException> {
+            event.forretningsprosess.simulerMigrering(event.lagFaktagrunnlag())
+        }
+
+        verify(exactly = 11) { plugin.etterRegelkjøring(any()) }
     }
 
     @Test
