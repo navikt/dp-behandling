@@ -55,7 +55,7 @@ object Rettighetstype {
     private val ordinær = boolsk(HarRettTilOrdinærId, "Ordinære dagpenger")
     private val ingenArbeid = boolsk(IngenArbeidId, "Har rett til ordinære dagpenger uten arbeidsforhold", synlig = aldriSynlig)
     val skalEtableringVurderes = boolsk(skalEtableringVurderesId, "Skal etablering vurderes")
-    val rettighetstype = boolsk(RettighetstypeId, beskrivelse = "Rettighetstype", behovId = "Rettighetstype")
+    val rettighetstype = boolsk(RettighetstypeId, beskrivelse = "Rettighetstype", behovId = "Rettighetstype", synlig = aldriSynlig)
 
     val regelsett =
         fastsettelse(
