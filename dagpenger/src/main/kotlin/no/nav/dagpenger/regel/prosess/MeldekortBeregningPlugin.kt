@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.medSpan
 import no.nav.dagpenger.opplysning.verdier.Periode
 import no.nav.dagpenger.regel.KvotetellingsSkriver
+import no.nav.dagpenger.regel.regelsett.beregning.Arbeidsdag
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.erSanksjonsdag
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.forbruk
@@ -54,7 +55,6 @@ class MeldekortBeregningPlugin(
         val gyldighetsperiode = Gyldighetsperiode(meldeperiode.fraOgMed, meldeperiode.tilOgMed)
         kontekst.info("Beregner meldeperiode: ${gyldighetsperiode.fraOgMed} til ${gyldighetsperiode.tilOgMed}")
 
-        opplysninger.tellPermitteringsdager(meldeperiode)
         opplysninger.fastsettMeldtITide(meldeperiode, gyldighetsperiode)
 
         val resultat =
@@ -77,13 +77,15 @@ class MeldekortBeregningPlugin(
                 opplysninger.leggTil(Faktum(erSanksjonsdag, dag.avviklerSanksjon, dagGyldighetsperiode))
             }
 
+        opplysninger.tellPermitteringsdager(forbruksdager)
+
         Kvoteteller(kvoter, resultat.beregningsdager)
             .beregn(opplysninger, meldeperiode.fraOgMed)
             .forEach { (kvote, kvoteresultat) -> KvotetellingsSkriver(kvote).skriv(kontekst, kvoteresultat) }
         return resultat
     }
 
-    private fun Opplysninger.tellPermitteringsdager(meldeperiode: Periode) {
+    private fun Opplysninger.tellPermitteringsdager(meldeperiode: List<Beregningresultat.Beregningsdag>) {
         if (mangler(Permittering.oppfyllerKravetTilPermittering)) return
         val permitteringsperioder = finnAlle(Permittering.oppfyllerKravetTilPermittering).filter { it.verdi }.map { it.gyldighetsperiode }
 
@@ -93,10 +95,13 @@ class MeldekortBeregningPlugin(
                 .map { it.gyldighetsperiode }
 
         meldeperiode
-            .filterNot { dag -> overstyrteDager.any { it.inneholder(dag) } }
-            .forEach { dag ->
-                val erPermittert = permitteringsperioder.any { it.inneholder(dag) }
-                leggTil(Faktum(PermitteringFastsetting.permitteringsdag, erPermittert, Gyldighetsperiode(dag, dag)))
+            .filterNot { beregningsdag -> overstyrteDager.any { it.inneholder(beregningsdag.dag.dato) } }
+            .forEach { beregningsdag ->
+                val erPermittert = permitteringsperioder.any { it.inneholder(beregningsdag.dag.dato) }
+                val erArbeidsdag = beregningsdag.dag is Arbeidsdag
+                val erPermitteringsdag = erPermittert && erArbeidsdag
+
+                leggTil(Faktum(PermitteringFastsetting.permitteringsdag, erPermitteringsdag, Gyldighetsperiode.kun(beregningsdag.dag.dato)))
             }
     }
 

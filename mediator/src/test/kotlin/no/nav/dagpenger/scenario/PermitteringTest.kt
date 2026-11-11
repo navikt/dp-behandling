@@ -6,7 +6,9 @@ import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.opplysning.Avgjørelse.Endring
 import no.nav.dagpenger.opplysning.Avgjørelse.Stans
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
+import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.forbruktPermittering
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.gjenståendePermittering
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.innenforFritaksperioden
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
@@ -467,20 +469,20 @@ class PermitteringTest {
                 1,
                 aktiviteter =
                     listOf(
-                        MeldekortAktivitet.Arbeid(0),
-                        MeldekortAktivitet.Arbeid(0),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
                         MeldekortAktivitet.Fravær,
                         MeldekortAktivitet.Syk,
-                        MeldekortAktivitet.Arbeid(0),
-                        MeldekortAktivitet.Arbeid(0),
-                        MeldekortAktivitet.Arbeid(0),
-                        MeldekortAktivitet.Arbeid(0),
-                        MeldekortAktivitet.Arbeid(0),
-                        MeldekortAktivitet.Arbeid(0),
-                        MeldekortAktivitet.Arbeid(0),
-                        MeldekortAktivitet.Arbeid(0),
-                        MeldekortAktivitet.Arbeid(0),
-                        MeldekortAktivitet.Arbeid(0),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
+                        MeldekortAktivitet.Arbeid(7),
                     ),
             )
             meldekortBatch()
@@ -542,6 +544,57 @@ class PermitteringTest {
                 }
 
                 utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe 14904
+            }
+        }
+    }
+
+    @Test
+    fun `teller fritaksperiode selvom en er over terskel på et meldekort`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+            permittering = true
+        }.test {
+            person.søkDagpenger(1.juni(2026))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) { }
+
+            var utbetalingFørSisteMeldekort = 0
+            var ordinæreForbruksdagerFørSisteMeldekort = 0
+
+            person.sendInnMeldekort(1)
+            meldekortBatch()
+            behandlingsresultat(2) {
+                utbetalingFørSisteMeldekort = utbetalinger.sumOf { it["utbetaling"].asInt() }
+                ordinæreForbruksdagerFørSisteMeldekort =
+                    opplysninger(Beregning.forbruk).count { it.verdi.verdi == true }
+
+                opplysninger(Beregning.forbrukt) {
+                    this.last().verdi.verdi shouldBe 10
+                }
+                opplysninger(forbruktPermittering) {
+                    this.last().verdi.verdi shouldBe 10
+                }
+            }
+
+            person.sendInnMeldekort(2, aktiviteter = List(14) { MeldekortAktivitet.Arbeid(7) })
+            meldekortBatch()
+
+            behandlingsresultat(3) {
+                utbetalinger.sumOf { it["utbetaling"].asInt() } shouldBe utbetalingFørSisteMeldekort
+                opplysninger(Beregning.forbruk).count { it.verdi.verdi == true } shouldBe
+                    ordinæreForbruksdagerFørSisteMeldekort
+                opplysninger(Beregning.oppfyllerKravTilTaptArbeidstidIPerioden).last().verdi.verdi shouldBe false
+
+                opplysninger(Beregning.forbrukt) {
+                    this.last().verdi.verdi shouldBe 10
+                }
+                opplysninger(forbruktPermittering) {
+                    this.last().verdi.verdi shouldBe 20
+                }
             }
         }
     }
