@@ -63,6 +63,13 @@ class AuthFactory(
         autoriserAdminTilgang(adminGrupper)
     }
 
+    fun JWTAuthenticationProvider.Config.lesTilgang() {
+        val lesGruppe = properties[Configuration.Grupper.les]
+        realm = Configuration.APP_NAME
+        verifiserTokenFormatOgSignatur()
+        autoriser(lesGruppe)
+    }
+
     private fun JWTAuthenticationProvider.Config.verifiserTokenFormatOgSignatur() {
         verifier(
             jwkProvider = jwkProvider(URI(azureAdConfiguration.jwksUri).toURL()),

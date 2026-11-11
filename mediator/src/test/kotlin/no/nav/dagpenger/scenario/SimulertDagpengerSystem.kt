@@ -64,6 +64,7 @@ internal class SimulertDagpengerSystem(
             ConfigurationMap(
                 mapOf(
                     Configuration.Grupper.saksbehandler.name to oppsett.saksbehandlerGruppe,
+                    Configuration.Grupper.les.name to oppsett.lesGruppe,
                     Configuration.Grupper.admin.name to oppsett.adminGrupper.joinToString(","),
                     azure_app.client_id.name to TestApplication.CLIENT_ID,
                     azure_app.well_known_url.name to "${TestApplication.mockOAuth2Server.wellKnownUrl(AZUREAD_ISSUER_ID)}",
@@ -149,6 +150,7 @@ internal class SimulertDagpengerSystem(
         var saksbehandlerGruppe: String = "dagpenger-saksbehandler",
         var adminGrupper: List<String> = listOf("enkel-admin"),
         var barn: List<ScenarioBarn> = listOf(),
+        var lesGruppe: String = "dagpenger-les",
     ) {
         inline fun test(crossinline block: SimulertDagpengerSystem.() -> Unit) {
             withMigratedDb {

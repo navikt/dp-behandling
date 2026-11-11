@@ -16,5 +16,6 @@ azure:
     saksbehandler: "3e28466f-c53d-46da-8b44-a4abc2ad4593" # 0000-GA-Dagpenger-Saksbehandler
     beslutter: "11b8475a-fb12-41aa-b1f6-8497c1b5385b" # 0000-GA-Dagpenger-Beslutter
     admin: "a266c2f1-cb88-4447-a753-131039c5048a,3e28466f-c53d-46da-8b44-a4abc2ad4593" # dp-behandling-admin-dev og 0000-GA-Dagpenger-Saksbehandler
+    les: "a850742a-bda2-4334-94bc-74ecc0a3fbe0" # 0000-GA-Dagpenger-Les
 
 wonderwalled: true

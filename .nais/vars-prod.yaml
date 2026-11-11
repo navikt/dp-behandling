@@ -13,3 +13,4 @@ azure:
     saksbehandler: "2e9c63d8-322e-4c1f-b500-a0abb812761c" # 0000-GA-Dagpenger-Saksbehandler
     beslutter: "70d54cad-53a3-4788-bbe3-565096f01da7" # 0000-GA-Dagpenger-Beslutter
     admin: "ec6975b8-979f-425d-9c51-2a4c14b82b8b"      # dp-behandling-admin
+    les: "4c02342f-e979-46d6-8e04-28d4314c9a69" # 0000-GA-Dagpenger-Les

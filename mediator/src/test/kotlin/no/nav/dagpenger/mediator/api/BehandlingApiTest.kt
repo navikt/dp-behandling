@@ -1,6 +1,7 @@
 package no.nav.dagpenger.mediator.api
 
 import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.collections.shouldHaveSize
@@ -60,7 +61,67 @@ internal class BehandlingApiTest {
                 it.client.post("/behandling") {
                     setBody("""{"ident":"${person.ident}"}""")
                 }
+
             response.status shouldBe HttpStatusCode.Unauthorized
+        }
+    }
+
+    @Test
+    fun `Kun endepunkter som tillater lesebruker skal kunne kalles med lesebruker`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger(1.april(LocalDate.now().year))
+            behovsløsere.løsTilForslag()
+
+            val behandlingId = person.behandlingId
+            val sakId = person.behandling.behandlingskjedeId
+            val tilfeldigId = UUIDv7.ny()
+
+            val tester =
+                listOf(
+                    // Lesetilgang
+                    Triple("/sak/$sakId", HttpMethod.Get, HttpStatusCode.OK),
+                    Triple("/behandling/$behandlingId", HttpMethod.Get, HttpStatusCode.OK),
+                    Triple("/behandling/$behandlingId/vurderinger", HttpMethod.Get, HttpStatusCode.OK),
+                    // Kun saksbehandler
+                    Triple("/person/rettighetsstatus", HttpMethod.Post, HttpStatusCode.Unauthorized),
+                    Triple("/oppdateringer/person", HttpMethod.Post, HttpStatusCode.Unauthorized),
+                    Triple("/oppdateringer/behandling/$behandlingId", HttpMethod.Get, HttpStatusCode.Unauthorized),
+                    Triple("/person/behandling", HttpMethod.Post, HttpStatusCode.Unauthorized),
+                    Triple("/behandling", HttpMethod.Post, HttpStatusCode.Unauthorized),
+                    Triple("/behandling/v2/$behandlingId", HttpMethod.Get, HttpStatusCode.Unauthorized),
+                    Triple("/behandling/$behandlingId/behandlingsresultat", HttpMethod.Get, HttpStatusCode.Unauthorized),
+                    Triple("/behandling/$behandlingId/vurderinger/$tilfeldigId", HttpMethod.Put, HttpStatusCode.Unauthorized),
+                    Triple("/behandling/$behandlingId/godkjenn", HttpMethod.Post, HttpStatusCode.Unauthorized),
+                    Triple("/behandling/$behandlingId/beslutt", HttpMethod.Post, HttpStatusCode.Unauthorized),
+                    Triple("/behandling/$behandlingId/send-tilbake", HttpMethod.Post, HttpStatusCode.Unauthorized),
+                    Triple("/behandling/$behandlingId/avbryt", HttpMethod.Post, HttpStatusCode.Unauthorized),
+                    Triple("/behandling/$behandlingId/rekjor", HttpMethod.Post, HttpStatusCode.Unauthorized),
+                    Triple("/behandling/$behandlingId/flytt", HttpMethod.Post, HttpStatusCode.Unauthorized),
+                    Triple("/behandling/$behandlingId/opplysning/$tilfeldigId", HttpMethod.Put, HttpStatusCode.Unauthorized),
+                    Triple("/behandling/$behandlingId/opplysning/$tilfeldigId", HttpMethod.Delete, HttpStatusCode.Unauthorized),
+                    Triple("/behandling/$behandlingId/opplysning/", HttpMethod.Post, HttpStatusCode.Unauthorized),
+                    Triple("/behandling/$behandlingId/avklaring", HttpMethod.Get, HttpStatusCode.Unauthorized),
+                    Triple("/behandling/$behandlingId/avklaring/$tilfeldigId", HttpMethod.Put, HttpStatusCode.Unauthorized),
+                    // Kun admin
+                    Triple("/dataprodukt/behandling", HttpMethod.Post, HttpStatusCode.Unauthorized),
+                    Triple("/ferietillegg/generer/2025", HttpMethod.Post, HttpStatusCode.Unauthorized),
+                )
+
+            tester.forEach { (endepunkt, httpMethod, forventetStatus) ->
+                val response =
+                    testContext.autentisert(
+                        httpMethod = httpMethod,
+                        endepunkt = endepunkt,
+                        token =
+                            testAzureAdToken(
+                                ADGrupper = listOf(oppsett.lesGruppe),
+                                navIdent = "Z123456",
+                            ),
+                    )
+                withClue("$httpMethod $endepunkt") {
+                    response.status shouldBe forventetStatus
+                }
+            }
         }
     }
 
