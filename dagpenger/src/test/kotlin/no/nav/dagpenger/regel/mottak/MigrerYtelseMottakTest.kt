@@ -2,7 +2,6 @@ package no.nav.dagpenger.regel.mottak
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
-import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.spun.util.persistence.Loader
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
@@ -325,6 +324,40 @@ class MigrerYtelseMottakTest {
             verify(exactly = 1) { hendelseMottaker.behandle(capture(hendelse), any(), any()) }
             hendelse.captured.eksternId shouldBe MigreringId(migreringId)
             rapid.inspektør.size shouldBe 0
+        }
+    }
+
+    @Test
+    fun `simuleringsfeil publiserer innkommende melding med tomme simulerte opplysninger`() {
+        listOf(
+            Exception("Feil med sensitiv feilmelding"),
+            RegelkjøringLoopException("Feil med sensitiv feilmelding"),
+        ).forEach { exception ->
+            val rapidMedFeilendeSimulator = TestRapid()
+            val hendelseMottaker = mockk<HendelseMottaker>(relaxed = true)
+            MigrerYtelseMottak(
+                rapidMedFeilendeSimulator,
+                hendelseMottaker,
+                opplysningstyper,
+                simulator = { _, _ -> throw exception },
+            )
+            val sendtMelding = melding(simulering = true)
+
+            rapidMedFeilendeSimulator.sendTestMessage(sendtMelding)
+
+            rapidMedFeilendeSimulator.inspektør.size shouldBe 1
+            val svar = rapidMedFeilendeSimulator.inspektør.message(0)
+            svar["@event_name"].asString() shouldBe "migrering_startet"
+            jsonMapper.readTree(sendtMelding).properties().forEach { (navn, verdi) ->
+                svar[navn] shouldBe verdi
+            }
+            svar["simulerteOpplysninger"].isArray shouldBe true
+            svar["simulerteOpplysninger"].size() shouldBe 0
+            verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+
+            rapidMedFeilendeSimulator.sendTestMessage(svar.toString())
+            rapidMedFeilendeSimulator.inspektør.size shouldBe 1
+            verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
         }
     }
 
@@ -684,25 +717,6 @@ class MigrerYtelseMottakTest {
 
         opplysninger.finnOpplysning(Minsteinntekt.inntekt12).verdi shouldBe Beløp(600000)
         beregnedeVilkår.forEach { opplysninger.finnOpplysning(it).verdi shouldBe true }
-    }
-
-    @Test
-    fun `avbruddshjelperen beholder korrelasjonsfeltene`() {
-        val context = mockk<MessageContext>(relaxed = true)
-        val publiserte = mutableListOf<String>()
-
-        context.avbrytMigrering(
-            123,
-            Migreringsavbrudd(kode = "ANNEN_ÅRSAK", melding = "En annen årsak", detaljer = listOf("detalj")),
-        )
-
-        verify(exactly = 1) { context.publish(capture(publiserte)) }
-        val avbrudd = JsonMapper.builder().build().readTree(publiserte.single())
-        avbrudd["@event_name"].asString() shouldBe "migrering_feilet"
-        avbrudd["sakId"].asInt() shouldBe 123
-        avbrudd["arsak"]["detaljer"].values().map { it.asString() } shouldBe listOf("detalj")
-        UUID.fromString(avbrudd["@id"].asString())
-        LocalDateTime.parse(avbrudd["@opprettet"].asString())
     }
 
     @Test

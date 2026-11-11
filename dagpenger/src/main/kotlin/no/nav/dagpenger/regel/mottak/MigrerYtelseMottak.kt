@@ -23,9 +23,10 @@ import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
+import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Penger
-import no.nav.dagpenger.opplysning.RegelkjøringLoopException
+import no.nav.dagpenger.opplysning.Regelkjøringsrapport
 import no.nav.dagpenger.opplysning.Saksbehandler
 import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.opplysning.Tekst
@@ -38,7 +39,6 @@ import no.nav.dagpenger.regel.hendelse.Tilleggsopplysning
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import tools.jackson.databind.JsonNode
-import tools.jackson.databind.node.ObjectNode
 import tools.jackson.module.kotlin.jsonMapper
 import tools.jackson.module.kotlin.kotlinModule
 import java.time.LocalDate
@@ -53,6 +53,9 @@ class MigrerYtelseMottak(
     rapidsConnection: RapidsConnection,
     private val hendelseMottaker: HendelseMottaker,
     private val opplysningstyper: Set<Opplysningstype<*>>,
+    private val simulator: (MigrerYtelseHendelse, Opplysninger) -> Regelkjøringsrapport = { hendelse, faktagrunnlag ->
+        hendelse.forretningsprosess.simulerMigrering(faktagrunnlag)
+    },
 ) : River.PacketListener {
     init {
         River(rapidsConnection)
@@ -83,13 +86,6 @@ class MigrerYtelseMottak(
         val sakId = packet["sakId"].asInt()
         if (sakId == 13782955) {
             logger.info { "Skipper migrering med sakId $sakId" }
-            context.avbrytMigrering(
-                sakId,
-                Migreringsavbrudd(
-                    kode = "SKIPPER_MIGRERING",
-                    melding = "Hopper over migrering vi ikke klarte å behandle",
-                ),
-            )
             return
         }
 
@@ -100,15 +96,11 @@ class MigrerYtelseMottak(
         val rapport =
             if (simulering) {
                 try {
-                    message.hendelse.forretningsprosess.simulerMigrering(faktagrunnlag)
-                } catch (_: RegelkjøringLoopException) {
-                    context.avbrytMigrering(
-                        sakId,
-                        Migreringsavbrudd(
-                            kode = "SIMULERING_REGELKJØRING_LOOP",
-                            melding = "Regelkjøringen ble ikke stabil under simulering",
-                        ),
-                    )
+                    simulator(message.hendelse, faktagrunnlag)
+                } catch (_: Exception) {
+                    logger.error { "Simulering av migrering feilet" }
+                    packet["simulerteOpplysninger"] = emptyList<Any>()
+                    context.publish(packet.toJson())
                     return
                 }
             } else {
@@ -182,39 +174,10 @@ class MigrerYtelseMessage(
         )
 }
 
-internal data class Migreringsavbrudd(
-    val kode: String,
-    val melding: String,
-    val detaljer: List<String> = emptyList(),
-)
-
-internal data class MigreringAvbruttDto(
-    val sakId: Int,
-    val arsak: Migreringsavbrudd,
-)
-
 internal data class ManglendeMigreringsopplysning(
     val uuid: String,
     val navn: String,
 )
-
-internal fun MessageContext.avbrytMigrering(
-    sakId: Int,
-    arsak: Migreringsavbrudd,
-) {
-    val dto = MigreringAvbruttDto(sakId, arsak)
-    publish(toJsonMessage("migrering_feilet", dto).toJson())
-}
-
-fun toJsonMessage(
-    eventName: String,
-    dto: Any,
-): JsonMessage {
-    val node = migreringSvarSerializer.valueToTree<ObjectNode>(dto)
-    node.put("@event_name", eventName)
-    val json = migreringSvarSerializer.writeValueAsString(node)
-    return JsonMessage(json, MessageProblems(json))
-}
 
 internal fun JsonNode.tilleggsopplysninger(
     migreringTidspunkt: LocalDate,
