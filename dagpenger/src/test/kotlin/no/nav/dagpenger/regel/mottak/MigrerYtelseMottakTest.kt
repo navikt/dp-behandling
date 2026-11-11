@@ -21,6 +21,7 @@ import no.nav.dagpenger.opplysning.BarnDatatype
 import no.nav.dagpenger.opplysning.Boolsk
 import no.nav.dagpenger.opplysning.Dato
 import no.nav.dagpenger.opplysning.Desimaltall
+import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Heltall
 import no.nav.dagpenger.opplysning.InntektDataType
@@ -43,9 +44,15 @@ import no.nav.dagpenger.regel.hendelse.MigrerYtelseHendelse
 import no.nav.dagpenger.regel.hendelse.MigrertYtelse
 import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse
 import no.nav.dagpenger.regel.hendelse.Tilleggsopplysning
+import no.nav.dagpenger.regel.prosess.Migreringsprosess
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.beregning.BeregningsperiodeFabrikk
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode
+import no.nav.dagpenger.regel.regelsett.fastsetting.Egenandel
 import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden
+import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
@@ -147,7 +154,7 @@ class MigrerYtelseMottakTest {
 
         val regelkjøringsrapport = event.forretningsprosess.regelkjøring(forhåndskjøring).evaluer()
 
-        regelkjøringsrapport.mangler.size shouldBe 1
+        regelkjøringsrapport.mangler.filterNot { it in Migreringsprosess.migreringssaldoer }.size shouldBe 1
     }
 
     @Test
@@ -588,7 +595,12 @@ class MigrerYtelseMottakTest {
             manglende.forEach { uuid ->
                 val type = typerEtterUuid.getValue(uuid)
                 val verdi = standardverdier[type] ?: syntetiskVerdi(type)
-                sendteFakta[uuid] = opplysning(type, jsonVerdi(verdi), "2026-01-05")
+                sendteFakta[uuid] =
+                    if (type in Migreringsprosess.migreringssaldoer) {
+                        opplysning(type, jsonVerdi(verdi))
+                    } else {
+                        opplysning(type, jsonVerdi(verdi), "2026-01-05")
+                    }
             }
         }
 
@@ -695,6 +707,9 @@ class MigrerYtelseMottakTest {
                     Tilleggsopplysning(Rettighetstype.skalEtableringVurderes, false),
                     Tilleggsopplysning(Rettighetstype.skalEksportVurderes, false),
                     Tilleggsopplysning(Rettighetstype.skalReellArbeidssøkerVurderes, true),
+                    Tilleggsopplysning(Beregning.gjenståendeDager, 520, Gyldighetsperiode.kun(LocalDate.of(2026, 1, 4))),
+                    Tilleggsopplysning(Beregning.forbrukt, 0, Gyldighetsperiode.kun(LocalDate.of(2026, 1, 4))),
+                    Tilleggsopplysning(Beregning.gjenståendeEgenandel, Beløp(0), Gyldighetsperiode.kun(LocalDate.of(2026, 1, 4))),
                 ),
             )
         val opplysninger = event.lagFaktagrunnlag()
@@ -731,6 +746,82 @@ class MigrerYtelseMottakTest {
         shouldThrow<IllegalArgumentException> {
             packet["opplysninger"].tilleggsopplysninger(migreringTidspunkt, opplysningstyper)
         }.message shouldBe "opplysninger må være en liste"
+    }
+
+    @Test
+    fun `saldoer uten periode gjelder dagen før migrering og brukes i første meldeperiode`() {
+        val sendt =
+            melding(
+                listOf(
+                    opplysning(Beregning.gjenståendeDager, 3) - "gyldigFraOgMed" - "gyldigTilOgMed",
+                    opplysning(Beregning.forbrukt, 257) - "gyldigFraOgMed" - "gyldigTilOgMed",
+                    opplysning(Beregning.gjenståendeEgenandel, 500) - "gyldigFraOgMed" - "gyldigTilOgMed",
+                    opplysning(Beregning.sisteForbruksdag, "2026-01-02") - "gyldigFraOgMed" - "gyldigTilOgMed",
+                ),
+            )
+        val packet =
+            JsonMessage.newMessage("migrering_startet", jsonMapper.readValue<Map<String, Any>>(sendt)).apply {
+                interestedIn("opplysninger", "migreringTidspunkt", "migreringId", "ident", "sakId", "innvilgetTilOgMed", "initiertAv")
+            }
+        val opplysninger = MigrerYtelseMessage(packet, opplysningstyper).hendelse.lagFaktagrunnlag()
+        val start = LocalDate.of(2026, 1, 5)
+        val periode = Gyldighetsperiode(start, start.plusDays(13))
+        listOf(
+            Beregning.gjenståendeDager,
+            Beregning.forbrukt,
+            Beregning.gjenståendeEgenandel,
+            Beregning.sisteForbruksdag,
+        ).forEach { type ->
+            opplysninger.finnAlle(type).single().gyldighetsperiode shouldBe Gyldighetsperiode.kun(start.minusDays(1))
+        }
+        opplysninger.leggTil(Faktum(Dagpengeperiode.antallStønadsdager, 260, periode))
+        opplysninger.leggTil(Faktum(Egenandel.egenandel, Beløp(3000), periode))
+        opplysninger.leggTil(Faktum(KravPåDagpenger.harLøpendeRett, true, periode))
+        opplysninger.leggTil(Faktum(Beregning.meldtITide, true, periode))
+        opplysninger.leggTil(Faktum(Beregning.arbeidsdag, true, periode))
+        opplysninger.leggTil(Faktum(Beregning.arbeidstimer, 0.0, periode))
+        opplysninger.leggTil(Faktum(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg, Beløp(1000), periode))
+        opplysninger.leggTil(Faktum(Vanligarbeidstid.fastsattVanligArbeidstid, 37.5, periode))
+        opplysninger.leggTil(Faktum(TapAvArbeidsinntektOgArbeidstid.kravTilArbeidstidsreduksjon, 50.0, periode))
+
+        val resultat = BeregningsperiodeFabrikk(start, periode.tilOgMed, opplysninger, emptyList()).lagBeregningsperiode().resultat
+
+        resultat.forbruksdager.size shouldBe 3
+        resultat.forbruktEgenandel shouldBe Beløp(500)
+        resultat.gjenståendeEgenandel shouldBe Beløp(0)
+        resultat.utbetaling shouldBe Beløp(2500)
+    }
+
+    @Test
+    fun `bevarer eksplisitt historisk saldoperiode`() {
+        val sendt = melding(listOf(opplysning(Beregning.gjenståendeDager, 40, "2025-12-22", "2026-01-04")))
+        val packet =
+            JsonMessage.newMessage("migrering_startet", jsonMapper.readValue<Map<String, Any>>(sendt)).apply {
+                interestedIn("opplysninger")
+            }
+
+        val saldo = packet["opplysninger"].tilleggsopplysninger(LocalDate.of(2026, 1, 5), opplysningstyper).single()
+
+        saldo.gyldighetsperiode shouldBe Gyldighetsperiode(LocalDate.of(2025, 12, 22), LocalDate.of(2026, 1, 4))
+    }
+
+    @Test
+    fun `avviser saldo med ugyldig periode eller verdi`() {
+        listOf(
+            opplysning(Beregning.gjenståendeDager, 40, "2026-01-05", "2026-01-18"),
+            opplysning(Beregning.gjenståendeDager, -1),
+            opplysning(Beregning.gjenståendeEgenandel, -500),
+            opplysning(Beregning.sisteForbruksdag, "2026-01-05"),
+        ).forEach { saldo ->
+            val packet =
+                JsonMessage.newMessage("migrering_startet", mapOf("opplysninger" to listOf(saldo))).apply {
+                    interestedIn("opplysninger")
+                }
+
+            shouldThrow<IllegalArgumentException> {
+                packet["opplysninger"].tilleggsopplysninger(LocalDate.of(2026, 1, 5), opplysningstyper)
+            }
+        }
     }
 
     @Test
@@ -950,13 +1041,21 @@ class MigrerYtelseMottakTest {
             Tilleggsopplysning(Rettighetstype.skalEksportVurderes, false),
             Tilleggsopplysning(Rettighetstype.skalEtableringVurderes, false),
             Tilleggsopplysning(Rettighetstype.lønnsgaranti, false),
+            Tilleggsopplysning(Beregning.gjenståendeDager, 520),
+            Tilleggsopplysning(Beregning.forbrukt, 0),
+            Tilleggsopplysning(Beregning.gjenståendeEgenandel, Beløp(0)),
         )
 
     @Suppress("UNCHECKED_CAST")
     private fun lagTilleggsopplysning(
         type: Opplysningstype<*>,
         verdi: Any,
-    ): Tilleggsopplysning<*> = Tilleggsopplysning(type as Opplysningstype<Any>, verdi)
+    ): Tilleggsopplysning<*> =
+        Tilleggsopplysning(
+            type as Opplysningstype<Any>,
+            verdi,
+            if (type in Migreringsprosess.migreringssaldoer) Gyldighetsperiode.kun(LocalDate.of(2026, 1, 4)) else null,
+        )
 
     private fun syntetiskVerdi(type: Opplysningstype<*>): Any =
         when (type.datatype) {
@@ -1080,14 +1179,15 @@ class MigrerYtelseMottakTest {
     private fun opplysning(
         type: Opplysningstype<*>,
         verdi: Any,
-        fraOgMed: String = "2024-01-01",
+        fraOgMed: String? = null,
         tilOgMed: String? = null,
     ): Map<String, Any?> =
         buildMap {
             put("uuid", type.id.uuid.toString())
             put("navn", type.navn)
             put("verdi", verdi)
-            put("gyldigFraOgMed", fraOgMed)
-            tilOgMed?.let { put("gyldigTilOgMed", it) }
+            val erSaldo = type in Migreringsprosess.migreringssaldoer
+            put("gyldigFraOgMed", fraOgMed ?: if (erSaldo) "2026-01-04" else "2024-01-01")
+            (tilOgMed ?: if (erSaldo) "2026-01-04" else null)?.let { put("gyldigTilOgMed", it) }
         }
 }

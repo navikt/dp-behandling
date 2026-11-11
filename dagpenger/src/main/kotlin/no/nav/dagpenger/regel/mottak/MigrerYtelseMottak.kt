@@ -36,6 +36,7 @@ import no.nav.dagpenger.opplysning.verdier.Inntekt
 import no.nav.dagpenger.regel.hendelse.MigrerYtelseHendelse
 import no.nav.dagpenger.regel.hendelse.MigrertYtelse
 import no.nav.dagpenger.regel.hendelse.Tilleggsopplysning
+import no.nav.dagpenger.regel.prosess.Migreringsprosess
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
 import tools.jackson.databind.JsonNode
@@ -203,18 +204,31 @@ private fun JsonNode.tilleggsopplysning(
             ?: throw IllegalArgumentException("Ukjent opplysningstype: $uuid")
     val verdi = get("verdi") ?: throw IllegalArgumentException("Opplysning $uuid mangler verdi")
     require(!verdi.isNull) { "Opplysning $uuid mangler verdi" }
+    val erMigreringssaldo = type in Migreringsprosess.migreringssaldoer
+    val saldodato = migreringTidspunkt.minusDays(1)
     val gyldigFraOgMed =
         get("gyldigFraOgMed")
             ?.takeIf { it.isString }
             ?.asLocalDate()
-            ?: migreringTidspunkt
+            ?: if (erMigreringssaldo) saldodato else migreringTidspunkt
     val gyldigTilOgMed =
         get("gyldigTilOgMed")
             ?.takeUnless { it.isMissingNode || it.isNull }
             ?.also { require(it.isString) { "Opplysning $uuid har ugyldig gyldigTilOgMed" } }
             ?.asLocalDate()
-            ?: LocalDate.MAX
-    return type.tilleggsopplysning(verdi, Gyldighetsperiode(gyldigFraOgMed, gyldigTilOgMed))
+            ?: if (erMigreringssaldo) saldodato else LocalDate.MAX
+    if (erMigreringssaldo) {
+        require(gyldigTilOgMed == saldodato) { "Opplysning $uuid har ugyldig saldoperiode" }
+    }
+    val opplysning = type.tilleggsopplysning(verdi, Gyldighetsperiode(gyldigFraOgMed, gyldigTilOgMed))
+    if (erMigreringssaldo) {
+        when (val saldo = opplysning.verdi) {
+            is Int -> require(saldo >= 0) { "Opplysning $uuid har ugyldig saldo" }
+            is Beløp -> require(saldo >= Beløp(0)) { "Opplysning $uuid har ugyldig saldo" }
+            is LocalDate -> require(saldo.isBefore(migreringTidspunkt)) { "Opplysning $uuid har ugyldig forbruksdato" }
+        }
+    }
+    return opplysning
 }
 
 @Suppress("UNCHECKED_CAST")

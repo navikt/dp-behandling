@@ -6,14 +6,14 @@ Opplysningstype-UUID-er, faktaverdier og gyldighetsdatoer er beholdt.
 | Runde | Retning | Melding | Opplysninger |
 | --- | --- | --- | --- |
 | 1 | Avsender → mottak | `migrering_startet` | 0 totalt (nye: 0) |
-| 1 | Mottak → avsender | `migrering_startet` | 1 mangler |
-| 2 | Avsender → mottak | `migrering_startet` | 1 totalt (nye: 1) |
+| 1 | Mottak → avsender | `migrering_startet` | 4 mangler |
+| 2 | Avsender → mottak | `migrering_startet` | 4 totalt (nye: 4) |
 | 2 | Mottak → avsender | `migrering_startet` | 10 mangler |
-| 3 | Avsender → mottak | `migrering_startet` | 11 totalt (nye: 10) |
+| 3 | Avsender → mottak | `migrering_startet` | 14 totalt (nye: 10) |
 | 3 | Mottak → avsender | `migrering_startet` | 16 mangler |
-| 4 | Avsender → mottak | `migrering_startet` | 27 totalt (nye: 16) |
+| 4 | Avsender → mottak | `migrering_startet` | 30 totalt (nye: 16) |
 | 4 | Mottak → avsender | `migrering_startet` | 2 mangler |
-| 5 | Avsender → mottak | `migrering_startet` | 29 totalt (nye: 2) |
+| 5 | Avsender → mottak | `migrering_startet` | 32 totalt (nye: 2) |
 
 ## Runde 1
 
@@ -46,6 +46,9 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
 | Manglende UUID | Navn |
 | --- | --- |
 | 0194881f-940b-76ff-acf5-ba7bcb367233 | Fødselsdato |
+| 01992934-66e4-7606-bdd3-c6c9dd420ffd | Antall dager som er forbrukt |
+| 01992956-e349-76b1-8f68-c9d481df3a32 | Antall dager som gjenstår |
+| 01997b70-a12c-7622-bff8-82a20687e640 | Gjenstående egenandel |
 
 <details>
 <summary>Hele JSON-meldingen</summary>
@@ -71,6 +74,15 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
   "manglendeOpplysninger" : [ {
     "uuid" : "0194881f-940b-76ff-acf5-ba7bcb367233",
     "navn" : "Fødselsdato"
+  }, {
+    "uuid" : "01992934-66e4-7606-bdd3-c6c9dd420ffd",
+    "navn" : "Antall dager som er forbrukt"
+  }, {
+    "uuid" : "01992956-e349-76b1-8f68-c9d481df3a32",
+    "navn" : "Antall dager som gjenstår"
+  }, {
+    "uuid" : "01997b70-a12c-7622-bff8-82a20687e640",
+    "navn" : "Gjenstående egenandel"
   } ],
   "@forårsaket_av" : {
     "id" : "<id>",
@@ -91,6 +103,9 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
 | UUID | Navn | Verdi | Fra og med | Til og med |
 | --- | --- | --- | --- | --- |
 | 0194881f-940b-76ff-acf5-ba7bcb367233 | Fødselsdato | "1990-01-01" | 2026-01-05 | Ingen sluttdato |
+| 01992934-66e4-7606-bdd3-c6c9dd420ffd | Antall dager som er forbrukt | 0 | 2026-01-04 | 2026-01-04 |
+| 01992956-e349-76b1-8f68-c9d481df3a32 | Antall dager som gjenstår | 520 | 2026-01-04 | 2026-01-04 |
+| 01997b70-a12c-7622-bff8-82a20687e640 | Gjenstående egenandel | 0 | 2026-01-04 | 2026-01-04 |
 
 <details>
 <summary>Hele JSON-meldingen</summary>
@@ -107,6 +122,24 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
     "navn" : "Fødselsdato",
     "verdi" : "1990-01-01",
     "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "01992934-66e4-7606-bdd3-c6c9dd420ffd",
+    "navn" : "Antall dager som er forbrukt",
+    "verdi" : 0,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
+  }, {
+    "uuid" : "01992956-e349-76b1-8f68-c9d481df3a32",
+    "navn" : "Antall dager som gjenstår",
+    "verdi" : 520,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
+  }, {
+    "uuid" : "01997b70-a12c-7622-bff8-82a20687e640",
+    "navn" : "Gjenstående egenandel",
+    "verdi" : 0,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
   } ]
 }
 ```
@@ -143,6 +176,24 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
     "navn" : "Fødselsdato",
     "verdi" : "1990-01-01",
     "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "01992934-66e4-7606-bdd3-c6c9dd420ffd",
+    "navn" : "Antall dager som er forbrukt",
+    "verdi" : 0,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
+  }, {
+    "uuid" : "01992956-e349-76b1-8f68-c9d481df3a32",
+    "navn" : "Antall dager som gjenstår",
+    "verdi" : 520,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
+  }, {
+    "uuid" : "01997b70-a12c-7622-bff8-82a20687e640",
+    "navn" : "Gjenstående egenandel",
+    "verdi" : 0,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
   } ],
   "@id" : "<@id>",
   "@opprettet" : "<@opprettet>",
@@ -229,6 +280,24 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
     "navn" : "Fødselsdato",
     "verdi" : "1990-01-01",
     "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "01992934-66e4-7606-bdd3-c6c9dd420ffd",
+    "navn" : "Antall dager som er forbrukt",
+    "verdi" : 0,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
+  }, {
+    "uuid" : "01992956-e349-76b1-8f68-c9d481df3a32",
+    "navn" : "Antall dager som gjenstår",
+    "verdi" : 520,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
+  }, {
+    "uuid" : "01997b70-a12c-7622-bff8-82a20687e640",
+    "navn" : "Gjenstående egenandel",
+    "verdi" : 0,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
   }, {
     "uuid" : "0194881f-9413-77ce-92ec-d29700f04244",
     "navn" : "Inntektsopplysninger",
@@ -410,6 +479,24 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
     "navn" : "Fødselsdato",
     "verdi" : "1990-01-01",
     "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "01992934-66e4-7606-bdd3-c6c9dd420ffd",
+    "navn" : "Antall dager som er forbrukt",
+    "verdi" : 0,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
+  }, {
+    "uuid" : "01992956-e349-76b1-8f68-c9d481df3a32",
+    "navn" : "Antall dager som gjenstår",
+    "verdi" : 520,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
+  }, {
+    "uuid" : "01997b70-a12c-7622-bff8-82a20687e640",
+    "navn" : "Gjenstående egenandel",
+    "verdi" : 0,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
   }, {
     "uuid" : "0194881f-9413-77ce-92ec-d29700f04244",
     "navn" : "Inntektsopplysninger",
@@ -660,6 +747,24 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
     "verdi" : "1990-01-01",
     "gyldigFraOgMed" : "2026-01-05"
   }, {
+    "uuid" : "01992934-66e4-7606-bdd3-c6c9dd420ffd",
+    "navn" : "Antall dager som er forbrukt",
+    "verdi" : 0,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
+  }, {
+    "uuid" : "01992956-e349-76b1-8f68-c9d481df3a32",
+    "navn" : "Antall dager som gjenstår",
+    "verdi" : 520,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
+  }, {
+    "uuid" : "01997b70-a12c-7622-bff8-82a20687e640",
+    "navn" : "Gjenstående egenandel",
+    "verdi" : 0,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
+  }, {
     "uuid" : "0194881f-9413-77ce-92ec-d29700f04244",
     "navn" : "Inntektsopplysninger",
     "verdi" : {
@@ -906,6 +1011,24 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
     "navn" : "Fødselsdato",
     "verdi" : "1990-01-01",
     "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "01992934-66e4-7606-bdd3-c6c9dd420ffd",
+    "navn" : "Antall dager som er forbrukt",
+    "verdi" : 0,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
+  }, {
+    "uuid" : "01992956-e349-76b1-8f68-c9d481df3a32",
+    "navn" : "Antall dager som gjenstår",
+    "verdi" : 520,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
+  }, {
+    "uuid" : "01997b70-a12c-7622-bff8-82a20687e640",
+    "navn" : "Gjenstående egenandel",
+    "verdi" : 0,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
   }, {
     "uuid" : "0194881f-9413-77ce-92ec-d29700f04244",
     "navn" : "Inntektsopplysninger",
@@ -1179,6 +1302,24 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
     "navn" : "Fødselsdato",
     "verdi" : "1990-01-01",
     "gyldigFraOgMed" : "2026-01-05"
+  }, {
+    "uuid" : "01992934-66e4-7606-bdd3-c6c9dd420ffd",
+    "navn" : "Antall dager som er forbrukt",
+    "verdi" : 0,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
+  }, {
+    "uuid" : "01992956-e349-76b1-8f68-c9d481df3a32",
+    "navn" : "Antall dager som gjenstår",
+    "verdi" : 520,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
+  }, {
+    "uuid" : "01997b70-a12c-7622-bff8-82a20687e640",
+    "navn" : "Gjenstående egenandel",
+    "verdi" : 0,
+    "gyldigFraOgMed" : "2026-01-04",
+    "gyldigTilOgMed" : "2026-01-04"
   }, {
     "uuid" : "0194881f-9413-77ce-92ec-d29700f04244",
     "navn" : "Inntektsopplysninger",
