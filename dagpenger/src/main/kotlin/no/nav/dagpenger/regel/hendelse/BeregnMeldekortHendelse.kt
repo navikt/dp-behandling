@@ -118,14 +118,6 @@ class BeregnMeldekortHendelse(
 
                         if (måAvklareUtdanning) {
                             skalRevurderes = true
-                            val førsteDagMedUtdanning =
-                                meldekort.dager
-                                    .first { dag -> harMeldtUtdanningUtenGodkjenning(dag, forrigeBehandling) }
-                                    .dato
-                            opplysninger.leggTil(
-                                Faktum(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode(førsteDagMedUtdanning), kilde = kilde),
-                            )
-
                             add(Avklaring(meldekortMedUtdanning))
                         }
 
@@ -158,13 +150,18 @@ class BeregnMeldekortHendelse(
                     ),
                 )
 
-                val førsteDagMedUtdanning =
+                val førsteDagMedNyUtdanning =
                     meldekort.dager
-                        .firstOrNull { dag -> dag.aktiviteter.any { it.type == AktivitetType.Utdanning } }
-                        ?.dato
-                if (førsteDagMedUtdanning != null) {
+                        .firstOrNull { dag ->
+                            dag.aktiviteter.any { it.type == AktivitetType.Utdanning } &&
+                                this.opplysninger
+                                    .forDato(dag.dato)
+                                    .finnNullableOpplysning(tarUtdanning)
+                                    ?.verdi != true
+                        }?.dato
+                if (førsteDagMedNyUtdanning != null) {
                     this.opplysninger.leggTil(
-                        Faktum(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode(førsteDagMedUtdanning), kilde = kilde),
+                        Faktum(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode(førsteDagMedNyUtdanning), kilde = kilde),
                     )
                 }
 
