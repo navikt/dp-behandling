@@ -539,9 +539,12 @@ class OmgjøringScenarioTester {
             meldekortBatch(markerFerdig = false)
 
             behandlingsresultatForslag(3) {
-                rettighetsperioder shouldHaveSize 2
-                rettighetsperioder.last().harRett shouldBe false
-                rettighetsperioder.last().fraOgMed shouldBe 8.juni(2026)
+                rettighetsperioder shouldHaveSize 3
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].fraOgMed shouldBe 8.juni(2026)
+                rettighetsperioder[1].tilOgMed shouldBe 8.juni(2026)
+                rettighetsperioder.last().harRett shouldBe true
+                rettighetsperioder.last().fraOgMed shouldBe 9.juni(2026)
             }
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -579,15 +582,19 @@ class OmgjøringScenarioTester {
                 rettighetsperioder[0].harRett shouldBe true
 
                 opplysninger(kravTilUtdanning) {
-                    this shouldHaveSize 3
+                    this shouldHaveSize 4
                     this[0].verdi.verdi shouldBe true
                     this[0].gyldigFraOgMed shouldBe 21.november(2025)
 
                     this[1].verdi.verdi shouldBe true
                     this[1].gyldigFraOgMed shouldBe 8.juni(2026)
+                    this[1].gyldigTilOgMed shouldBe 8.juni(2026)
 
                     this[2].verdi.verdi shouldBe true
-                    this[2].gyldigFraOgMed shouldBe 4.juli(2026)
+                    this[2].gyldigFraOgMed shouldBe 9.juni(2026)
+
+                    this[3].verdi.verdi shouldBe true
+                    this[3].gyldigFraOgMed shouldBe 4.juli(2026)
                 }
             }
 

@@ -234,7 +234,11 @@ class BehandlingApiMapperTest {
             val regelsett = regelverk.regelsettAvType(type).sortedBy { it.hjemmel.paragraf.toInt() }
             resultater.map { it.navn } shouldBe regelsett.map { it.navn }
             resultater.zip(regelsett).forEach { (resultat, regler) ->
-                resultat.relevantForResultat shouldBe regler.påvirkerResultat(opplysninger.somOpplysninger())
+                val lesbare = opplysninger.somOpplysninger()
+                val relevantIEnPeriode =
+                    regler.påvirkerResultat(lesbare) ||
+                        opplysninger.map { it.gyldighetsperiode.fraOgMed }.distinct().any { regler.påvirkerResultat(lesbare.forDato(it)) }
+                resultat.relevantForResultat shouldBe relevantIEnPeriode
                 resultat.opplysninger shouldBe
                     regler.produserer
                         .filter { produkt -> opplysninger.any { it.opplysningstype == produkt } }

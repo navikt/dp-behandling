@@ -258,7 +258,7 @@ private fun Regelsett.tilVurderingsresultatDTO(opplysninger: LesbarOpplysninger)
                 tittel = hjemmel.toString(),
                 url = hjemmel.url,
             ),
-        relevantForResultat = påvirkerResultat(opplysninger),
+        relevantForResultat = erRelevantForResultat(opplysninger),
         type =
             when (type) {
                 RegelsettType.Vilkår -> RegelsettTypeDTO.VILKÅR
@@ -269,6 +269,16 @@ private fun Regelsett.tilVurderingsresultatDTO(opplysninger: LesbarOpplysninger)
         opplysningTypeId = utfall?.id?.uuid,
         opplysninger = produkter.map { it.id.uuid },
     )
+}
+
+private fun Regelsett.erRelevantForResultat(opplysninger: LesbarOpplysninger): Boolean {
+    if (påvirkerResultat(opplysninger)) return true
+
+    return opplysninger
+        .somListe()
+        .map { it.gyldighetsperiode.fraOgMed }
+        .distinct()
+        .any { dato -> påvirkerResultat(opplysninger.forDato(dato)) }
 }
 
 private fun Opplysningstype<*>.tilFormålDTO(): FormålDTO =

@@ -1062,8 +1062,7 @@ class ScenarioTest {
 
             behandlingsresultat(3) {
                 rettighetsperioder {
-                    fra(1.juni(2026)) til 3.juli(2026) harRett true
-                    fra(4.juli(2026)) harRett false
+                    fra(1.juni(2026)) harRett true
                 }
 
                 meldekortFerdig(meldekort.last())
@@ -1075,8 +1074,7 @@ class ScenarioTest {
             behandlingsresultat(4) {
                 førteTil shouldBe Endring.toString()
                 rettighetsperioder {
-                    fra(1.juni(2026)) til 3.juli(2026) harRett true
-                    fra(4.juli(2026)) harRett false
+                    fra(1.juni(2026)) harRett true
                 }
             }
 
@@ -1108,7 +1106,7 @@ class ScenarioTest {
                 opplysninger(Utdanning.tarUtdanning) {
                     val (sanne, usanne) = this.partition { it.verdi.verdi == true }
                     sanne shouldHaveSize 2
-                    usanne shouldHaveSize 3
+                    usanne shouldHaveSize 4
                 }
 
                 opplysninger(Utdanning.deltakelseIArbeidsmarkedstiltak) {
@@ -1118,7 +1116,7 @@ class ScenarioTest {
                 }
 
                 opplysninger(Utdanning.kravTilUtdanning) {
-                    shouldHaveSize(8)
+                    shouldHaveSize(9)
                     this shouldForAll { require(it.verdi.verdi == true) }
                 }
             }

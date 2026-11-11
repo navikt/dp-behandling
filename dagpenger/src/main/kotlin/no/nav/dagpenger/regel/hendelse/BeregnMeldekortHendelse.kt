@@ -75,11 +75,8 @@ class BeregnMeldekortHendelse(
                         val sisteBeregnedeMeldeperiode =
                             forrigeBehandling.opplysninger
                                 .finnAlle(Beregning.meldeperiode)
-                                .maxByOrNull {
-                                    it.gyldighetsperiode.fraOgMed
-                                }
+                                .maxByOrNull { it.gyldighetsperiode.fraOgMed }
                         val sisteBeregnedeDato = sisteBeregnedeMeldeperiode?.gyldighetsperiode?.tilOgMed
-
                         val harBeregnetPeriodenEtterDenne = sisteBeregnedeDato?.let { sisteBeregnedeDato >= meldekort.tom } ?: false
 
                         logger.info { "Har valgt ${forretningsprosess.javaClass.simpleName} som prosess for å beregne meldekort" }
@@ -150,19 +147,13 @@ class BeregnMeldekortHendelse(
                     ),
                 )
 
-                val førsteDagMedNyUtdanning =
+                val dagerMedUtdanning =
                     meldekort.dager
-                        .firstOrNull { dag ->
-                            dag.aktiviteter.any { it.type == AktivitetType.Utdanning } &&
-                                this.opplysninger
-                                    .forDato(dag.dato)
-                                    .finnNullableOpplysning(tarUtdanning)
-                                    ?.verdi != true
-                        }?.dato
-                if (førsteDagMedNyUtdanning != null) {
-                    this.opplysninger.leggTil(
-                        Faktum(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode(førsteDagMedNyUtdanning), kilde = kilde),
-                    )
+                        .filter { dag -> dag.aktiviteter.any { it.type == AktivitetType.Utdanning } }
+                        .map { it.dato }
+
+                dagerMedUtdanning.forEach { dato ->
+                    this.opplysninger.leggTil(Faktum(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode.kun(dato), kilde = kilde))
                 }
 
                 logger.info { "Legger til meldekortopplysninger for meldeperiode ${meldekort.fom} - ${meldekort.tom}" }

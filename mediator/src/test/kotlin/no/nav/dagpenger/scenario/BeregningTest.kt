@@ -234,9 +234,10 @@ class BeregningTest {
 
             behandlingsresultatForslag {
                 rettighetsperioder {
-                    fra(6.oktober(2026)) harRett false
+                    fra(6.oktober(2026)) til 11.oktober(2026) harRett false
+                    fra(12.oktober(2026)) harRett true
                 }
-                førteTil shouldBe Avslag.toString()
+                førteTil shouldBe Endring.toString()
 
                 with(opplysninger(Beregning.forbruk)) {
                     this shouldHaveSize 14
@@ -1297,10 +1298,11 @@ class BeregningTest {
                 // Første mandag i meldekort 2 er 25.juni
                 rettighetsperioder {
                     fra(11.juni(2018)) til 24.juni(2018) harRett true
-                    fra(25.juni(2018)) harRett false
+                    fra(25.juni(2018)) til 25.juni(2018) harRett false
+                    fra(26.juni(2018)) harRett true
                 }
                 opplysninger(Beregning.forbruk) {
-                    filter { it.verdi.verdi == true } shouldHaveSize 10
+                    filter { it.verdi.verdi == true } shouldHaveSize 19
                 }
             }
 
