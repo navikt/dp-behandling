@@ -21,6 +21,7 @@ import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.Omgj�
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.SkalOmgjøringUtenKlageVurderesKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import java.time.LocalDate
 
 class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
@@ -59,7 +60,8 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
         opplysningstype: Opplysningstype<*>,
     ): Boolean = regelverk.kanOppfriske(opplysningstype)
 
-    override fun kontrollpunkter() = listOf(OmgjøringUtenKlageKontroll, SkalOmgjøringUtenKlageVurderesKontroll)
+    override fun kontrollpunkter() =
+        listOf(OmgjøringUtenKlageKontroll, SkalOmgjøringUtenKlageVurderesKontroll, Utdanning.MeldekortMedUtdanningKontroll)
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = true
 

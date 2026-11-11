@@ -23,7 +23,7 @@ import no.nav.dagpenger.regel.prosess.Meldekortprosess
 import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
-import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.godkjentUnntakForUtdanning
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.harGodkjentUnntakForUtdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.tarUtdanning
 import java.time.LocalDateTime
 import java.util.UUID
@@ -115,7 +115,6 @@ class BeregnMeldekortHendelse(
 
                         if (måAvklareUtdanning) {
                             skalRevurderes = true
-                            add(Avklaring(meldekortMedUtdanning))
                         }
 
                         val harEksportPerioder = forrigeBehandling.opplysninger.finnAlle(Eksport.oppfyllerVilkårForEksport).any { it.verdi }
@@ -166,18 +165,6 @@ class BeregnMeldekortHendelse(
 
     companion object {
         private val logger = KotlinLogging.logger {}
-
-        internal val meldekortMedUtdanning =
-            Avklaringkode(
-                kode = "MeldekortMedUtdanning",
-                tittel = "Meldekort med utdanning eller tiltak",
-                beskrivelse =
-                    """Bruker har krysset av for utdanning eller tiltak på meldekortet. Må vurderes manuelt. 
-                    |Husk å sjekke om det er godkjent arbeidsmarkedstiltak i Arena.
-                    """.trimMargin(),
-                kanAvbrytes = false,
-                kanKvitteres = true,
-            )
     }
 
     private fun harMeldtUtdanningUtenGodkjenning(
@@ -185,13 +172,6 @@ class BeregnMeldekortHendelse(
         forrigeBehandling: Behandling,
     ): Boolean {
         val harMeldtUtdanning = dag.aktiviteter.any { it.type == AktivitetType.Utdanning }
-        val harGodkjentUtdanning =
-            forrigeBehandling
-                .opplysninger()
-                .forDato(dag.dato)
-                .finnNullableOpplysning(godkjentUnntakForUtdanning)
-                ?.verdi
-                ?: false
-        return harMeldtUtdanning && !harGodkjentUtdanning
+        return harMeldtUtdanning && !forrigeBehandling.opplysninger().harGodkjentUnntakForUtdanning(dag.dato)
     }
 }

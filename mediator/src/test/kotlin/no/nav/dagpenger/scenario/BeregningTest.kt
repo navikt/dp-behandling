@@ -1311,6 +1311,42 @@ class BeregningTest {
     }
 
     @Test
+    fun `avklaring om meldekort med utdanning forsvinner når tiltak legges inn av ekstern tjeneste`() {
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+        }.test {
+            person.søkDagpenger(11.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+            person.sendInnMeldekort(2, aktiviteter = listOf(MeldekortAktivitet.Utdanning(timer = 0)))
+            meldekortBatch(markerFerdig = false)
+
+            saksbehandler.åpneAvklaringer().map { it.kode } shouldContain "MeldekortMedUtdanning"
+
+            // En ekstern tjeneste lytter på avklaringen og legger inn tiltak for dagen det er meldt utdanning
+            saksbehandler.leggTilOpplysning(
+                deltakelseIArbeidsmarkedstiltak,
+                true,
+                "Tiltak fra register",
+                Gyldighetsperiode(25.juni(2018), 8.juli(2018)),
+            )
+
+            saksbehandler.åpneAvklaringer().map { it.kode } shouldNotContain "MeldekortMedUtdanning"
+
+            behandlingsresultatForslag(4) {
+                rettighetsperioder {
+                    fra(11.juni(2018)) harRett true
+                }
+            }
+        }
+    }
+
+    @Test
     fun `rekjøring fører ikke til duplikate opplysninger`() {
         nyttScenario {
             inntektSiste12Mnd = 300000

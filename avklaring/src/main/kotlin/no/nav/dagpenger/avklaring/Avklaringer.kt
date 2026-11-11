@@ -26,7 +26,7 @@ class Avklaringer(
         alleOpplysninger: LesbarOpplysninger,
         aktiveOpplysninger: LesbarOpplysninger,
     ) {
-        vurderAvklaringer(aktiveOpplysninger)
+        vurderAvklaringer(alleOpplysninger, aktiveOpplysninger)
     }
 
     fun gjenåpne(avklaringId: UUID): Boolean = avklaringer.find { it.id == avklaringId }?.gjenåpne() ?: false
@@ -42,10 +42,13 @@ class Avklaringer(
         begrunnelse: String,
     ): Boolean = avklaringer.find { it.id == avklaringId }?.kvitter(kilde, begrunnelse) ?: false
 
-    private fun vurderAvklaringer(opplysninger: LesbarOpplysninger): List<Avklaring> {
+    private fun vurderAvklaringer(
+        alleOpplysninger: LesbarOpplysninger,
+        aktiveOpplysninger: LesbarOpplysninger,
+    ): List<Avklaring> {
         val aktiveAvklaringer: List<KreverAvklaring> =
             kontrollpunkter
-                .map { it.evaluer(opplysninger) }
+                .map { it.evaluer(alleOpplysninger, aktiveOpplysninger) }
                 .filterIsInstance<KreverAvklaring>()
                 .groupBy { it.avklaringkode }
                 .map { (_, treff) -> treff.slåSammen() }

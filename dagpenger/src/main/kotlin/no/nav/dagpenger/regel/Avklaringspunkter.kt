@@ -353,4 +353,15 @@ object Avklaringspunkter {
                 """.trimIndent(),
             kanAvbrytes = false,
         )
+
+    val meldekortMedUtdanning =
+        Avklaringkode(
+            kode = "MeldekortMedUtdanning",
+            tittel = "Meldekort med utdanning eller tiltak",
+            beskrivelse =
+                """Bruker har krysset av for utdanning eller tiltak på meldekortet. Må vurderes manuelt. 
+                |Husk å sjekke om det er godkjent arbeidsmarkedstiltak i Arena.
+                """.trimMargin(),
+            kanKvitteres = true,
+        )
 }

@@ -26,3 +26,19 @@ class Kontrollpunkt(
         }
     }
 }
+
+/**
+ * Kontrollpunkt som vurderer alle opplysninger på tvers av datoer, ikke bare dagen som evalueres.
+ * Brukes når avklaringen skal bestå så lenge minst én dag trenger den.
+ */
+class KontrollpunktForAlleDatoer(
+    private val avklaringkode: Avklaringkode,
+    private val kontroll: Kontroll,
+) : IKontrollpunkt {
+    override fun evaluer(opplysninger: LesbarOpplysninger) = evaluer(opplysninger, opplysninger)
+
+    override fun evaluer(
+        alleOpplysninger: LesbarOpplysninger,
+        aktiveOpplysninger: LesbarOpplysninger,
+    ): IKontrollpunkt.Kontrollresultat = Kontrollpunkt(avklaringkode, kontroll).evaluer(alleOpplysninger)
+}
