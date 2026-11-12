@@ -23,7 +23,7 @@ import no.nav.dagpenger.regel.prosess.Meldekortprosess
 import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.vilkår.Eksport
-import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.godkjentUnntakForUtdanning
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.harGodkjentUnntakForUtdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning.tarUtdanning
 import java.time.LocalDateTime
 import java.util.UUID
@@ -75,11 +75,8 @@ class BeregnMeldekortHendelse(
                         val sisteBeregnedeMeldeperiode =
                             forrigeBehandling.opplysninger
                                 .finnAlle(Beregning.meldeperiode)
-                                .maxByOrNull {
-                                    it.gyldighetsperiode.fraOgMed
-                                }
+                                .maxByOrNull { it.gyldighetsperiode.fraOgMed }
                         val sisteBeregnedeDato = sisteBeregnedeMeldeperiode?.gyldighetsperiode?.tilOgMed
-
                         val harBeregnetPeriodenEtterDenne = sisteBeregnedeDato?.let { sisteBeregnedeDato >= meldekort.tom } ?: false
 
                         logger.info { "Har valgt ${forretningsprosess.javaClass.simpleName} som prosess for å beregne meldekort" }
@@ -118,7 +115,6 @@ class BeregnMeldekortHendelse(
 
                         if (måAvklareUtdanning) {
                             skalRevurderes = true
-                            add(Avklaring(meldekortMedUtdanning))
                         }
 
                         val harEksportPerioder = forrigeBehandling.opplysninger.finnAlle(Eksport.oppfyllerVilkårForEksport).any { it.verdi }
@@ -150,19 +146,13 @@ class BeregnMeldekortHendelse(
                     ),
                 )
 
-                val førsteDagMedNyUtdanning =
+                val dagerMedUtdanning =
                     meldekort.dager
-                        .firstOrNull { dag ->
-                            dag.aktiviteter.any { it.type == AktivitetType.Utdanning } &&
-                                this.opplysninger
-                                    .forDato(dag.dato)
-                                    .finnNullableOpplysning(tarUtdanning)
-                                    ?.verdi != true
-                        }?.dato
-                if (førsteDagMedNyUtdanning != null) {
-                    this.opplysninger.leggTil(
-                        Faktum(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode(førsteDagMedNyUtdanning), kilde = kilde),
-                    )
+                        .filter { dag -> dag.aktiviteter.any { it.type == AktivitetType.Utdanning } }
+                        .map { it.dato }
+
+                dagerMedUtdanning.forEach { dato ->
+                    this.opplysninger.leggTil(Faktum(tarUtdanning, true, gyldighetsperiode = Gyldighetsperiode.kun(dato), kilde = kilde))
                 }
 
                 logger.info { "Legger til meldekortopplysninger for meldeperiode ${meldekort.fom} - ${meldekort.tom}" }
@@ -175,18 +165,6 @@ class BeregnMeldekortHendelse(
 
     companion object {
         private val logger = KotlinLogging.logger {}
-
-        internal val meldekortMedUtdanning =
-            Avklaringkode(
-                kode = "MeldekortMedUtdanning",
-                tittel = "Meldekort med utdanning eller tiltak",
-                beskrivelse =
-                    """Bruker har krysset av for utdanning eller tiltak på meldekortet. Må vurderes manuelt. 
-                    |Husk å sjekke om det er godkjent arbeidsmarkedstiltak i Arena.
-                    """.trimMargin(),
-                kanAvbrytes = false,
-                kanKvitteres = true,
-            )
     }
 
     private fun harMeldtUtdanningUtenGodkjenning(
@@ -194,13 +172,6 @@ class BeregnMeldekortHendelse(
         forrigeBehandling: Behandling,
     ): Boolean {
         val harMeldtUtdanning = dag.aktiviteter.any { it.type == AktivitetType.Utdanning }
-        val harGodkjentUtdanning =
-            forrigeBehandling
-                .opplysninger()
-                .forDato(dag.dato)
-                .finnNullableOpplysning(godkjentUnntakForUtdanning)
-                ?.verdi
-                ?: false
-        return harMeldtUtdanning && !harGodkjentUtdanning
+        return harMeldtUtdanning && !forrigeBehandling.opplysninger().harGodkjentUnntakForUtdanning(dag.dato)
     }
 }

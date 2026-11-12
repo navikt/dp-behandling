@@ -21,6 +21,14 @@ data class Gyldighetsperiode(
     fun inneholder(dato: LocalDate) = dato in this
 
     /**
+     * Alle datoene i perioden, lazy. Krever begrenset periode, siden en åpen periode ikke kan telles opp.
+     */
+    fun datoer(): Sequence<LocalDate> {
+        require(harStartdato && harSluttdato) { "Kan ikke liste datoer i en åpen periode: $this" }
+        return generateSequence(fraOgMed) { dag -> dag.plusDays(1).takeIf { it <= tilOgMed } }
+    }
+
+    /**
      * Har perioden en eksplisitt startdato (fraOgMed er ikke MIN)?
      */
     val harStartdato get() = fraOgMed != LocalDate.MIN

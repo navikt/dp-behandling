@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
 
+import no.nav.dagpenger.avklaring.KontrollpunktForAlleDatoer
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
@@ -13,6 +14,7 @@ import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.erUsann
 import no.nav.dagpenger.opplysning.regel.innhentMed
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
+import no.nav.dagpenger.regel.Avklaringspunkter.meldekortMedUtdanning
 import no.nav.dagpenger.regel.Behov.TarUtdanningEllerOpplæring
 import no.nav.dagpenger.regel.OpplysningsTyper.deltarIArbeidsmarkedstiltakId
 import no.nav.dagpenger.regel.OpplysningsTyper.deltarIHøyereUtdanningId
@@ -26,9 +28,10 @@ import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetPåUnntakForUtdann
 import no.nav.dagpenger.regel.OpplysningsTyper.svartJaPåUtdanningId
 import no.nav.dagpenger.regel.OpplysningsTyper.svartNeiPåUtdanningId
 import no.nav.dagpenger.regel.OpplysningsTyper.tarUtdanningEllerOpplæringId
-import no.nav.dagpenger.regel.hendelse.BeregnMeldekortHendelse.Companion.meldekortMedUtdanning
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
+import no.nav.dagpenger.regel.regelsett.beregning.Beregning.meldeperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
+import java.time.LocalDate
 
 object Utdanning {
     private val hvisTarUtdanning: (LesbarOpplysninger) -> Boolean = { opplysninger -> opplysninger.finnAlle(tarUtdanning).any { it.verdi } }
@@ -127,6 +130,20 @@ object Utdanning {
             "Oppfyller krav til utdanning eller opplæring",
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
+
+    // Avklaringen består så lenge minst én meldt utdanningsdag mangler godkjent unntak
+    val MeldekortMedUtdanningKontroll =
+        KontrollpunktForAlleDatoer(meldekortMedUtdanning) { opplysninger ->
+            val meldeperioder = opplysninger.finnAlle(meldeperiode).map { it.gyldighetsperiode }
+            val utdanningsperioder = opplysninger.finnAlle(tarUtdanning).filter { it.verdi && opplysninger.erEgen(it) }
+
+            utdanningsperioder
+                .flatMap { utdanning -> meldeperioder.map { it to utdanning.gyldighetsperiode } }
+                .flatMap { (meldeperiode, utdanning) -> meldeperiode.overlapp(utdanning)?.datoer().orEmpty() }
+                .any { dato -> !opplysninger.harGodkjentUnntakForUtdanning(dato) }
+        }
+
+    fun LesbarOpplysninger.harGodkjentUnntakForUtdanning(dato: LocalDate) = erSann(godkjentUnntakForUtdanning, dato)
 
     val regelsett =
         vilkår(

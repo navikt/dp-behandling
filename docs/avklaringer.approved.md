@@ -238,7 +238,7 @@ Vurdering av reell arbeidssøker mangler. Utfør vurderingen før innvilgelse.
 ## Meldekort med utdanning eller tiltak
 - **Kode:** `MeldekortMedUtdanning`
 - **Kan lukkes av saksbehandler:** ✅ 
-- **Lukkes automatisk når opplysningene endres:** ❌ 
+- **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
 Bruker har krysset av for utdanning eller tiltak på meldekortet. Må vurderes manuelt. <br>Husk å sjekke om det er godkjent arbeidsmarkedstiltak i Arena.
 

@@ -144,7 +144,7 @@ class UtdanningTest {
                 gyldighetsperiode = Gyldighetsperiode(28.september(2026), 27.mars(2027)),
             )
 
-            behandlingsresultatForslag(12) {
+            behandlingsresultatForslag(11) {
                 rettighetsperioder {
                     fra(10.august(2026)) harRett true
                 }
