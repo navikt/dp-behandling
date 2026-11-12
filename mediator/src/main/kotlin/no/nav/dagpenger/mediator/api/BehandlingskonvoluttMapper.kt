@@ -197,7 +197,7 @@ internal fun Opplysning<*>.tilOpplysningsverdiDTO(): OpplysningsverdiDTO =
         }
 
         InntektDataType -> {
-            TekstVerdiDTO((this.verdi as Inntekt).verdi.inntektsId)
+            TekstVerdiDTO((this.verdi as Inntekt).verdi.inntektsId, DataTypeDTO.TEKST)
         }
 
         Penger -> {
@@ -213,7 +213,7 @@ internal fun Opplysning<*>.tilOpplysningsverdiDTO(): OpplysningsverdiDTO =
         }
 
         Tekst, ULID -> {
-            TekstVerdiDTO(this.verdi.toString())
+            TekstVerdiDTO(this.verdi.toString(), DataTypeDTO.TEKST)
         }
     }
 
