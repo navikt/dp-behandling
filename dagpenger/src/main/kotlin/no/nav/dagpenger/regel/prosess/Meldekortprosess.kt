@@ -31,8 +31,10 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
         val regelverksdato = rettighetsperioder.minOf { it.fraOgMed }
 
         val førsteMeldedagMedRett =
-            rettighetsperioder.firstOrNull { it.overlapper(meldeperiode) }?.fraOgMed
-                ?: meldeperiode.fraOgMed
+            maxOf(
+                rettighetsperioder.firstOrNull { it.overlapper(meldeperiode) }?.fraOgMed ?: meldeperiode.fraOgMed,
+                meldeperiode.fraOgMed,
+            )
 
         logger.info {
             "Meldeperiode: $meldeperiode, førsteMeldedagMedRett: $førsteMeldedagMedRett, tilOgMed: ${meldeperiode.tilOgMed}, innvilgelsesdato: $regelverksdato"
