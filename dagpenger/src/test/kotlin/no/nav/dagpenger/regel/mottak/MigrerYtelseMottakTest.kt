@@ -806,6 +806,29 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
+    fun `avslutter migrering uten svar når en opplysning har omvendt gyldighetsperiode`() {
+        listOf(
+            opplysning(Verneplikt.avtjentVerneplikt, false, "2026-01-06", "2026-01-05"),
+            opplysning(Beregning.gjenståendeDager, 40, "2026-01-05", "2026-01-04"),
+        ).forEach { opplysning ->
+            rapid.sendTestMessage(melding(listOf(opplysning)))
+
+            rapid.inspektør.size shouldBe 0
+            verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+        }
+    }
+
+    @Test
+    fun `godtar gyldighetsperiode med samme fra- og tildato`() {
+        val type = Verneplikt.avtjentVerneplikt
+        val node = jsonMapper.valueToTree<JsonNode>(listOf(opplysning(type, false, "2026-01-05", "2026-01-05")))
+
+        val lest = node.tilleggsopplysninger(migreringTidspunkt, opplysningstyper).single()
+
+        lest.gyldighetsperiode shouldBe Gyldighetsperiode.kun(LocalDate.of(2026, 1, 5))
+    }
+
+    @Test
     fun `avviser saldo med ugyldig periode eller verdi`() {
         listOf(
             opplysning(Beregning.gjenståendeDager, 40, "2026-01-05", "2026-01-18"),

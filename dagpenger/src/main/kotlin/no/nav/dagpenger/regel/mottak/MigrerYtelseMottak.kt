@@ -90,7 +90,14 @@ class MigrerYtelseMottak(
             return
         }
 
-        val message = MigrerYtelseMessage(packet, opplysningstyper)
+        val message =
+            try {
+                MigrerYtelseMessage(packet, opplysningstyper)
+            } catch (_: UgyldigGyldighetsperiode) {
+                logger.error { "Migreringsmelding inneholder en ugyldig gyldighetsperiode" }
+                sikkerlogg.info { packet.toJson() }
+                return
+            }
         val faktagrunnlag = message.hendelse.lagFaktagrunnlag()
         val simulering = packet["simulering"].asBoolean(false)
 
@@ -100,6 +107,7 @@ class MigrerYtelseMottak(
                     simulator(message.hendelse, faktagrunnlag)
                 } catch (_: Exception) {
                     logger.error { "Simulering av migrering feilet" }
+                    sikkerlogg.info { packet.toJson() }
                     packet["simulerteOpplysninger"] = emptyList<Any>()
                     context.publish(packet.toJson())
                     return
@@ -118,6 +126,7 @@ class MigrerYtelseMottak(
 
         if (!rapport.erFerdig() || manglendeOpplysninger.isNotEmpty()) {
             logger.info { "Migrering av sakId $sakId mangler opplysninger $manglendeOpplysninger" }
+            sikkerlogg.info { packet.toJson() }
             packet["manglendeOpplysninger"] =
                 manglendeOpplysninger
             context.publish(packet.toJson())
@@ -146,6 +155,7 @@ class MigrerYtelseMottak(
 
     private companion object {
         private val logger = KotlinLogging.logger {}
+        private val sikkerlogg = KotlinLogging.logger("tjenestekall.MigrerYtelseMottak")
     }
 }
 
@@ -188,6 +198,8 @@ internal fun JsonNode.tilleggsopplysninger(
     return values().map { it.tilleggsopplysning(migreringTidspunkt, opplysningstyper) }
 }
 
+private class UgyldigGyldighetsperiode : RuntimeException()
+
 private fun JsonNode.tilleggsopplysning(
     migreringTidspunkt: LocalDate,
     opplysningstyper: Set<Opplysningstype<*>>,
@@ -217,6 +229,7 @@ private fun JsonNode.tilleggsopplysning(
             ?.also { require(it.isString) { "Opplysning $uuid har ugyldig gyldigTilOgMed" } }
             ?.asLocalDate()
             ?: if (erMigreringssaldo) saldodato else LocalDate.MAX
+    if (gyldigFraOgMed.isAfter(gyldigTilOgMed)) throw UgyldigGyldighetsperiode()
     if (erMigreringssaldo) {
         require(gyldigTilOgMed == saldodato) { "Opplysning $uuid har ugyldig saldoperiode" }
     }
