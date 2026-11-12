@@ -27,6 +27,7 @@ object Configuration {
         val saksbehandler by stringType
         val beslutter by stringType
         val admin by listType(stringType, Regex(","))
+        val les by stringType
     }
 
     val properties =

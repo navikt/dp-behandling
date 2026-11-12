@@ -18,5 +18,10 @@ internal fun Application.authenticationConfig(authFactory: AuthFactory) {
                 adminTilgang()
             }
         }
+        jwt("les") {
+            with(authFactory) {
+                lesTilgang()
+            }
+        }
     }
 }

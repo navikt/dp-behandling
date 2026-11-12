@@ -9,6 +9,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.install
+import io.ktor.server.auth.AuthenticationStrategy
 import io.ktor.server.auth.authenticate
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.NotFoundException
@@ -163,7 +164,10 @@ internal fun Application.behandlingApi(
             call.respond(HttpStatusCode.OK, typer)
         }
 
-        authenticate("azureAd") {
+        authenticate(
+            configurations = arrayOf("azureAd", "les"),
+            strategy = AuthenticationStrategy.FirstSuccessful,
+        ) {
             route("sak/{sakId}") {
                 get {
                     val sakId = call.sakId
@@ -180,6 +184,27 @@ internal fun Application.behandlingApi(
                     call.respond(HttpStatusCode.OK, tilSakDTO(sakId, kjede))
                 }
             }
+
+            route("behandling/{behandlingId}") {
+                get {
+                    val behandling = hentBehandling(personRepository, call.behandlingId)
+
+                    auditlogg.les("Så en behandling", behandling.behandler.ident, call.saksbehandlerId())
+
+                    call.respond(HttpStatusCode.OK, behandling.tilBehandlingDTO())
+                }
+
+                get("vurderinger") {
+                    val behandling = hentBehandling(personRepository, call.behandlingId)
+
+                    auditlogg.les("Så en behandling", behandling.behandler.ident, call.saksbehandlerId())
+
+                    call.respond(HttpStatusCode.OK, behandling.tilSaksbehandlersVurderinger())
+                }
+            }
+        }
+
+        authenticate("azureAd") {
             route("person/rettighetsstatus") {
                 post {
                     val identForespørsel = call.receive<IdentForesporselDTO>()
@@ -337,14 +362,6 @@ internal fun Application.behandlingApi(
                 }
 
                 route("{behandlingId}") {
-                    get {
-                        val behandling = hentBehandling(personRepository, call.behandlingId)
-
-                        auditlogg.les("Så en behandling", behandling.behandler.ident, call.saksbehandlerId())
-
-                        call.respond(HttpStatusCode.OK, behandling.tilBehandlingDTO())
-                    }
-
                     get("behandlingsresultat") {
                         val behandling = hentBehandling(personRepository, call.behandlingId)
 
@@ -358,14 +375,6 @@ internal fun Application.behandlingApi(
                             HttpStatusCode.OK,
                             vedtakOpplysninger.tilBehandlingsresultatDTO(behandling.behandler.ident),
                         )
-                    }
-
-                    get("vurderinger") {
-                        val behandling = hentBehandling(personRepository, call.behandlingId)
-
-                        auditlogg.les("Så en behandling", behandling.behandler.ident, call.saksbehandlerId())
-
-                        call.respond(HttpStatusCode.OK, behandling.tilSaksbehandlersVurderinger())
                     }
 
                     put("vurderinger/{opplysningId}") {
