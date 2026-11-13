@@ -84,7 +84,7 @@ class MigrerYtelseMottak(
     ) {
         logger.info { "Mottok melding om migrering av ytelse" }
         val sakId = packet["sakId"].asInt()
-        if (sakId == 13820459) {
+        if (sakId == 13699878) {
             logger.info { "Skipper migrering med sakId $sakId" }
             sikkerlogg.info { "Skipper melding : ${packet.toJson()}" }
             return
@@ -94,8 +94,14 @@ class MigrerYtelseMottak(
             try {
                 MigrerYtelseMessage(packet, opplysningstyper)
             } catch (_: UgyldigGyldighetsperiode) {
-                logger.error { "Migreringsmelding inneholder en ugyldig gyldighetsperiode" }
-                sikkerlogg.info { "Migreringsmelding inneholder en ugyldig gyldighetsperiode : ${packet.toJson()}" }
+                logger.error { "Migreringsmelding med sakId $sakId inneholder en ugyldig gyldighetsperiode" }
+                sikkerlogg.info { "Migreringsmelding med sakId $sakId inneholder en ugyldig gyldighetsperiode : ${packet.toJson()}" }
+                return
+            } catch (feil: UgyldigTilleggsopplysning) {
+                logger.error { "Migreringsmelding med sakId $sakId inneholder en ugyldig tilleggsopplysning av type ${feil.typeId}" }
+                sikkerlogg.info {
+                    "Migreringsmelding med sakId $sakId inneholder en ugyldig tilleggsopplysning av type ${feil.typeId} i meldingen ${packet.toJson()}"
+                }
                 return
             }
         val faktagrunnlag = message.hendelse.lagFaktagrunnlag()
@@ -106,8 +112,8 @@ class MigrerYtelseMottak(
                 try {
                     simulator(message.hendelse, faktagrunnlag)
                 } catch (_: Exception) {
-                    logger.error { "Simulering av migrering feilet" }
-                    sikkerlogg.info { "Simulering av migrering feilet : ${packet.toJson()}" }
+                    logger.error { "Simulering av migrering med sakId $sakId feilet" }
+                    sikkerlogg.info { "Simulering av migrering med sakId $sakId feilet : ${packet.toJson()}" }
                     packet["simulerteOpplysninger"] = emptyList<Any>()
                     context.publish(packet.toJson())
                     return
@@ -134,7 +140,7 @@ class MigrerYtelseMottak(
         }
 
         if (simulering) {
-            logger.info { "Migrering skal kun simuleres" }
+            logger.info { "Migrering med sakId $sakId skal kun simuleres" }
             packet["simulerteOpplysninger"] =
                 faktagrunnlag.simulerteOpplysninger()
             context.publish(packet.toJson())
@@ -192,6 +198,10 @@ internal fun JsonNode.tilleggsopplysninger(
 
 private class UgyldigGyldighetsperiode : RuntimeException()
 
+private class UgyldigTilleggsopplysning(
+    val typeId: UUID,
+) : IllegalArgumentException()
+
 private fun JsonNode.tilleggsopplysning(
     migreringTidspunkt: LocalDate,
     opplysningstyper: Set<Opplysningstype<*>>,
@@ -225,7 +235,12 @@ private fun JsonNode.tilleggsopplysning(
     if (erMigreringssaldo) {
         require(gyldigTilOgMed == saldodato) { "Opplysning $uuid har ugyldig saldoperiode" }
     }
-    val opplysning = type.tilleggsopplysning(verdi, Gyldighetsperiode(gyldigFraOgMed, gyldigTilOgMed))
+    val opplysning =
+        try {
+            type.tilleggsopplysning(verdi, Gyldighetsperiode(gyldigFraOgMed, gyldigTilOgMed))
+        } catch (_: Exception) {
+            throw UgyldigTilleggsopplysning(uuid)
+        }
     if (erMigreringssaldo) {
         when (val saldo = opplysning.verdi) {
             is Int -> require(saldo >= 0) { "Opplysning $uuid har ugyldig saldo" }

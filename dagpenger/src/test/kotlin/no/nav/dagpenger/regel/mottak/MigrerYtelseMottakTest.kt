@@ -2,6 +2,7 @@ package no.nav.dagpenger.regel.mottak
 
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
+import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.spun.util.persistence.Loader
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
@@ -816,6 +817,37 @@ class MigrerYtelseMottakTest {
             rapid.inspektør.size shouldBe 0
             verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
         }
+    }
+
+    @Test
+    fun `avslutter migrering uten svar når opplysningen ikke kan opprettes`() {
+        val mottak = MigrerYtelseMottak(TestRapid(), hendelseMottaker, opplysningstyper)
+        val context = mockk<MessageContext>(relaxed = true)
+        listOf(
+            opplysning(DagpengenesStørrelse.antallBarn, "to"),
+            opplysning(Beregning.gjenståendeEgenandel, "ikke et beløp"),
+            opplysning(Verneplikt.avtjentVerneplikt, false, "2026-01-05", "+200000-01-01"),
+        ).forEach { opplysning ->
+            val packet =
+                JsonMessage
+                    .newMessage(
+                        "migrering_startet",
+                        mapOf(
+                            "sakId" to 13699879,
+                            "migreringId" to migreringId.toString(),
+                            "ident" to "12345678910",
+                            "migreringTidspunkt" to "2026-01-05",
+                            "opplysninger" to listOf(opplysning),
+                        ),
+                    ).apply {
+                        interestedIn("sakId", "migreringId", "ident", "migreringTidspunkt", "opplysninger")
+                    }
+
+            mottak.onPacket(packet, context, mockk(relaxed = true), mockk(relaxed = true))
+        }
+
+        verify(exactly = 0) { context.publish(any<String>()) }
+        verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
     }
 
     @Test
