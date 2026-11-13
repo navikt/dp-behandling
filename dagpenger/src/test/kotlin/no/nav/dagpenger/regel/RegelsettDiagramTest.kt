@@ -79,7 +79,10 @@ class RegelsettDiagramTest {
                 regelsett.forEach { add("  ${noder.getValue(it)}[\"${visningsnavn(it)}\"]:::${it.type}") }
                 portvakter.forEach { add("  style ${noder.getValue(it)} stroke:#ffd43b,stroke-width:5px") }
                 kanter.forEach { add(it.first) }
-                kanter.forEachIndexed { i, (_, type) -> add("  linkStyle $i stroke:${kantfarger.getValue(type)}") }
+                kantfarger.forEach { (type, farge) ->
+                    val indekser = kanter.indices.filter { kanter[it].second == type }
+                    if (indekser.isNotEmpty()) add("  linkStyle ${indekser.joinToString(",")} stroke:$farge")
+                }
             }.joinToString("\n")
 
         fun navn(
