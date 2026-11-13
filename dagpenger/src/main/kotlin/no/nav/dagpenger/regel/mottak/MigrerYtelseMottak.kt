@@ -7,7 +7,6 @@ import com.github.navikt.tbd_libs.rapids_and_rivers.asOptionalLocalDate
 import com.github.navikt.tbd_libs.rapids_and_rivers.toUUID
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
-import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageProblems
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.MeterRegistry
@@ -87,6 +86,7 @@ class MigrerYtelseMottak(
         val sakId = packet["sakId"].asInt()
         if (sakId == 13820459) {
             logger.info { "Skipper migrering med sakId $sakId" }
+            sikkerlogg.info { "Skipper melding : ${packet.toJson()}" }
             return
         }
 
@@ -95,7 +95,7 @@ class MigrerYtelseMottak(
                 MigrerYtelseMessage(packet, opplysningstyper)
             } catch (_: UgyldigGyldighetsperiode) {
                 logger.error { "Migreringsmelding inneholder en ugyldig gyldighetsperiode" }
-                sikkerlogg.info { packet.toJson() }
+                sikkerlogg.info { "Migreringsmelding inneholder en ugyldig gyldighetsperiode : ${packet.toJson()}" }
                 return
             }
         val faktagrunnlag = message.hendelse.lagFaktagrunnlag()
@@ -107,7 +107,7 @@ class MigrerYtelseMottak(
                     simulator(message.hendelse, faktagrunnlag)
                 } catch (_: Exception) {
                     logger.error { "Simulering av migrering feilet" }
-                    sikkerlogg.info { packet.toJson() }
+                    sikkerlogg.info { "Simulering av migrering feilet : ${packet.toJson()}" }
                     packet["simulerteOpplysninger"] = emptyList<Any>()
                     context.publish(packet.toJson())
                     return
@@ -126,10 +126,10 @@ class MigrerYtelseMottak(
 
         if (!rapport.erFerdig() || manglendeOpplysninger.isNotEmpty()) {
             logger.info { "Migrering av sakId $sakId mangler opplysninger $manglendeOpplysninger" }
-            sikkerlogg.info { packet.toJson() }
             packet["manglendeOpplysninger"] =
                 manglendeOpplysninger
             context.publish(packet.toJson())
+            sikkerlogg.info { "Migrering av sakId $sakId mangler opplysninger : ${packet.toJson()}" }
             return
         }
 
@@ -143,14 +143,6 @@ class MigrerYtelseMottak(
 
         hendelseMottaker.behandle(message.hendelse, message, context)
         logger.info { "Migrering av sakId $sakId sendt start behandling hendelse" }
-    }
-
-    override fun onError(
-        problems: MessageProblems,
-        context: MessageContext,
-        metadata: MessageMetadata,
-    ) {
-        logger.error { problems }
     }
 
     private companion object {
