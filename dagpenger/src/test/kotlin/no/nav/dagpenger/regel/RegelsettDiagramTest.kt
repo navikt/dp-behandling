@@ -48,7 +48,7 @@ class RegelsettDiagramTest {
             type: String,
             til: String,
         ) {
-            kanter += "  $fra $pil|$type| $til" to type
+            kanter += "  $til $pil|$type| $fra" to type
         }
         regelsett.forEach { rs ->
             avhengigheter.getValue(rs).forEach { kant(noder.getValue(rs), "-->", "data", noder.getValue(it)) }
@@ -104,7 +104,8 @@ class RegelsettDiagramTest {
             listOf(
                 "# Regelsett - Dagpenger",
                 "",
-                "Viser hvordan regelsettene avhenger av hverandre.",
+                "Viser hvordan regelsettene avhenger av hverandre. Pilen går fra regelsettet som påvirker til regelsettet som påvirkes,",
+                "så grunnlag (f.eks. Søknadstidspunkt) ligger til venstre og resultater til høyre.",
                 "",
                 "- `data` (grå): regelsettet bruker opplysninger som et annet regelsett produserer",
                 "- `skalVurderes` (rosa): regelsettets `skalVurderes` leser opplysninger fra et annet regelsett",
