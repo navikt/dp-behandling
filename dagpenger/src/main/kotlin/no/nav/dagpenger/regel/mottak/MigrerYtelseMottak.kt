@@ -327,7 +327,7 @@ private fun <T : Any> Opplysningstype<T>.tilleggsopplysning(
                                                 inntektKlasse = InntektKlasse.valueOf(inntekt["inntektKlasse"].asString()),
                                             )
                                         },
-                                    harAvvik = måned["harAvvik"].asBoolean(),
+                                    harAvvik = måned["harAvvik"]?.asBoolean(),
                                 )
                             },
                         manueltRedigert = verdi["manueltRedigert"]?.asBoolean() ?: false,
