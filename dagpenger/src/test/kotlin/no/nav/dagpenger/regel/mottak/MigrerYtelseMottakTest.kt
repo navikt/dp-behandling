@@ -100,6 +100,11 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
+    fun `json som ga ugyldig periode i dev`() {
+        rapid.sendTestMessage(ugyldigDatoJson)
+    }
+
+    @Test
     fun `bevarer innsendte fakta og gyldighetsperioder i melding med manglende opplysninger`() {
         val fødselsdato = Alderskrav.fødselsdato
         val antallBarn = DagpengenesStørrelse.antallBarn
@@ -794,23 +799,52 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
-    fun `bevarer eksplisitt historisk saldoperiode`() {
-        val sendt = melding(listOf(opplysning(Beregning.gjenståendeDager, 40, "2025-12-22", "2026-01-04")))
+    fun `saldoer gjelder dagen før migrering uansett innsendt periode`() {
+        val perioder =
+            listOf(
+                emptyMap(),
+                mapOf("gyldigFraOgMed" to null, "gyldigTilOgMed" to null),
+                mapOf("gyldigFraOgMed" to "2026-01-10"),
+                mapOf("gyldigTilOgMed" to "2026-01-10"),
+                mapOf("gyldigFraOgMed" to "2025-12-22", "gyldigTilOgMed" to "2026-01-04"),
+                mapOf("gyldigFraOgMed" to "2026-01-10", "gyldigTilOgMed" to "2026-01-09"),
+                mapOf("gyldigFraOgMed" to "ugyldig", "gyldigTilOgMed" to "ugyldig"),
+            )
+        Migreringsprosess.migreringssaldoer.forEach { type ->
+            val verdi = if (type.datatype == Dato) "2026-01-02" else 40
+            perioder.forEach { periode ->
+                withClue("Opplysningstype ${type.id.uuid}, periode $periode") {
+                    val node =
+                        jsonMapper.valueToTree<JsonNode>(
+                            listOf((opplysning(type, verdi) - "gyldigFraOgMed" - "gyldigTilOgMed") + periode),
+                        )
+
+                    val saldo = node.tilleggsopplysninger(migreringTidspunkt, opplysningstyper).single()
+
+                    saldo.gyldighetsperiode shouldBe Gyldighetsperiode.kun(migreringTidspunkt.minusDays(1))
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `bevarer eksplisitt historisk periode for andre opplysninger enn saldoer`() {
+        val sendt = melding(listOf(opplysning(DagpengenesStørrelse.antallBarn, 2, "2025-12-22", "2026-01-04")))
         val packet =
             JsonMessage.newMessage("migrering_startet", jsonMapper.readValue<Map<String, Any>>(sendt)).apply {
                 interestedIn("opplysninger")
             }
 
-        val saldo = packet["opplysninger"].tilleggsopplysninger(LocalDate.of(2026, 1, 5), opplysningstyper).single()
+        val oppgitt = packet["opplysninger"].tilleggsopplysninger(LocalDate.of(2026, 1, 5), opplysningstyper).single()
 
-        saldo.gyldighetsperiode shouldBe Gyldighetsperiode(LocalDate.of(2025, 12, 22), LocalDate.of(2026, 1, 4))
+        oppgitt.gyldighetsperiode shouldBe Gyldighetsperiode(LocalDate.of(2025, 12, 22), LocalDate.of(2026, 1, 4))
     }
 
     @Test
     fun `avslutter migrering uten svar når en opplysning har omvendt gyldighetsperiode`() {
         listOf(
             opplysning(Verneplikt.avtjentVerneplikt, false, "2026-01-06", "2026-01-05"),
-            opplysning(Beregning.gjenståendeDager, 40, "2026-01-05", "2026-01-04"),
+            opplysning(DagpengenesStørrelse.antallBarn, 2, "2026-01-05", "2026-01-04"),
         ).forEach { opplysning ->
             rapid.sendTestMessage(melding(listOf(opplysning)))
 
@@ -825,7 +859,7 @@ class MigrerYtelseMottakTest {
         val context = mockk<MessageContext>(relaxed = true)
         listOf(
             opplysning(DagpengenesStørrelse.antallBarn, "to"),
-            opplysning(Beregning.gjenståendeEgenandel, "ikke et beløp"),
+            opplysning(Egenandel.egenandel, "ikke et beløp"),
             opplysning(Verneplikt.avtjentVerneplikt, false, "2026-01-05", "+200000-01-01"),
         ).forEach { opplysning ->
             val packet =
@@ -861,9 +895,8 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
-    fun `avviser saldo med ugyldig periode eller verdi`() {
+    fun `avviser saldo med ugyldig verdi`() {
         listOf(
-            opplysning(Beregning.gjenståendeDager, 40, "2026-01-05", "2026-01-18"),
             opplysning(Beregning.gjenståendeDager, -1),
             opplysning(Beregning.gjenståendeEgenandel, -500),
             opplysning(Beregning.sisteForbruksdag, "2026-01-05"),
@@ -1245,4 +1278,45 @@ class MigrerYtelseMottakTest {
             put("gyldigFraOgMed", fraOgMed ?: if (erSaldo) "2026-01-04" else "2024-01-01")
             (tilOgMed ?: if (erSaldo) "2026-01-04" else null)?.let { put("gyldigTilOgMed", it) }
         }
+
+    private val ugyldigDatoJson =
+        """
+        {
+          "@event_name": "migrering_startet",
+          "sakId": 13820850,
+          "migreringTidspunkt": "2026-11-16",
+          "simulering": true,
+          "initiertAv": "Z990798",
+          "ident": "26418531931",
+          "migreringId": "01a1e519-fb15-7646-a77c-13895fcc8f9d",
+          "opplysninger": [
+            {
+              "navn": "Fødselsdato",
+              "verdi": "1985-01-26",
+              "gyldigFraOgMed": "2026-09-01",
+              "uuid": "0194881f-940b-76ff-acf5-ba7bcb367233"
+            },
+            {
+              "navn": "Antall dager som er forbrukt",
+              "verdi": 123,
+              "gyldigFraOgMed": "2026-11-16",
+              "uuid": "01992934-66e4-7606-bdd3-c6c9dd420ffd"
+            },
+            {
+              "navn": "Antall dager som gjenstår",
+              "verdi": 321,
+              "gyldigFraOgMed": "2026-11-09",
+              "uuid": "01992956-e349-76b1-8f68-c9d481df3a32"
+            },
+            {
+              "navn": "Gjenstående egenandel",
+              "verdi": 0,
+              "gyldigFraOgMed": "2026-11-09",
+              "uuid": "01997b70-a12c-7622-bff8-82a20687e640"
+            }
+          ],
+          "@id": "b98f02e9-9ceb-46d8-8f6a-fe49e5b4a3af",
+          "@opprettet": "2026-11-16T17:04:08.179578023"
+        }
+        """.trimIndent()
 }

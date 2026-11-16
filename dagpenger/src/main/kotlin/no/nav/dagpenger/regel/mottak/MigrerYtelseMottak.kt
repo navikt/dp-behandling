@@ -93,8 +93,10 @@ class MigrerYtelseMottak(
         val message =
             try {
                 MigrerYtelseMessage(packet, opplysningstyper)
-            } catch (_: UgyldigGyldighetsperiode) {
-                logger.error { "Migreringsmelding med sakId $sakId inneholder en ugyldig gyldighetsperiode" }
+            } catch (feil: UgyldigGyldighetsperiode) {
+                logger.error {
+                    "Migreringsmelding med sakId $sakId inneholder en ugyldig gyldighetsperiode for opplysningstype ${feil.typeId}: ${feil.fom} er etter ${feil.tom}"
+                }
                 sikkerlogg.info { "Migreringsmelding med sakId $sakId inneholder en ugyldig gyldighetsperiode : ${packet.toJson()}" }
                 return
             } catch (feil: UgyldigTilleggsopplysning) {
@@ -196,7 +198,11 @@ internal fun JsonNode.tilleggsopplysninger(
     return values().map { it.tilleggsopplysning(migreringTidspunkt, opplysningstyper) }
 }
 
-private class UgyldigGyldighetsperiode : RuntimeException()
+private class UgyldigGyldighetsperiode(
+    val typeId: UUID,
+    val fom: LocalDate,
+    val tom: LocalDate,
+) : RuntimeException()
 
 private class UgyldigTilleggsopplysning(
     val typeId: UUID,
@@ -221,17 +227,27 @@ private fun JsonNode.tilleggsopplysning(
     val erMigreringssaldo = type in Migreringsprosess.migreringssaldoer
     val saldodato = migreringTidspunkt.minusDays(1)
     val gyldigFraOgMed =
-        get("gyldigFraOgMed")
-            ?.takeIf { it.isString }
-            ?.asLocalDate()
-            ?: if (erMigreringssaldo) saldodato else migreringTidspunkt
+        if (erMigreringssaldo) {
+            saldodato
+        } else {
+            get("gyldigFraOgMed")
+                ?.takeIf { it.isString }
+                ?.asLocalDate()
+                ?: migreringTidspunkt
+        }
     val gyldigTilOgMed =
-        get("gyldigTilOgMed")
-            ?.takeUnless { it.isMissingNode || it.isNull }
-            ?.also { require(it.isString) { "Opplysning $uuid har ugyldig gyldigTilOgMed" } }
-            ?.asLocalDate()
-            ?: if (erMigreringssaldo) saldodato else LocalDate.MAX
-    if (gyldigFraOgMed.isAfter(gyldigTilOgMed)) throw UgyldigGyldighetsperiode()
+        if (erMigreringssaldo) {
+            saldodato
+        } else {
+            get("gyldigTilOgMed")
+                ?.takeUnless { it.isMissingNode || it.isNull }
+                ?.also { require(it.isString) { "Opplysning $uuid har ugyldig gyldigTilOgMed" } }
+                ?.asLocalDate()
+                ?: LocalDate.MAX
+        }
+    if (gyldigFraOgMed.isAfter(gyldigTilOgMed)) {
+        throw UgyldigGyldighetsperiode(uuid, gyldigFraOgMed, gyldigTilOgMed)
+    }
     if (erMigreringssaldo) {
         require(gyldigTilOgMed == saldodato) { "Opplysning $uuid har ugyldig saldoperiode" }
     }
