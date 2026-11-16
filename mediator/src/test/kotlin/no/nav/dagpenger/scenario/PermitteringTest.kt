@@ -1,5 +1,6 @@
 package no.nav.dagpenger.scenario
 
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
@@ -69,6 +70,73 @@ class PermitteringTest {
                 }
                 with(opplysninger(gjenståendePermittering)) {
                     this.last().verdi.verdi shouldBe 113
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `tester innvilgelse av permittering på løpende sak`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) { utfall shouldBe true }
+
+            person.sendInnMeldekort(1)
+            meldekortBatch()
+
+            behandlingsresultat(2) { utfall shouldBe true }
+
+            saksbehandler.omgjørBehandling(3.juli(2018))
+            saksbehandler.endreOpplysning(
+                skalPermitteringVurderes,
+                false,
+                "Permittering vurderes",
+                Gyldighetsperiode(21.juni(2018), 2.juli(2018)),
+            )
+            behovsløsere.løsTilForslag() shouldHaveSize 1
+            saksbehandler.endreOpplysning(
+                skalPermitteringVurderes,
+                true,
+                "Permittering vurderes",
+                Gyldighetsperiode(3.juli(2018), 6.juli(2018)),
+            )
+            saksbehandler.endreOpplysning(
+                skalPermitteringVurderes,
+                false,
+                "Permittering vurderes",
+                Gyldighetsperiode(7.juli(2018)),
+            )
+            behovsløsere.løsTilForslag() shouldHaveSize 1
+            saksbehandler.lukkAlleAvklaringer() shouldHaveSize 1
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(3) {
+                opplysninger(skalPermitteringVurderes) {
+                    this.last().verdi.verdi shouldBe false
+                }
+                opplysninger(oppfyllerKravetTilPermittering) {
+                    this.last().verdi.verdi shouldBe false
+                }
+            }
+
+            person.sendInnMeldekort(2)
+            meldekortBatch()
+
+            behandlingsresultat(4) {
+                with(opplysninger(forbruktPermittering)) {
+                    this.last().verdi.verdi shouldBe 9
+                }
+                with(opplysninger(gjenståendePermittering)) {
+                    this.last().verdi.verdi shouldBe 121
                 }
             }
         }
