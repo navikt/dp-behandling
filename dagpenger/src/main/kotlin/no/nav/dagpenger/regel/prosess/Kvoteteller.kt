@@ -50,32 +50,17 @@ internal class Kvoteteller private constructor(
         val rettigheter =
             kvoter
                 .filter { it.teller(Rettighet) }
-                .filter { it.skalFortsattTelles(opplysninger, fraOgMed) }
                 .associateWith { kvotedefinisjon ->
-                    rettighetsdager.filter {
-                        opplysninger.finnOpplysning(kvotedefinisjon.tellesNår, it).verdi
-                    }
+                    rettighetsdager
+                        .filter {
+                            opplysninger.forDato(it).finnNullableOpplysning(kvotedefinisjon.tellesNår)?.verdi ?: false
+                        }
                 }
 
         // Alle kvoter som teller bortfall må telle i rekkefølge
         val sanksjoner = bortfallPerSanksjon(opplysninger, fraOgMed)
 
         return rettigheter + sanksjoner
-    }
-
-    /**
-     * En rettighetskvote skal fortsatt telles med for denne perioden dersom utløsendeBetingelse enten
-     * er oppfylt, eller først ble satt til usann ETTER at perioden startet - altså at kvoten brukes
-     * opp midt i DENNE perioden. Den skal telles med helt til overgangen faktisk trer i kraft. Uten
-     * dette ville en rekjøring innenfor samme periode ekskludert kvoten fullstendig, og mistet
-     * forbruket som allerede var beregnet før overgangen.
-     */
-    private fun KvoteDefinisjon.skalFortsattTelles(
-        opplysninger: LesbarOpplysninger,
-        fraOgMed: LocalDate,
-    ): Boolean {
-        val betingelse = opplysninger.finnNullableOpplysning(utløsendeBetingelse) ?: return false
-        return betingelse.verdi || betingelse.gyldighetsperiode.fraOgMed.isAfter(fraOgMed)
     }
 
     private fun bortfallPerSanksjon(

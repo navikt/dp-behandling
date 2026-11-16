@@ -94,37 +94,35 @@ class PermitteringTest {
 
             behandlingsresultat(2) { utfall shouldBe true }
 
+            // meldesyklus = 18.06 -> 01.07
             saksbehandler.omgjørBehandling(3.juli(2018))
-            saksbehandler.endreOpplysning(
-                skalPermitteringVurderes,
-                false,
-                "Permittering vurderes",
-                Gyldighetsperiode(21.juni(2018), 2.juli(2018)),
-            )
-            behovsløsere.løsTilForslag() shouldHaveSize 1
-            saksbehandler.endreOpplysning(
+            saksbehandler.leggTilOpplysning(
                 skalPermitteringVurderes,
                 true,
                 "Permittering vurderes",
-                Gyldighetsperiode(3.juli(2018), 6.juli(2018)),
+                Gyldighetsperiode(3.juli(2018)),
             )
-            saksbehandler.endreOpplysning(
+            behovsløsere.løsTilForslag() shouldHaveSize 0
+            saksbehandler.leggTilOpplysning(
                 skalPermitteringVurderes,
                 false,
                 "Permittering vurderes",
-                Gyldighetsperiode(7.juli(2018)),
+                Gyldighetsperiode(6.juli(2018)),
             )
-            behovsløsere.løsTilForslag() shouldHaveSize 1
+            behovsløsere.løsTilForslag() shouldHaveSize 0
+
             saksbehandler.lukkAlleAvklaringer() shouldHaveSize 1
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
             behandlingsresultat(3) {
                 opplysninger(skalPermitteringVurderes) {
-                    this.last().verdi.verdi shouldBe false
+                    this[0].verdi.verdi shouldBe false
+                    this[1].verdi.verdi shouldBe true
+                    this[2].verdi.verdi shouldBe false
                 }
                 opplysninger(oppfyllerKravetTilPermittering) {
-                    this.last().verdi.verdi shouldBe false
+                    this.single().verdi.verdi shouldBe true
                 }
             }
 
@@ -133,10 +131,73 @@ class PermitteringTest {
 
             behandlingsresultat(4) {
                 with(opplysninger(forbruktPermittering)) {
-                    this.last().verdi.verdi shouldBe 9
+                    this.last().verdi.verdi shouldBe 3
                 }
                 with(opplysninger(gjenståendePermittering)) {
-                    this.last().verdi.verdi shouldBe 121
+                    this.last().verdi.verdi shouldBe 127
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `tester dev-sak som prøver å innvilge permittering på løpende sak`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) { utfall shouldBe true }
+
+            person.sendInnMeldekort(1)
+            meldekortBatch()
+
+            behandlingsresultat(2) { utfall shouldBe true }
+
+            // meldesyklus = 18.06 -> 01.07
+            saksbehandler.omgjørBehandling(3.juli(2018))
+            saksbehandler.leggTilOpplysning(
+                skalPermitteringVurderes,
+                true,
+                "Permittering vurderes",
+                Gyldighetsperiode(3.juli(2018), 6.juli(2018)),
+            )
+            saksbehandler.leggTilOpplysning(
+                skalPermitteringVurderes,
+                false,
+                "Permittering vurderes",
+                Gyldighetsperiode(11.juli(2018)),
+            )
+            behovsløsere.løsTilForslag() shouldHaveSize 1
+
+            saksbehandler.lukkAlleAvklaringer() shouldHaveSize 1
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(3) {
+                opplysninger(skalPermitteringVurderes) {
+                    // Problem: overskrevet for hele perioden med false fra søknadstidspunkt
+                    this.single().verdi.verdi shouldBe false
+                }
+                opplysninger(oppfyllerKravetTilPermittering) {
+                    this.last().verdi.verdi shouldBe true
+                }
+            }
+
+            person.sendInnMeldekort(2)
+            meldekortBatch()
+
+            behandlingsresultat(4) {
+                with(opplysninger(forbruktPermittering)) {
+                    this.last().verdi.verdi shouldBe 0
+                }
+                with(opplysninger(gjenståendePermittering)) {
+                    this.last().verdi.verdi shouldBe 0
                 }
             }
         }
