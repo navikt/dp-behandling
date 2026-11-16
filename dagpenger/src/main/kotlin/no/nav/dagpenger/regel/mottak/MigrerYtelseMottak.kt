@@ -84,8 +84,15 @@ class MigrerYtelseMottak(
     ) {
         logger.info { "Mottok melding om migrering av ytelse" }
         val sakId = packet["sakId"].asInt()
+        val migreringId = packet["migreringId"].asString()
         if (sakId == 13699878) {
             logger.info { "Skipper migrering med sakId $sakId" }
+            sikkerlogg.info { "Skipper melding : ${packet.toJson()}" }
+            return
+        }
+
+        if (migreringId == "01a1e61b-5a34-77dd-8c4d-dff3c8e9f39a") {
+            logger.info { "Skipper migrering med migreringId $migreringId" }
             sikkerlogg.info { "Skipper melding : ${packet.toJson()}" }
             return
         }
