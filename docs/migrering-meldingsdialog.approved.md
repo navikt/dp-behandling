@@ -6,13 +6,13 @@ Opplysningstype-UUID-er, faktaverdier og gyldighetsdatoer er beholdt.
 | Runde | Retning | Melding | Opplysninger |
 | --- | --- | --- | --- |
 | 1 | Avsender → mottak | `migrering_startet` | 0 totalt (nye: 0) |
-| 1 | Mottak → avsender | `migrering_startet` | 4 mangler |
+| 1 | Mottak → avsender | `migrering_manglende_opplysninger` | 4 mangler |
 | 2 | Avsender → mottak | `migrering_startet` | 4 totalt (nye: 4) |
-| 2 | Mottak → avsender | `migrering_startet` | 10 mangler |
+| 2 | Mottak → avsender | `migrering_manglende_opplysninger` | 10 mangler |
 | 3 | Avsender → mottak | `migrering_startet` | 14 totalt (nye: 10) |
-| 3 | Mottak → avsender | `migrering_startet` | 16 mangler |
+| 3 | Mottak → avsender | `migrering_manglende_opplysninger` | 16 mangler |
 | 4 | Avsender → mottak | `migrering_startet` | 30 totalt (nye: 16) |
-| 4 | Mottak → avsender | `migrering_startet` | 2 mangler |
+| 4 | Mottak → avsender | `migrering_manglende_opplysninger` | 2 mangler |
 | 5 | Avsender → mottak | `migrering_startet` | 32 totalt (nye: 2) |
 
 ## Runde 1
@@ -55,7 +55,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
 
 ```json
 {
-  "@event_name" : "migrering_startet",
+  "@event_name" : "migrering_manglende_opplysninger",
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
@@ -166,7 +166,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
 
 ```json
 {
-  "@event_name" : "migrering_startet",
+  "@event_name" : "migrering_manglende_opplysninger",
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
@@ -469,7 +469,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
 
 ```json
 {
-  "@event_name" : "migrering_startet",
+  "@event_name" : "migrering_manglende_opplysninger",
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",
@@ -1001,7 +1001,7 @@ Nye fakta i denne runden (JSON-meldingen inneholder også tidligere sendte fakta
 
 ```json
 {
-  "@event_name" : "migrering_startet",
+  "@event_name" : "migrering_manglende_opplysninger",
   "sakId" : 13699879,
   "migreringId" : "<migreringId>",
   "ident" : "<ident>",

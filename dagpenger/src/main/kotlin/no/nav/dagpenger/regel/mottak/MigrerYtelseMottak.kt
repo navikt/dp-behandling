@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.mottak
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.River
 import com.github.navikt.tbd_libs.rapids_and_rivers.asLocalDate
@@ -39,16 +40,27 @@ import no.nav.dagpenger.regel.hendelse.Tilleggsopplysning
 import no.nav.dagpenger.regel.prosess.Migreringsprosess
 import no.nav.dagpenger.regelverk.HendelseMottaker
 import no.nav.dagpenger.regelverk.melding.KafkaMelding
+import no.nav.dagpenger.uuid.UUIDv7
 import tools.jackson.databind.JsonNode
+import tools.jackson.databind.introspect.DefaultAccessorNamingStrategy
 import tools.jackson.module.kotlin.jsonMapper
 import tools.jackson.module.kotlin.kotlinModule
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 import no.nav.dagpenger.inntekt.v1.Inntekt as InntektV1
 
-private val migreringSvarSerializer = jsonMapper { addModule(kotlinModule()) }
+private val migreringSvarSerializer =
+    jsonMapper {
+        addModule(kotlinModule())
+        accessorNaming(
+            DefaultAccessorNamingStrategy
+                .Provider()
+                .withFirstCharAcceptance(true, true),
+        )
+    }
 
 class MigrerYtelseMottak(
     rapidsConnection: RapidsConnection,
@@ -61,16 +73,15 @@ class MigrerYtelseMottak(
     init {
         River(rapidsConnection)
             .apply {
-                precondition { it.requireAny("@event_name", listOf("migrering_startet")) }
+                precondition { it.requireAny("@event_name", listOf("migrering_startet", "migrering_opplysninger")) }
                 validate {
                     it.requireKey(
                         "ident",
                         "sakId",
                         "migreringTidspunkt",
                         "migreringId",
-                        "opplysninger",
                     )
-                    it.interestedIn("innvilgetTilOgMed", "initiertAv", "simulering")
+                    it.interestedIn("innvilgetTilOgMed", "initiertAv", "simulering", "opplysninger")
                     it.forbid("manglendeOpplysninger", "rapport", "simulerteOpplysninger")
                 }
             }.register(this)
@@ -109,17 +120,30 @@ class MigrerYtelseMottak(
                     "Migreringsmelding med sakId $sakId inneholder en ugyldig gyldighetsperiode for opplysningstype ${feil.typeId}: ${feil.fom} er etter ${feil.tom}"
                 }
                 sikkerlogg.info { "Migreringsmelding med sakId $sakId inneholder en ugyldig gyldighetsperiode : ${packet.toJson()}" }
+                context.publiserMigreringAvbrutt(
+                    migreringId,
+                    sakId,
+                    årsak = "UGYLDIG_GYLDIGHETSPERIODE",
+                    melding = "Opplysningstype ${feil.typeId} har en fra-dato ${feil.fom} som er etter til-datoen ${feil.tom}.",
+                )
                 return@withLoggingContext
             } catch (feil: UgyldigTilleggsopplysning) {
                 logger.error { "Migreringsmelding med sakId $sakId inneholder en ugyldig tilleggsopplysning av type ${feil.typeId}" }
                 sikkerlogg.info {
                     "Migreringsmelding med sakId $sakId inneholder en ugyldig tilleggsopplysning av type ${feil.typeId} i meldingen ${packet.toJson()}"
                 }
+                context.publiserMigreringAvbrutt(
+                    migreringId,
+                    sakId,
+                    årsak = "UGYLDIG_TILLEGGSOPPLYSNING",
+                    melding = "Kunne ikke opprette tilleggsopplysning av type ${feil.typeId}.",
+                )
                 return@withLoggingContext
             }
         val faktagrunnlag = message.hendelse.lagFaktagrunnlag()
         val simulering = packet["simulering"].asBoolean(false)
 
+        // kjører regelkjøringen. Hvis vi skal simulere kjører vi en egen versjon som gir oss simulerteOpplysniger i tillegg som vi sender tilbake hvis det ikke er noenting som mangler
         val rapport =
             if (simulering) {
                 try {
@@ -127,8 +151,12 @@ class MigrerYtelseMottak(
                 } catch (_: Exception) {
                     logger.error { "Simulering av migrering med sakId $sakId feilet" }
                     sikkerlogg.info { "Simulering av migrering med sakId $sakId feilet : ${packet.toJson()}" }
-                    packet["simulerteOpplysninger"] = emptyList<Any>()
-                    context.publish(packet.toJson())
+                    context.publiserMigreringAvbrutt(
+                        migreringId,
+                        sakId,
+                        årsak = "SIMULERING_FEILET",
+                        melding = "Simulering av migreringen feilet.",
+                    )
                     return@withLoggingContext
                 }
             } else {
@@ -147,6 +175,7 @@ class MigrerYtelseMottak(
             logger.info { "Migrering av sakId $sakId mangler opplysninger $manglendeOpplysninger" }
             packet["manglendeOpplysninger"] =
                 manglendeOpplysninger
+            packet["@event_name"] = "migrering_manglende_opplysninger"
             context.publish(packet.toJson())
             sikkerlogg.info { "Migrering av sakId $sakId mangler opplysninger : ${packet.toJson()}" }
             return@withLoggingContext
@@ -157,12 +186,31 @@ class MigrerYtelseMottak(
             packet["simulerteOpplysninger"] =
                 faktagrunnlag.simulerteOpplysninger()
             packet["manglendeOpplysninger"] = emptyList<Any>()
+            packet["@event_name"] = "migrering_simulering_resultat"
             context.publish(packet.toJson())
             return@withLoggingContext
         }
 
         hendelseMottaker.behandle(message.hendelse, message, context)
         logger.info { "Migrering av sakId $sakId sendt start behandling hendelse" }
+    }
+
+    private fun MessageContext.publiserMigreringAvbrutt(
+        migreringId: String,
+        sakId: Int,
+        årsak: String,
+        melding: String,
+    ) {
+        publish(
+            migreringSvarSerializer.writeValueAsString(
+                AvbrytMigrering(
+                    migreringId = migreringId.toUUID(),
+                    sakId = sakId,
+                    årsak = årsak,
+                    melding = melding,
+                ),
+            ),
+        )
     }
 
     private companion object {
@@ -202,10 +250,27 @@ internal data class ManglendeMigreringsopplysning(
     val navn: String,
 )
 
+internal data class AvbrytMigrering(
+    val migreringId: UUID,
+    val sakId: Int,
+    val årsak: String,
+    val melding: String,
+) {
+    @get:JsonProperty("@event_name")
+    val eventName: String = "migrering_avbrutt"
+
+    @get:JsonProperty("@id")
+    val id: UUID = UUIDv7.ny()
+
+    @get:JsonProperty("@opprettet")
+    val opprettet: LocalDateTime = LocalDateTime.now()
+}
+
 internal fun JsonNode.tilleggsopplysninger(
     migreringTidspunkt: LocalDate,
     opplysningstyper: Set<Opplysningstype<*>>,
 ): List<Tilleggsopplysning<*>> {
+    if (isMissingNode) return emptyList()
     require(isArray) { "opplysninger må være en liste" }
     return values().map { it.tilleggsopplysning(migreringTidspunkt, opplysningstyper) }
 }

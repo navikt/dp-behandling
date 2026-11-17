@@ -119,7 +119,7 @@ class MigrerYtelseMottakTest {
         rapid.sendTestMessage(sendtMelding)
 
         val feilet = rapid.inspektør.message(0)
-        feilet["@event_name"].asString() shouldBe "migrering_startet"
+        feilet["@event_name"].asString() shouldBe "migrering_manglende_opplysninger"
         feilet["opplysninger"] shouldBe jsonMapper.readTree(sendtMelding)["opplysninger"]
         feilet["manglendeOpplysninger"].values().map { it["uuid"].asString() } shouldBe
             feilet["manglendeOpplysninger"]
@@ -317,7 +317,7 @@ class MigrerYtelseMottakTest {
             verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
             rapid.inspektør.size shouldBe 1
             val svar = rapid.inspektør.message(0)
-            svar["@event_name"].asString() shouldBe "migrering_startet"
+            svar["@event_name"].asString() shouldBe "migrering_simulering_resultat"
             svar["simulering"].asBoolean() shouldBe true
             svar["opplysninger"] shouldBe jsonMapper.readTree(sendtMelding)["opplysninger"]
             svar["simulerteOpplysninger"].isArray shouldBe true
@@ -342,7 +342,7 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
-    fun `simuleringsfeil publiserer innkommende melding med tomme simulerte opplysninger`() {
+    fun `simuleringsfeil publiserer ny avbruddsmelding med årsak og melding`() {
         listOf(
             Exception("Feil med sensitiv feilmelding"),
             RegelkjøringLoopException("Feil med sensitiv feilmelding"),
@@ -369,12 +369,16 @@ class MigrerYtelseMottakTest {
             MDC.get("sakId") shouldBe tidligereSakId
             rapidMedFeilendeSimulator.inspektør.size shouldBe 1
             val svar = rapidMedFeilendeSimulator.inspektør.message(0)
-            svar["@event_name"].asString() shouldBe "migrering_startet"
-            jsonMapper.readTree(sendtMelding).properties().forEach { (navn, verdi) ->
-                svar[navn] shouldBe verdi
-            }
-            svar["simulerteOpplysninger"].isArray shouldBe true
-            svar["simulerteOpplysninger"].size() shouldBe 0
+            svar["@event_name"].asString() shouldBe "migrering_avbrutt"
+            svar["migreringId"].asString() shouldBe migreringId.toString()
+            svar["sakId"].asInt() shouldBe 13699879
+            svar["årsak"].asString() shouldBe "SIMULERING_FEILET"
+            svar["melding"].asString() shouldBe "Simulering av migreringen feilet."
+            svar.has("ident") shouldBe false
+            svar.has("opplysninger") shouldBe false
+            svar.has("simulering") shouldBe false
+            svar.has("simulerteOpplysninger") shouldBe false
+            svar.has("manglendeOpplysninger") shouldBe false
             verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
 
             rapidMedFeilendeSimulator.sendTestMessage(svar.toString())
@@ -494,10 +498,39 @@ class MigrerYtelseMottakTest {
 
         rapid.inspektør.size shouldBe 1
         val svar = rapid.inspektør.message(0)
+        svar["@event_name"].asString() shouldBe "migrering_manglende_opplysninger"
         (svar["manglendeOpplysninger"].size() > 0) shouldBe true
+        svar.has("årsak") shouldBe false
+        svar.has("melding") shouldBe false
         svar.has("simulerteOpplysninger") shouldBe false
         svar.has("rapport") shouldBe false
         verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["migrering_startet", "migrering_opplysninger"])
+    fun `manglende opplysningsfelt behandles som en tom liste`(eventNavn: String) {
+        listOf(true, false).forEach { simulering ->
+            rapid.reset()
+            val felter =
+                jsonMapper.readValue<Map<String, Any>>(melding(simulering = simulering)) +
+                    ("@event_name" to eventNavn)
+            rapid.sendTestMessage(jsonMapper.writeValueAsString(felter))
+            rapid.inspektør.size shouldBe 1
+            val forventedeMangler = rapid.inspektør.message(0)["manglendeOpplysninger"]
+            (forventedeMangler.size() > 0) shouldBe true
+            rapid.reset()
+
+            rapid.sendTestMessage(jsonMapper.writeValueAsString(felter - "opplysninger"))
+
+            rapid.inspektør.size shouldBe 1
+            val svar = rapid.inspektør.message(0)
+            svar["@event_name"].asString() shouldBe "migrering_manglende_opplysninger"
+            svar["manglendeOpplysninger"] shouldBe forventedeMangler
+            svar.has("simulerteOpplysninger") shouldBe false
+            svar.has("årsak") shouldBe false
+            verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+        }
     }
 
     @Test
@@ -591,7 +624,7 @@ class MigrerYtelseMottakTest {
             val feilet = rapid.inspektør.message(0)
             meldinger.add(feilet.toString())
             dialog.mottatt(runde + 1, feilet)
-            feilet["@event_name"].asString() shouldBe "migrering_startet"
+            feilet["@event_name"].asString() shouldBe "migrering_manglende_opplysninger"
             feilet["opplysninger"].values().map { it["uuid"].asString() }.sorted() shouldBe sendteFakta.keys.sorted()
             feilet["opplysninger"] shouldBe jsonMapper.readTree(sendtMelding)["opplysninger"]
             val manglende = feilet["manglendeOpplysninger"].values().map { it["uuid"].asString() }
@@ -850,22 +883,41 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
-    fun `avslutter migrering uten svar når en opplysning har omvendt gyldighetsperiode`() {
+    fun `publiserer migrering avbrutt når en opplysning har omvendt gyldighetsperiode`() {
         listOf(
             opplysning(Verneplikt.avtjentVerneplikt, false, "2026-01-06", "2026-01-05"),
             opplysning(DagpengenesStørrelse.antallBarn, 2, "2026-01-05", "2026-01-04"),
         ).forEach { opplysning ->
-            rapid.sendTestMessage(melding(listOf(opplysning)))
+            rapid.reset()
+            val sendtMelding = melding(listOf(opplysning))
 
-            rapid.inspektør.size shouldBe 0
+            rapid.sendTestMessage(sendtMelding)
+
+            rapid.inspektør.size shouldBe 1
+            val svar = rapid.inspektør.message(0)
+            svar["@event_name"].asString() shouldBe "migrering_avbrutt"
+            svar["migreringId"].asString() shouldBe migreringId.toString()
+            svar["sakId"].asInt() shouldBe 13699879
+            svar["årsak"].asString() shouldBe "UGYLDIG_GYLDIGHETSPERIODE"
+            svar["melding"].asString() shouldBe
+                "Opplysningstype ${opplysning["uuid"]} har en fra-dato ${opplysning["gyldigFraOgMed"]} som er etter til-datoen ${opplysning["gyldigTilOgMed"]}."
+            svar.has("ident") shouldBe false
+            svar.has("opplysninger") shouldBe false
+            svar.has("simulerteOpplysninger") shouldBe false
+            verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+
+            rapid.sendTestMessage(svar.toString())
+            rapid.inspektør.size shouldBe 1
             verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
         }
     }
 
     @Test
-    fun `avslutter migrering uten svar når opplysningen ikke kan opprettes`() {
+    fun `publiserer migrering avbrutt når opplysningen ikke kan opprettes`() {
         val mottak = MigrerYtelseMottak(TestRapid(), hendelseMottaker, opplysningstyper)
         val context = mockk<MessageContext>(relaxed = true)
+        val publisertMelding = slot<String>()
+        every { context.publish(capture(publisertMelding)) } returns Unit
         listOf(
             opplysning(DagpengenesStørrelse.antallBarn, "to"),
             opplysning(Egenandel.egenandel, "ikke et beløp"),
@@ -885,11 +937,29 @@ class MigrerYtelseMottakTest {
                     ).apply {
                         interestedIn("sakId", "migreringId", "ident", "migreringTidspunkt", "opplysninger")
                     }
+            val innkommendeMelding = packet.toJson()
 
             mottak.onPacket(packet, context, mockk(relaxed = true), mockk(relaxed = true))
+
+            packet.toJson() shouldBe innkommendeMelding
+            val svar = jsonMapper.readTree(publisertMelding.captured)
+            svar["@event_name"].asString() shouldBe "migrering_avbrutt"
+            svar["migreringId"].asString() shouldBe migreringId.toString()
+            svar["sakId"].asInt() shouldBe 13699879
+            svar["årsak"].asString() shouldBe "UGYLDIG_TILLEGGSOPPLYSNING"
+            svar["melding"].asString() shouldBe "Kunne ikke opprette tilleggsopplysning av type ${opplysning["uuid"]}."
+            svar["@id"].isString shouldBe true
+            svar["@opprettet"].isString shouldBe true
+            svar.has("eventName") shouldBe false
+            svar.has("id") shouldBe false
+            svar.has("opprettet") shouldBe false
+            svar["@id"] shouldNotBe jsonMapper.readTree(innkommendeMelding)["@id"]
+            svar.has("ident") shouldBe false
+            svar.has("opplysninger") shouldBe false
+            svar.has("simulerteOpplysninger") shouldBe false
         }
 
-        verify(exactly = 0) { context.publish(any<String>()) }
+        verify(exactly = 3) { context.publish(any<String>()) }
         verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
     }
 
@@ -938,7 +1008,7 @@ class MigrerYtelseMottakTest {
 
     @Test
     fun `krever opplysningsliste`() {
-        listOf("{}", """{"opplysninger":null}""", """{"opplysninger":"feil"}""").forEach { json ->
+        listOf("""{"opplysninger":null}""", """{"opplysninger":"feil"}""").forEach { json ->
             shouldThrow<IllegalArgumentException> {
                 jsonMapper.readTree(json).path("opplysninger").tilleggsopplysninger(migreringTidspunkt, opplysningstyper)
             }
