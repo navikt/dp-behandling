@@ -91,7 +91,7 @@ class MigrerYtelseMottak(
             return
         }
 
-        if (migreringId == "01a1e61b-5a34-77dd-8c4d-dff3c8e9f39a") {
+        if (migreringId == "01a1e880-9a98-75e6-8c20-629e496bba2d") {
             logger.info { "Skipper migrering med migreringId $migreringId" }
             sikkerlogg.info { "Skipper melding : ${packet.toJson()}" }
             return
