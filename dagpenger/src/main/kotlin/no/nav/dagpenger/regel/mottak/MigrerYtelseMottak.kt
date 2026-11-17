@@ -9,6 +9,7 @@ import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageMetadata
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.RapidsConnection
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.github.oshai.kotlinlogging.withLoggingContext
 import io.micrometer.core.instrument.MeterRegistry
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.dagpenger.inntekt.v1.InntektKlasse
@@ -81,6 +82,9 @@ class MigrerYtelseMottak(
         context: MessageContext,
         metadata: MessageMetadata,
         meterRegistry: MeterRegistry,
+    ) = withLoggingContext(
+        "migreringId" to packet["migreringId"].asString(),
+        "sakId" to packet["sakId"].asInt().toString(),
     ) {
         logger.info { "Mottok melding om migrering av ytelse" }
         val sakId = packet["sakId"].asInt()
@@ -88,13 +92,13 @@ class MigrerYtelseMottak(
         if (sakId == 13699878) {
             logger.info { "Skipper migrering med sakId $sakId" }
             sikkerlogg.info { "Skipper melding : ${packet.toJson()}" }
-            return
+            return@withLoggingContext
         }
 
         if (migreringId == "01a1e880-9a98-75e6-8c20-629e496bba2d") {
             logger.info { "Skipper migrering med migreringId $migreringId" }
             sikkerlogg.info { "Skipper melding : ${packet.toJson()}" }
-            return
+            return@withLoggingContext
         }
 
         val message =
@@ -105,13 +109,13 @@ class MigrerYtelseMottak(
                     "Migreringsmelding med sakId $sakId inneholder en ugyldig gyldighetsperiode for opplysningstype ${feil.typeId}: ${feil.fom} er etter ${feil.tom}"
                 }
                 sikkerlogg.info { "Migreringsmelding med sakId $sakId inneholder en ugyldig gyldighetsperiode : ${packet.toJson()}" }
-                return
+                return@withLoggingContext
             } catch (feil: UgyldigTilleggsopplysning) {
                 logger.error { "Migreringsmelding med sakId $sakId inneholder en ugyldig tilleggsopplysning av type ${feil.typeId}" }
                 sikkerlogg.info {
                     "Migreringsmelding med sakId $sakId inneholder en ugyldig tilleggsopplysning av type ${feil.typeId} i meldingen ${packet.toJson()}"
                 }
-                return
+                return@withLoggingContext
             }
         val faktagrunnlag = message.hendelse.lagFaktagrunnlag()
         val simulering = packet["simulering"].asBoolean(false)
@@ -125,7 +129,7 @@ class MigrerYtelseMottak(
                     sikkerlogg.info { "Simulering av migrering med sakId $sakId feilet : ${packet.toJson()}" }
                     packet["simulerteOpplysninger"] = emptyList<Any>()
                     context.publish(packet.toJson())
-                    return
+                    return@withLoggingContext
                 }
             } else {
                 message.hendelse.forretningsprosess
@@ -145,15 +149,16 @@ class MigrerYtelseMottak(
                 manglendeOpplysninger
             context.publish(packet.toJson())
             sikkerlogg.info { "Migrering av sakId $sakId mangler opplysninger : ${packet.toJson()}" }
-            return
+            return@withLoggingContext
         }
 
         if (simulering) {
             logger.info { "Migrering med sakId $sakId skal kun simuleres" }
             packet["simulerteOpplysninger"] =
                 faktagrunnlag.simulerteOpplysninger()
+            packet["manglendeOpplysninger"] = emptyList<Any>()
             context.publish(packet.toJson())
-            return
+            return@withLoggingContext
         }
 
         hendelseMottaker.behandle(message.hendelse, message, context)

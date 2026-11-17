@@ -77,6 +77,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.NullSource
 import org.junit.jupiter.params.provider.ValueSource
+import org.slf4j.MDC
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.json.JsonMapper
 import tools.jackson.module.kotlin.readValue
@@ -348,16 +349,24 @@ class MigrerYtelseMottakTest {
         ).forEach { exception ->
             val rapidMedFeilendeSimulator = TestRapid()
             val hendelseMottaker = mockk<HendelseMottaker>(relaxed = true)
+            val tidligereMigreringId = MDC.get("migreringId")
+            val tidligereSakId = MDC.get("sakId")
             MigrerYtelseMottak(
                 rapidMedFeilendeSimulator,
                 hendelseMottaker,
                 opplysningstyper,
-                simulator = { _, _ -> throw exception },
+                simulator = { _, _ ->
+                    MDC.get("migreringId") shouldBe migreringId.toString()
+                    MDC.get("sakId") shouldBe "13699879"
+                    throw exception
+                },
             )
             val sendtMelding = melding(simulering = true)
 
             rapidMedFeilendeSimulator.sendTestMessage(sendtMelding)
 
+            MDC.get("migreringId") shouldBe tidligereMigreringId
+            MDC.get("sakId") shouldBe tidligereSakId
             rapidMedFeilendeSimulator.inspektør.size shouldBe 1
             val svar = rapidMedFeilendeSimulator.inspektør.message(0)
             svar["@event_name"].asString() shouldBe "migrering_startet"
