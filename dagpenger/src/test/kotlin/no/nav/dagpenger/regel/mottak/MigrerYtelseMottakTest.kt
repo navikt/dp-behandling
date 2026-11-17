@@ -342,7 +342,7 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
-    fun `simuleringsfeil publiserer ny avbruddsmelding med årsak og melding`() {
+    fun `simuleringsfeil publiserer ny avbruddsmelding med ident og årsak`() {
         listOf(
             Exception("Feil med sensitiv feilmelding"),
             RegelkjøringLoopException("Feil med sensitiv feilmelding"),
@@ -372,9 +372,10 @@ class MigrerYtelseMottakTest {
             svar["@event_name"].asString() shouldBe "migrering_avbrutt"
             svar["migreringId"].asString() shouldBe migreringId.toString()
             svar["sakId"].asInt() shouldBe 13699879
-            svar["årsak"].asString() shouldBe "SIMULERING_FEILET"
-            svar["melding"].asString() shouldBe "Simulering av migreringen feilet."
-            svar.has("ident") shouldBe false
+            svar["ident"] shouldBe jsonMapper.readTree(sendtMelding)["ident"]
+            svar["årsak"]["kode"].asString() shouldBe "SIMULERING_FEILET"
+            svar["årsak"]["beskrivelse"].asString() shouldBe "Simulering av migreringen feilet."
+            svar.has("melding") shouldBe false
             svar.has("opplysninger") shouldBe false
             svar.has("simulering") shouldBe false
             svar.has("simulerteOpplysninger") shouldBe false
@@ -898,10 +899,11 @@ class MigrerYtelseMottakTest {
             svar["@event_name"].asString() shouldBe "migrering_avbrutt"
             svar["migreringId"].asString() shouldBe migreringId.toString()
             svar["sakId"].asInt() shouldBe 13699879
-            svar["årsak"].asString() shouldBe "UGYLDIG_GYLDIGHETSPERIODE"
-            svar["melding"].asString() shouldBe
+            svar["ident"] shouldBe jsonMapper.readTree(sendtMelding)["ident"]
+            svar["årsak"]["kode"].asString() shouldBe "UGYLDIG_GYLDIGHETSPERIODE"
+            svar["årsak"]["beskrivelse"].asString() shouldBe
                 "Opplysningstype ${opplysning["uuid"]} har en fra-dato ${opplysning["gyldigFraOgMed"]} som er etter til-datoen ${opplysning["gyldigTilOgMed"]}."
-            svar.has("ident") shouldBe false
+            svar.has("melding") shouldBe false
             svar.has("opplysninger") shouldBe false
             svar.has("simulerteOpplysninger") shouldBe false
             verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
@@ -946,15 +948,16 @@ class MigrerYtelseMottakTest {
             svar["@event_name"].asString() shouldBe "migrering_avbrutt"
             svar["migreringId"].asString() shouldBe migreringId.toString()
             svar["sakId"].asInt() shouldBe 13699879
-            svar["årsak"].asString() shouldBe "UGYLDIG_TILLEGGSOPPLYSNING"
-            svar["melding"].asString() shouldBe "Kunne ikke opprette tilleggsopplysning av type ${opplysning["uuid"]}."
+            svar["ident"] shouldBe jsonMapper.readTree(innkommendeMelding)["ident"]
+            svar["årsak"]["kode"].asString() shouldBe "UGYLDIG_TILLEGGSOPPLYSNING"
+            svar["årsak"]["beskrivelse"].asString() shouldBe "Kunne ikke opprette tilleggsopplysning av type ${opplysning["uuid"]}."
+            svar.has("melding") shouldBe false
             svar["@id"].isString shouldBe true
             svar["@opprettet"].isString shouldBe true
             svar.has("eventName") shouldBe false
             svar.has("id") shouldBe false
             svar.has("opprettet") shouldBe false
             svar["@id"] shouldNotBe jsonMapper.readTree(innkommendeMelding)["@id"]
-            svar.has("ident") shouldBe false
             svar.has("opplysninger") shouldBe false
             svar.has("simulerteOpplysninger") shouldBe false
         }

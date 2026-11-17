@@ -112,6 +112,7 @@ class MigrerYtelseMottak(
             return@withLoggingContext
         }
 
+        val ident = packet["ident"].asString()
         val message =
             try {
                 MigrerYtelseMessage(packet, opplysningstyper)
@@ -121,8 +122,9 @@ class MigrerYtelseMottak(
                 }
                 sikkerlogg.info { "Migreringsmelding med sakId $sakId inneholder en ugyldig gyldighetsperiode : ${packet.toJson()}" }
                 context.publiserMigreringAvbrutt(
-                    migreringId,
-                    sakId,
+                    migreringId = migreringId,
+                    ident = ident,
+                    sakId = sakId,
                     årsak = "UGYLDIG_GYLDIGHETSPERIODE",
                     melding = "Opplysningstype ${feil.typeId} har en fra-dato ${feil.fom} som er etter til-datoen ${feil.tom}.",
                 )
@@ -133,8 +135,9 @@ class MigrerYtelseMottak(
                     "Migreringsmelding med sakId $sakId inneholder en ugyldig tilleggsopplysning av type ${feil.typeId} i meldingen ${packet.toJson()}"
                 }
                 context.publiserMigreringAvbrutt(
-                    migreringId,
-                    sakId,
+                    migreringId = migreringId,
+                    ident = ident,
+                    sakId = sakId,
                     årsak = "UGYLDIG_TILLEGGSOPPLYSNING",
                     melding = "Kunne ikke opprette tilleggsopplysning av type ${feil.typeId}.",
                 )
@@ -152,8 +155,9 @@ class MigrerYtelseMottak(
                     logger.error { "Simulering av migrering med sakId $sakId feilet" }
                     sikkerlogg.info { "Simulering av migrering med sakId $sakId feilet : ${packet.toJson()}" }
                     context.publiserMigreringAvbrutt(
-                        migreringId,
-                        sakId,
+                        migreringId = migreringId,
+                        ident = ident,
+                        sakId = sakId,
                         årsak = "SIMULERING_FEILET",
                         melding = "Simulering av migreringen feilet.",
                     )
@@ -197,6 +201,7 @@ class MigrerYtelseMottak(
 
     private fun MessageContext.publiserMigreringAvbrutt(
         migreringId: String,
+        ident: String,
         sakId: Int,
         årsak: String,
         melding: String,
@@ -205,9 +210,13 @@ class MigrerYtelseMottak(
             migreringSvarSerializer.writeValueAsString(
                 AvbrytMigrering(
                     migreringId = migreringId.toUUID(),
+                    ident = ident,
                     sakId = sakId,
-                    årsak = årsak,
-                    melding = melding,
+                    årsak =
+                        AvbrytÅrsak(
+                            kode = årsak,
+                            beskrivelse = melding,
+                        ),
                 ),
             ),
         )
@@ -253,8 +262,8 @@ internal data class ManglendeMigreringsopplysning(
 internal data class AvbrytMigrering(
     val migreringId: UUID,
     val sakId: Int,
-    val årsak: String,
-    val melding: String,
+    val ident: String,
+    val årsak: AvbrytÅrsak,
 ) {
     @get:JsonProperty("@event_name")
     val eventName: String = "migrering_avbrutt"
@@ -265,6 +274,11 @@ internal data class AvbrytMigrering(
     @get:JsonProperty("@opprettet")
     val opprettet: LocalDateTime = LocalDateTime.now()
 }
+
+internal data class AvbrytÅrsak(
+    val kode: String,
+    val beskrivelse: String,
+)
 
 internal fun JsonNode.tilleggsopplysninger(
     migreringTidspunkt: LocalDate,
