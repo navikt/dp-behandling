@@ -183,6 +183,9 @@ class MigrerYtelseMottak(
 
         if (!rapport.erFerdig() || manglendeOpplysninger.isNotEmpty()) {
             logger.info { "Migrering av sakId $sakId mangler opplysninger $manglendeOpplysninger" }
+            if (packet["opplysninger"].isMissingNode) {
+                packet["opplysninger"] = emptyList<Any>()
+            }
             packet["manglendeOpplysninger"] =
                 manglendeOpplysninger
             packet["@event_name"] = "migrering_manglende_opplysninger"

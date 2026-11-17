@@ -54,7 +54,11 @@ class MigreringJsonFlytTest {
             svar["sakId"].asInt() shouldBe 13699879
             svar.has("årsak") shouldBe false
             svar.has("simulerteOpplysninger") shouldBe false
-            svar.path("opplysninger") shouldBe jsonMapper.readTree(melding).path("opplysninger")
+            if (runde == 1) {
+                svar.path("opplysninger") shouldBe jsonMapper.readTree("[]")
+            } else {
+                svar.path("opplysninger") shouldBe jsonMapper.readTree(melding).path("opplysninger")
+            }
 
             val manglende = svar["manglendeOpplysninger"].values().map { it["uuid"].asString() }
             manglende.isNotEmpty() shouldBe true
