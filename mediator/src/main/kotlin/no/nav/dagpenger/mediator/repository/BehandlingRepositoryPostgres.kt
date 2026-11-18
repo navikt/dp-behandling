@@ -131,6 +131,13 @@ internal class BehandlingRepositoryPostgres(
         ) : HentBehandling
     }
 
+    // Avbrutte behandlinger kan ikke baseres på, så opplysningene hentes bare når en enkelt behandling etterspørres
+    private fun HentBehandling.trengerOpplysningerFor(rad: BehandlingRad) =
+        when (this) {
+            is HentBehandling.AlleForIdent -> rad.tilstand != Avbrutt.name
+            is HentBehandling.Behandling -> true
+        }
+
     private fun Session.lagBehandlingRad(valg: HentBehandling): List<BehandlingRad> {
         // Finn basertPå-relasjoner for disse IDene og sorterer dem
         // topologisk slik at den første/eldste behandlingen i kjeden kommer først
@@ -240,6 +247,7 @@ internal class BehandlingRepositoryPostgres(
                     kildeRepository,
                     opplysningstypeRegister,
                     behandlingRader
+                        .filter { valg.trengerOpplysningerFor(it) }
                         .map { it.opplysningerId }
                         .toSet(),
                 )
@@ -279,7 +287,9 @@ internal class BehandlingRepositoryPostgres(
                                 opprettet = rad.opprettet,
                                 opprettetAv = rad.opprettetAv,
                             ),
-                        gjeldendeOpplysninger = opplysningerMap.getValue(rad.opplysningerId),
+                        // Opplysningene hentes kun for behandlinger som ikke er avbrutt, de avbrutte får tomme opplysninger.
+                        gjeldendeOpplysninger =
+                            opplysningerMap[rad.opplysningerId] ?: Opplysninger.rehydrer(rad.opplysningerId, emptyList()),
                         basertPå = basertPå,
                         opprettet = rad.opprettet,
                         tilstand = Behandling.TilstandType.valueOf(rad.tilstand),

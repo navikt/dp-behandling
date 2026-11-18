@@ -1,8 +1,10 @@
 package no.nav.dagpenger.mediator.repository
 
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.avklaring.Avklaring
@@ -234,6 +236,33 @@ class BehandlingRepositoryPostgresTest {
             opprettKjede(behandlingRepository, listOf(a, ferdig, forslag, tilBeslutning, avbrutt))
 
             behandlingRepository.finnSøsken(ferdig.behandlingId) shouldContainExactly listOf(forslag.behandlingId)
+        }
+    }
+
+    @Test
+    fun `henter ikke opplysninger for avbrutte behandlinger når alle hentes for ident`() {
+        withMigratedDb {
+            val (personRepository, behandlingRepository) = flyttOppsett()
+            val a = nyBehandling(null, Ferdig, Opplysninger.med(datoOpplysning))
+            val avbrutt = nyBehandling(a, Avbrutt, Opplysninger.med(opplysning2))
+            opprettKjede(behandlingRepository, listOf(a, avbrutt))
+
+            val fraIdent = behandlingRepository.hentBehandlinger(Ident(ident)).single().toList()
+            fraIdent
+                .single { it.behandlingId == a.behandlingId }
+                .opplysninger()
+                .somListe(Egne)
+                .shouldNotBeEmpty()
+            fraIdent
+                .single { it.behandlingId == avbrutt.behandlingId }
+                .opplysninger()
+                .somListe(Egne)
+                .shouldBeEmpty()
+
+            personRepository.lagre(personRepository.hent(Ident(ident)).shouldNotBeNull())
+
+            val enkeltoppslag = behandlingRepository.hentBehandling(avbrutt.behandlingId).shouldNotBeNull()
+            enkeltoppslag.opplysninger().somListe(Egne).map { it.id } shouldContain opplysning2.id
         }
     }
 
