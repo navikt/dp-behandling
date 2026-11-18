@@ -3,6 +3,7 @@ package no.nav.dagpenger.scenario
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.dagpenger.api.behandling.models.OpprinnelseDTO
@@ -393,6 +394,56 @@ class ArbeidssøkerTest {
                     fra(21.juni(2018)) til 6.juli(2018) verdi true
                     fra(7.juli(2018)) verdi false
                 }
+            }
+        }
+    }
+
+    @Test
+    fun `oppfriskning av arbeidssøkerstatus skal ikke innhente inntekt fra søknadsdato når prøvingsdato er flyttet`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+            behovsløsere.løsTilForslag()
+
+            val flyttetPrøvingsdato = 2.juli(2018)
+            saksbehandler.leggTilOpplysning(
+                prøvingsdato,
+                flyttetPrøvingsdato,
+                "Flytter prøvingsdato",
+                Gyldighetsperiode(flyttetPrøvingsdato),
+            )
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) {
+                rettighetsperioder {
+                    fra(flyttetPrøvingsdato) harRett true
+                }
+            }
+
+            val fastsattMeldedato = person.fastsattMeldedato(2)
+            person.avsluttArbeidssøkerperiode(
+                fastsattMeldingsdag = fastsattMeldedato,
+                avsluttetTidspunkt = fastsattMeldedato.plusDays(3).atTime(12, 21),
+                manueltAvregistrert = true,
+            )
+            behovsløsere.aktiveBehov().shouldBeEmpty()
+            behandlingsresultatForslag(4) { }
+
+            // Når vi rekjører behandlingen skal vi ikke utrede utover eksisterende rettighetsperioder
+            saksbehandler.rekjørBehandling(listOf(RegistrertArbeidssøker.registrertArbeidssøker))
+            behovsløsere.aktiveBehov() shouldNotContain "Inntekt"
+            behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag(5) {
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder[0].fraOgMed shouldBe flyttetPrøvingsdato
+                rettighetsperioder[0].tilOgMed shouldBe 5.juli(2018)
+                rettighetsperioder[1].fraOgMed shouldBe 6.juli(2018)
+                rettighetsperioder[1].tilOgMed shouldBe null
             }
         }
     }

@@ -8,6 +8,7 @@ import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.regel.RegelverkDagpenger
+import java.time.LocalDate
 
 class Stansprosess : Forretningsprosess(RegelverkDagpenger) {
     init {
@@ -15,9 +16,12 @@ class Stansprosess : Forretningsprosess(RegelverkDagpenger) {
     }
 
     override fun regelkjøring(opplysninger: Opplysninger): Regelkjøring {
-        val egne = opplysninger.somListe(Egne).filter { it.gyldighetsperiode.harStartdato }
-        val første = egne.minOf { it.gyldighetsperiode.fraOgMed }
-        val siste = egne.maxOf { it.gyldighetsperiode.fraOgMed }
+        val endringer = endringsperiode(opplysninger)
+        val rettighetsperioder = rettighetsperioder(opplysninger)
+
+        // Begrenser kjøringen til perioden der bruker har rett, slik at tidligere perioder ikke vurderes på nytt
+        val første = maxOf(endringer.start, rettighetsperioder.minOf { it.fraOgMed })
+        val siste = minOf(endringer.endInclusive, rettighetsperioder.maxOf { it.tilOgMed })
 
         logger.info { "Kjører regler i ${this.javaClass.simpleName} fra $første til $siste" }
 
@@ -27,6 +31,15 @@ class Stansprosess : Forretningsprosess(RegelverkDagpenger) {
             opplysninger = opplysninger,
             forretningsprosess = this,
         )
+    }
+
+    private fun endringsperiode(opplysninger: Opplysninger): ClosedRange<LocalDate> {
+        val startdatoer =
+            opplysninger
+                .somListe(Egne)
+                .filter { it.gyldighetsperiode.harStartdato }
+                .map { it.gyldighetsperiode.fraOgMed }
+        return startdatoer.min()..startdatoer.max()
     }
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) =
