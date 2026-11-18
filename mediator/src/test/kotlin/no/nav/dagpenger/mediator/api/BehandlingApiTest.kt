@@ -6,8 +6,10 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldBeEmpty
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotBeEmpty
@@ -52,6 +54,7 @@ import tools.jackson.core.type.TypeReference
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.time.LocalDate
 import java.time.Year
+import java.util.UUID
 
 internal class BehandlingApiTest {
     @Test
@@ -952,6 +955,122 @@ internal class BehandlingApiTest {
             bodyAsText shouldContain "2023-01-01"
         }
     }
+
+    @Test
+    fun `saksbehandler kan legge til, endre og fjerne en opplysning`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger(1.april(Year.now().value))
+            behovsløsere.løsTilForslag()
+
+            val behandlingId = person.behandlingId
+            val opplysningstype = ReellArbeidssøker.kanJobbeDeltid
+
+            suspend fun hentPerioder() =
+                objectMapper
+                    .readTree(
+                        testContext
+                            .autentisert(httpMethod = HttpMethod.Get, endepunkt = "/behandling/$behandlingId")
+                            .bodyAsText(),
+                    ).path("opplysninger")
+                    .single { it.path("opplysningTypeId").asString() == opplysningstype.id.uuid.toString() }
+                    .path("perioder")
+                    .filter { it.path("opprinnelse").asString() != "Utledet" }
+
+            // Opprett opplysningsperiode
+            testContext.autentisert(
+                httpMethod = HttpMethod.Post,
+                endepunkt = "/behandling/$behandlingId/opplysning/",
+                // language=JSON
+                body = """{"opplysningstype":"${opplysningstype.id.uuid}","verdi":"true","begrunnelse":"legger til"}""",
+            )
+
+            val opplysning = hentPerioder().last()
+            opplysning.path("verdi").path("verdi").asString() shouldBe "true"
+            val opplysningId = opplysning.path("id").asString()
+
+            // Endre opplysningsperiode
+            testContext
+                .autentisert(
+                    httpMethod = HttpMethod.Put,
+                    endepunkt = "/behandling/$behandlingId/opplysning/$opplysningId",
+                    // language=JSON
+                    body = """{"verdi":"false","begrunnelse":"endrer"}""",
+                ).status shouldBe HttpStatusCode.OK
+            hentPerioder()
+                .last()
+                .path("verdi")
+                .path("verdi")
+                .asString() shouldBe "false"
+
+            val endretId = hentPerioder().last().path("id").asString()
+
+            // Fjern opplysningsperiode
+            testContext
+                .autentisert(
+                    httpMethod = HttpMethod.Delete,
+                    endepunkt = "/behandling/$behandlingId/opplysning/$endretId",
+                ).status shouldBe HttpStatusCode.OK
+            hentPerioder().map { it.path("id").asString() } shouldNotContain endretId
+        }
+    }
+
+    @Test
+    fun `saksbehandler kan endre en opplysning som er arvet fra forrige behandling`() {
+        medSikretBehandlingApi { testContext ->
+            person.søkDagpenger(1.april(Year.now().value))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            val forrigeBehandlingId = person.behandlingId
+            val opplysningstype = ReellArbeidssøker.kanJobbeDeltid
+            val verdiIForrige = hentOpplysningsperioder(testContext, forrigeBehandlingId, opplysningstype).last()
+
+            testContext
+                .autentisert(
+                    endepunkt = "/person/behandling",
+                    // language=JSON
+                    body = """{"ident":"${person.ident}","behandlingstype":"Manuell","skjedde":"${LocalDate.now()}","begrunnelse":"x"}""",
+                ).status shouldBe HttpStatusCode.OK
+
+            val behandlingId = person.behandlingId
+            behandlingId shouldNotBe forrigeBehandlingId
+
+            val arvet = hentOpplysningsperioder(testContext, behandlingId, opplysningstype).last()
+            arvet.path("id").asString() shouldBe verdiIForrige.path("id").asString()
+            val arvetVerdi = arvet.path("verdi").path("verdi").asString()
+            val nyVerdi = (!arvetVerdi.toBoolean()).toString()
+
+            testContext
+                .autentisert(
+                    httpMethod = HttpMethod.Put,
+                    endepunkt = "/behandling/$behandlingId/opplysning/${arvet.path("id").asString()}",
+                    // language=JSON
+                    body = """{"verdi":"$nyVerdi","begrunnelse":"endrer arvet opplysning"}""",
+                ).status shouldBe HttpStatusCode.OK
+
+            val endret = hentOpplysningsperioder(testContext, behandlingId, opplysningstype).last()
+            endret.path("verdi").path("verdi").asString() shouldBe nyVerdi
+            endret.path("id").asString() shouldNotBe arvet.path("id").asString()
+            behandlingSomEierOpplysning(UUID.fromString(arvet.path("id").asString())) shouldBe forrigeBehandlingId
+            behandlingSomEierOpplysning(UUID.fromString(endret.path("id").asString())) shouldBe behandlingId
+
+            val forrigeEtterpå = hentOpplysningsperioder(testContext, forrigeBehandlingId, opplysningstype).last()
+            forrigeEtterpå.path("verdi").path("verdi").asString() shouldBe arvetVerdi
+        }
+    }
+
+    private suspend fun SimulertDagpengerSystem.hentOpplysningsperioder(
+        testContext: TestContext,
+        behandlingId: UUID,
+        opplysningstype: Opplysningstype<*>,
+    ) = objectMapper
+        .readTree(testContext.autentisert(httpMethod = HttpMethod.Get, endepunkt = "/behandling/$behandlingId").bodyAsText())
+        .path("opplysninger")
+        .single { it.path("opplysningTypeId").asString() == opplysningstype.id.uuid.toString() }
+        .path("perioder")
+        .toList()
 
     private fun medSikretBehandlingApi(block: suspend SimulertDagpengerSystem.(TestContext) -> Unit) {
         nyttScenario {

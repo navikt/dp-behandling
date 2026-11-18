@@ -86,7 +86,7 @@ internal class SimulertDagpengerSystem(
                     ) {
                     }
                 },
-        ) { rapid }
+        ) { ApiMessageContext(rapid) }
 
     init {
         runtime.registrerMottak()
@@ -167,6 +167,27 @@ internal class SimulertDagpengerSystem(
         runtime.personRepository.lagre(Person(ident.tilPersonIdentfikator()))
     }
 
+    // Saksbehandlers endringer fra APIet er løsninger på behov, og må mottas av appen for at API-kallet skal bli ferdig
+    class ApiMessageContext(
+        private val rapid: TestRapid,
+    ) : MessageContext by rapid {
+        override fun publish(message: String) {
+            rapid.publish(message)
+            if (message.erSaksbehandlerendring()) rapid.sendTestMessage(message)
+        }
+
+        override fun publish(
+            key: String,
+            message: String,
+        ) {
+            rapid.publish(key, message)
+            if (message.erSaksbehandlerendring()) rapid.sendTestMessage(message, key)
+        }
+
+        private fun String.erSaksbehandlerendring() =
+            contains("\"@final\":true") && (contains("\"saksbehandler\"") || contains("\"FjernOpplysning\""))
+    }
+
     class TestRapidMessageContext(
         private val rapid: TestRapid,
     ) : MessageContext {
@@ -199,6 +220,21 @@ internal class SimulertDagpengerSystem(
                 ).map { row -> row.int(1) }.asSingle,
             )
         } ?: 0
+
+    fun behandlingSomEierOpplysning(opplysningId: UUID): UUID? =
+        dbTestContext.dbSession.session { session ->
+            session.run(
+                queryOf(
+                    //language=PostgreSQL
+                    """
+                    SELECT b.behandling_id FROM opplysning o
+                    JOIN behandling_opplysninger b ON b.opplysninger_id = o.opplysninger_id
+                    WHERE o.id = :id
+                    """.trimIndent(),
+                    mapOf("id" to opplysningId),
+                ).map { row -> row.uuid("behandling_id") }.asSingle,
+            )
+        }
 
     fun sendFerietillegg(
         ident: String,
