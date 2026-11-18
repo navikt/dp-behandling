@@ -18,9 +18,12 @@ import no.nav.dagpenger.mediator.TestOpplysningstyper.boolsk
 import no.nav.dagpenger.mediator.TestOpplysningstyper.desimal
 import no.nav.dagpenger.mediator.TestOpplysningstyper.inntektA
 import no.nav.dagpenger.mediator.api.melding.OpplysningsSvar
+import no.nav.dagpenger.modell.hendelser.OpplysningSvar
 import no.nav.dagpenger.modell.hendelser.OpplysningSvarHendelse
+import no.nav.dagpenger.modell.hendelser.Svarresultat
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.uuid.UUIDv7
@@ -61,11 +64,11 @@ class OpplysningSvarMottakTest {
             .verdi shouldBe true
         hendelse.captured.opplysninger
             .first()
-            .leggTil(opplysningMock)
+            .lagtTil()
             .verdi shouldBe true
         hendelse.captured.opplysninger
             .first()
-            .leggTil(opplysningMock)
+            .lagtTil()
             .gyldighetsperiode shouldBe Gyldighetsperiode()
     }
 
@@ -98,11 +101,11 @@ class OpplysningSvarMottakTest {
             .verdi shouldBe true
         hendelse.captured.opplysninger
             .first()
-            .leggTil(opplysningMock)
+            .lagtTil()
             .verdi shouldBe true
         hendelse.captured.opplysninger
             .first()
-            .leggTil(opplysningMock)
+            .lagtTil()
             .gyldighetsperiode shouldBe
             Gyldighetsperiode(gyldigFraOgMed, gyldigTilOgMed)
     }
@@ -126,7 +129,7 @@ class OpplysningSvarMottakTest {
 
         hendelse.captured.opplysninger
             .first()
-            .leggTil(opplysningMock)
+            .lagtTil()
             .gyldighetsperiode shouldBe
             Gyldighetsperiode(gyldigFraOgMed, LocalDate.MAX)
     }
@@ -141,7 +144,7 @@ class OpplysningSvarMottakTest {
 
         hendelse.captured.opplysninger
             .first()
-            .leggTil(opplysningMock)
+            .lagtTil()
             .gyldighetsperiode shouldBe
             Gyldighetsperiode(LocalDate.MIN, gyldigTilOgMed)
     }
@@ -171,6 +174,7 @@ class OpplysningSvarMottakTest {
     fun `leser ut hvilke opplysninger som har vært brukt til å utlede opplysningen`() {
         val faktum = Faktum(boolsk, true)
         every { opplysningMock.finnOpplysning(any()) } returns faktum
+        every { opplysningMock.somListe() } returns listOf(faktum)
 
         rapid.sendTestMessage(
             løsningMedMetadata(
@@ -189,7 +193,7 @@ class OpplysningSvarMottakTest {
             requireNotNull(
                 hendelse.captured.opplysninger
                     .first()
-                    .leggTil(opplysningMock)
+                    .lagtTil()
                     .utledetAv,
             )
         utledetAv.opplysninger shouldHaveSize 1
@@ -327,11 +331,11 @@ class OpplysningSvarMottakTest {
 
         val første = hendelse.captured.opplysninger[0]
         første.verdi shouldBe true
-        første.leggTil(opplysningMock).gyldighetsperiode shouldBe Gyldighetsperiode(periode1Fra, periode1Til)
+        første.lagtTil().gyldighetsperiode shouldBe Gyldighetsperiode(periode1Fra, periode1Til)
 
         val andre = hendelse.captured.opplysninger[1]
         andre.verdi shouldBe false
-        andre.leggTil(opplysningMock).gyldighetsperiode shouldBe Gyldighetsperiode(periode2Fra, periode2Til)
+        andre.lagtTil().gyldighetsperiode shouldBe Gyldighetsperiode(periode2Fra, periode2Til)
     }
 
     @Test
@@ -535,4 +539,6 @@ class OpplysningSvarMottakTest {
           }
         }
         """.trimIndent()
+
+    private fun OpplysningSvar<*>.lagtTil(): Opplysning<*> = (leggTil(opplysningMock) as Svarresultat.Opprettet).opplysning
 }

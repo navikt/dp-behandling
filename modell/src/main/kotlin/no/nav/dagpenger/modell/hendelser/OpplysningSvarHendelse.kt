@@ -1,5 +1,6 @@
 package no.nav.dagpenger.modell.hendelser
 
+import no.nav.dagpenger.opplysning.Behovsløserkilde
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Hypotese
@@ -32,6 +33,22 @@ class OpplysningSvarHendelse(
         )
 }
 
+sealed interface Svarresultat {
+    val endrerOpplysninger: Boolean get() = this is Opprettet
+
+    data class Opprettet(
+        val opplysning: Opplysning<*>,
+    ) : Svarresultat
+
+    // Grunnlaget svaret er innhentet med er byttet ut
+    data object Utdatert : Svarresultat
+
+    // Samme innhenting er allerede besvart
+    data object Duplikat : Svarresultat
+
+    data object UtenforGrunnlaget : Svarresultat
+}
+
 // Et svar kan ikke gjelde utenfor det grunnlaget det er innhentet med gjelder (utflatet) for
 private fun Gyldighetsperiode.begrensesAv(grunnlag: List<Opplysning<*>>): Gyldighetsperiode? =
     grunnlag.fold<Opplysning<*>, Gyldighetsperiode?>(this) { periode, it -> periode?.overlapp(it.gyldighetsperiode) }
@@ -49,7 +66,9 @@ data class OpplysningSvar<T : Any>(
         Faktum,
     }
 
-    fun leggTil(opplysninger: Opplysninger): Opplysning<T> {
+    fun leggTil(opplysninger: Opplysninger): Svarresultat {
+        if (erUtdatert(opplysninger)) return Svarresultat.Utdatert
+
         val basertPå = utledetAv.map { opplysninger.finnOpplysning(it) }
         val utledning =
             if (basertPå.isEmpty()) {
@@ -85,8 +104,34 @@ data class OpplysningSvar<T : Any>(
                     )
                 }
             }
-        if (!utenforGrunnlaget) opplysninger.leggTil(opplysning)
+        if (utenforGrunnlaget) return Svarresultat.UtenforGrunnlaget
+        if (erDuplikat(opplysninger, opplysning)) return Svarresultat.Duplikat
 
-        return opplysning
+        opplysninger.leggTil(opplysning)
+        return Svarresultat.Opprettet(opplysning)
+    }
+
+    private fun erUtdatert(opplysninger: Opplysninger): Boolean {
+        val gjeldende = opplysninger.somListe().mapTo(HashSet()) { it.id }
+        return utledetAv.any { it !in gjeldende }
+    }
+
+    // Samme innhenting besvart flere ganger (f.eks. duplikate behov) skal ikke utløse ny regelkjøring
+    private fun erDuplikat(
+        opplysninger: Opplysninger,
+        ny: Opplysning<T>,
+    ): Boolean {
+        if (ny.kilde !is Behovsløserkilde) return false
+        return opplysninger.finnAlle(opplysningstype).any {
+            it::class == ny::class &&
+                it.verdi == ny.verdi &&
+                it.gyldighetsperiode == ny.gyldighetsperiode &&
+                it.kilde is Behovsløserkilde &&
+                it.utledetAv
+                    ?.opplysninger
+                    ?.map { grunnlag -> grunnlag.id }
+                    .orEmpty()
+                    .toSet() == utledetAv.toSet()
+        }
     }
 }

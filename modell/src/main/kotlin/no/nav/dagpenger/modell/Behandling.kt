@@ -564,11 +564,7 @@ class Behandling private constructor(
         ) {
             hendelse.kontekst(this)
             hendelse.fase("mottok_svar")
-            hendelse.opplysninger.forEach { opplysning ->
-                val kildebeskrivelse = if (opplysning.kilde is Saksbehandlerkilde) " (fra saksbehandler)" else ""
-                hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}$kildebeskrivelse")
-                opplysning.leggTil(behandling.opplysninger)
-            }
+            if (!behandling.mottaSvar(hendelse)) return
 
             // Kjør regelkjøring for alle opplysninger
             behandling.kjørRegler(hendelse)
@@ -676,13 +672,8 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Fikk svar på opplysning i ${this.type.name}.")
 
-            hendelse.opplysninger.forEach { opplysning ->
-                hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}")
-
-                behandling.kanLeggeTil(opplysning)
-
-                opplysning.leggTil(behandling.opplysninger)
-            }
+            hendelse.opplysninger.forEach { behandling.kanLeggeTil(it) }
+            if (!behandling.mottaSvar(hendelse)) return
 
             behandling.tilstand(Redigert(), hendelse)
         }
@@ -752,11 +743,7 @@ class Behandling private constructor(
             hendelse: OpplysningSvarHendelse,
         ) {
             hendelse.fase("mottok_svar")
-            hendelse.opplysninger.forEach { opplysning ->
-                val kildebeskrivelse = if (opplysning.kilde is Saksbehandlerkilde) " (fra saksbehandler)" else ""
-                hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}$kildebeskrivelse")
-                opplysning.leggTil(behandling.opplysninger)
-            }
+            if (!behandling.mottaSvar(hendelse)) return
 
             behandling.kjørRegler(hendelse)
         }
@@ -981,14 +968,8 @@ class Behandling private constructor(
             hendelse.kontekst(this)
             hendelse.info("Fikk svar på opplysning i ${this.type.name}.")
 
-            hendelse.opplysninger.forEach { opplysning ->
-                val kildebeskrivelse = if (opplysning.kilde is Saksbehandlerkilde) " (fra saksbehandler)" else ""
-                hendelse.info("Mottok svar på opplysning om ${opplysning.opplysningstype}$kildebeskrivelse")
-
-                behandling.kanLeggeTil(opplysning)
-
-                opplysning.leggTil(behandling.opplysninger)
-            }
+            hendelse.opplysninger.forEach { behandling.kanLeggeTil(it) }
+            if (!behandling.mottaSvar(hendelse)) return
 
             behandling.tilstand(Redigert(), hendelse)
         }
@@ -1206,6 +1187,19 @@ class Behandling private constructor(
         if (rapport.erFerdig()) {
             avgjørNesteTilstand(hendelse)
         }
+    }
+
+    private fun mottaSvar(hendelse: OpplysningSvarHendelse): Boolean {
+        val resultater =
+            hendelse.opplysninger.map { svar ->
+                val kildebeskrivelse = if (svar.kilde is Saksbehandlerkilde) " (fra saksbehandler)" else ""
+                hendelse.info("Mottok svar på opplysning om ${svar.opplysningstype}$kildebeskrivelse")
+
+                svar.leggTil(opplysninger).also {
+                    if (!it.endrerOpplysninger) hendelse.info("Ignorerer svar på ${svar.opplysningstype}: $it")
+                }
+            }
+        return resultater.any { it.endrerOpplysninger }
     }
 
     // Behandlingen er ferdig og vi må rute til forslag eller godkjenning
