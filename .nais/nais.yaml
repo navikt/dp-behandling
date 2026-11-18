@@ -38,7 +38,7 @@ spec:
     max: 2
   resources:
     limits:
-      memory: 640Mi
+      memory: 2048Mi
     requests:
       cpu: 140m
       memory: 480Mi
