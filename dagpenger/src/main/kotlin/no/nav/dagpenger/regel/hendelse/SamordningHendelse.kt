@@ -10,9 +10,8 @@ import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.IkkeOpprettet
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Aktør
 import no.nav.dagpenger.opplysning.Avklaringkode
-import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.TemporalCollection
-import no.nav.dagpenger.regel.prosess.Manuellprosess
+import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -27,9 +26,8 @@ class SamordningHendelse(
     private val begrunnelse: String? = null,
     opprettet: LocalDateTime,
     opprettetAv: Aktør? = null,
-    prosess: Forretningsprosess = Manuellprosess(),
 ) : StartHendelse(meldingsreferanseId, ident, eksternId, gjelderDato, opprettet, opprettetAv) {
-    override val forretningsprosess = prosess
+    override val forretningsprosess = Omgjøringsprosess()
 
     override fun behandling(
         forrigeBehandling: Behandling?,
