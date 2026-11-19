@@ -567,8 +567,22 @@ internal fun Application.behandlingApi(
 
                             val opplysning = behandling.opplysninger().finnOpplysning(opplysningId)
                             val opplysningstype = opplysning.opplysningstype
-                            if (!redigerbareOpplysninger.kanRedigere(opplysningstype) || opplysningstype.er(søknadIdOpplysningstype)) {
+                            if (!redigerbareOpplysninger.kanRedigere(opplysningstype)) {
                                 throw OpplysningIkkeRedigerbareException(opplysningstype.toString())
+                            }
+
+                            if (opplysningstype.er(søknadIdOpplysningstype)) {
+                                require(
+                                    runCatching { SøknadId(endring.verdi!!) }.isSuccess,
+                                ) { "Kan ikke sette tom verdi for søknadId" }
+
+                                val forrigeVerdi = behandling.opplysninger.kunEgne.finnNullableOpplysning(søknadIdOpplysningstype)
+
+                                if (forrigeVerdi != null) {
+                                    require(endring.verdi == forrigeVerdi.verdi) { "Kan ikke endre verdi for søknadId" }
+                                }
+
+                                require(endring.gyldigTilOgMed == null) { "Kan ikke sette til og med-dato for søknadId" }
                             }
 
                             val svar =
