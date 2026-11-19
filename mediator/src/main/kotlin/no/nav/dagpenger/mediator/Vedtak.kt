@@ -268,7 +268,7 @@ internal val opplysningTilVilkårMap =
             VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_IKKE_GI_MANGELFULL_INFORMASJON,
         Søknad.oppfyllerKravetTilSøknad to VilkaarNavnDTO.OPPFYLLER_KRAVET_TIL_FRAMSATT_SØKNAD,
         Gjenopptak.skalGjenopptas to VilkaarNavnDTO.OPPFYLLER_KRAVET_FOR_GJENOPPTAK_AV_STØNADSPERIODE,
-        Sanksjonsperiode.harSanksjon to VilkaarNavnDTO.ER_ILAGT_SANSKJONSPERIODE_VED_SELVFORSKYLDT_ARBEIDSLØSHET,
+        Sanksjonsperiode.harSanksjon to VilkaarNavnDTO.ER_ILAGT_SANKSJONSPERIODE_VED_SELVFORSKYLDT_ARBEIDSLØSHET,
         TidsbegrensetBortfall.harTidsbegrensetBortfall to VilkaarNavnDTO.ER_ILAGT_TIDSBEGRENSET_BORTFALL_AV_DAGPENGER,
         TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.trePåfølgendePerioderUtenTilstrekkeligTap to
             VilkaarNavnDTO.TRE_PÅFØLGENDE_MELDEPERIODER_UTEN_TILSTREKKELIG_TAP_AV_ARBEIDSTID___10_4_ANNET_LEDD,

@@ -7,7 +7,7 @@ graph RL
   A["Bruker oppgir selvforskyldt arbeidsløshet"] -->|"Ekstern"| B["søknadId"]
   C["Beregnet antall dager med sanksjon"] -->|"Multiplikasjon"| D["Antall uker med sanksjon"]
   C["Beregnet antall dager med sanksjon"] -->|"Multiplikasjon"| E["Antall dager som skal regnes med i hver uke"]
-  F["Antall dager med sanksjon"] -->|"HvisSannMedResultat"| G["Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet"]
+  F["Antall dager med sanksjon"] -->|"HvisSannMedResultat"| G["Er ilagt sanksjonsperiode ved selvforskyldt arbeidsløshet"]
   F["Antall dager med sanksjon"] -->|"HvisSannMedResultat"| C["Beregnet antall dager med sanksjon"]
   F["Antall dager med sanksjon"] -->|"HvisSannMedResultat"| H["Ingen dager med sanksjon"]
 ```

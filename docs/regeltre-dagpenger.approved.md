@@ -326,7 +326,7 @@ graph RL
   HX["Bruker oppgir selvforskyldt arbeidsløshet"] -->|"Ekstern"| AQ["søknadId"]
   HY["Beregnet antall dager med sanksjon"] -->|"Multiplikasjon"| HZ["Antall uker med sanksjon"]
   HY["Beregnet antall dager med sanksjon"] -->|"Multiplikasjon"| CG["Antall dager som skal regnes med i hver uke"]
-  IA["Antall dager med sanksjon"] -->|"HvisSannMedResultat"| IB["Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet"]
+  IA["Antall dager med sanksjon"] -->|"HvisSannMedResultat"| IB["Er ilagt sanksjonsperiode ved selvforskyldt arbeidsløshet"]
   IA["Antall dager med sanksjon"] -->|"HvisSannMedResultat"| HY["Beregnet antall dager med sanksjon"]
   IA["Antall dager med sanksjon"] -->|"HvisSannMedResultat"| IC["Ingen dager med sanksjon"]
   ID["Brukeren er ikke påvirket av streik eller lock-out"] -->|"IngenAv"| IE["Brukeren deltar i streik eller er omfattet av lock-out"]

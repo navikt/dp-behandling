@@ -372,7 +372,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
 |f13a07fe-0e18-4a3c-bd93-1e4d03d4fee9|Ingen dager med sanksjon|Heltall|int|| Dager|Utgangspunkt
-|019e82fc-04e7-7f8d-bd52-6a7041ebb15f|Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet|Boolsk|boolean|||Resultat
+|019e82fc-04e7-7f8d-bd52-6a7041ebb15f|Er ilagt sanksjonsperiode ved selvforskyldt arbeidsløshet|Boolsk|boolean|||Resultat
 |019e82fc-bdd6-77d8-a2bc-4bd7f1d46b25|Antall dager med sanksjon|Heltall|int|| Dager|Resultat
 |019e82fd-f97c-7395-be5c-7de504871871|Antall uker med sanksjon|Heltall|int|| Uker|Utgangspunkt
 |019f26ec-f7e4-791a-af42-6cb632466cfa|Bruker oppgir selvforskyldt arbeidsløshet|Boolsk|boolean|Sanksjon||Ekstern

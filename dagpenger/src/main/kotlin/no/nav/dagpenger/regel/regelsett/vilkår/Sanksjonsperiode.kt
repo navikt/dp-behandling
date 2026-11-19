@@ -27,7 +27,7 @@ object Sanksjonsperiode {
     val harSanksjon =
         Opplysningstype.boolsk(
             OpplysningsTyper.harSanksjonId,
-            "Er ilagt sanskjonsperiode ved selvforskyldt arbeidsløshet",
+            "Er ilagt sanksjonsperiode ved selvforskyldt arbeidsløshet",
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
