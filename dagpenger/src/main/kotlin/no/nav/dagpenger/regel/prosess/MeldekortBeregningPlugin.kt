@@ -21,6 +21,7 @@ import no.nav.dagpenger.regel.regelsett.beregning.Beregning.utbetalingForPeriode
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat
 import no.nav.dagpenger.regel.regelsett.beregning.Beregningresultat.Beregningsdag.Forbruksdag
 import no.nav.dagpenger.regel.regelsett.beregning.BeregningsperiodeFabrikk
+import no.nav.dagpenger.regel.regelsett.beregning.IkkeRettighetDag
 import no.nav.dagpenger.regel.regelsett.beregning.TerskelTrekkForSenMelding
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
@@ -99,7 +100,8 @@ class MeldekortBeregningPlugin(
             .forEach { beregningsdag ->
                 val erPermittert = permitteringsperioder.any { it.inneholder(beregningsdag.dag.dato) }
                 val erArbeidsdag = beregningsdag.dag is Arbeidsdag
-                val erPermitteringsdag = erPermittert && erArbeidsdag
+                val erDagUtenRett = beregningsdag.dag is IkkeRettighetDag
+                val erPermitteringsdag = erPermittert && (erArbeidsdag || erDagUtenRett)
 
                 leggTil(Faktum(PermitteringFastsetting.permitteringsdag, erPermitteringsdag, Gyldighetsperiode.kun(beregningsdag.dag.dato)))
             }

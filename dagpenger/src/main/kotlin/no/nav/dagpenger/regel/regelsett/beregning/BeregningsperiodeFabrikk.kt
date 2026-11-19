@@ -44,9 +44,11 @@ class BeregningsperiodeFabrikk(
             - gjenståendeEgenandel = $gjenståendeEgenandel, 
             - stønadsdagerIgjen = $stønadsdagerIgjen, 
             - sanksjonsdagerIgjen = $sanksjonsdagerIgjen,
-            - periode = ${dager.joinToString(
-                "|",
-            ) { "(" + it.dato.toString() + ", " + it.dato.dagstype.toString() + ", " + it.javaClass.simpleName + ")" }}
+            - periode = ${
+                dager.joinToString(
+                    "|",
+                ) { "(" + it.dato.toString() + ", " + it.dato.dagstype.toString() + ", " + it.javaClass.simpleName + ")" }
+            }
             """.trimIndent()
         }
         return Beregningsperiode(gjenståendeEgenandel, dager, stønadsdagerIgjen, sanksjonsdagerIgjen)
@@ -90,7 +92,10 @@ class BeregningsperiodeFabrikk(
         return meldeperiode
             .map { dato ->
                 if (dato !in dagerMedRett) {
-                    return@map IkkeRettighetDag(dato)
+                    return@map when (dato.dagstype) {
+                        Hverdag -> IkkeRettighetDag(dato)
+                        Helg -> Helgedag(dato)
+                    }
                 }
                 val gjeldendeOpplysninger = opplysninger.forDato(dato)
 

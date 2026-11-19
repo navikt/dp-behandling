@@ -35,7 +35,7 @@ internal class Fraværsdag(
 
 internal class Helgedag(
     override val dato: LocalDate,
-    override val timerArbeidet: Timer?,
+    override val timerArbeidet: Timer? = null,
 ) : Dag {
     override val sats = null
     override val fva = null

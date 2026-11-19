@@ -2,11 +2,14 @@ package no.nav.dagpenger.scenario
 
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
 import no.nav.dagpenger.opplysning.Avgjørelse.Endring
+import no.nav.dagpenger.opplysning.Avgjørelse.Gjenopptak
 import no.nav.dagpenger.opplysning.Avgjørelse.Stans
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
+import no.nav.dagpenger.regel.Avklaringspunkter.JobbetOverTerskel
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.forbruktPermittering
@@ -15,6 +18,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.inne
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.skalOmgjøringUtenKlageVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Permittering.oppfyllerKravetTilPermittering
+import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravTilTapAvArbeidsinntekt
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
@@ -723,6 +727,92 @@ class PermitteringTest {
                 }
                 opplysninger(forbruktPermittering) {
                     this.last().verdi.verdi shouldBe 20
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `arbeid over terskel 3 meldekort på rad skal fortsatt telle permitteringsdager`() {
+        nyttScenario {
+            inntektSiste12Mnd = 300000
+            permittering = true
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            // Send inn meldekort
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            // Send inn meldekort hvor en har jobbet for mye
+            person.sendInnMeldekort(2, timer = List(14) { 7 })
+            meldekortBatch(markerFerdig = true)
+
+            // Send inn meldekort hvor en har jobbet for mye
+            person.sendInnMeldekort(3, timer = List(14) { 7 })
+            meldekortBatch(markerFerdig = true)
+
+            // Send inn meldekort hvor en har jobbet for mye
+            person.sendInnMeldekort(4, timer = List(14) { 7 })
+            meldekortBatch(markerFerdig = false)
+
+            saksbehandler.åpneAvklaringer().first().kode shouldBe JobbetOverTerskel.kode
+
+            behandlingsresultatForslag {
+                opplysninger(PermitteringFastsetting.forbruktPermittering) {
+                    this shouldHaveSize 56
+                    // Teller 10 dager * 3 hele meldekort + 7 dager fra første meldekort
+                    last().verdi.verdi shouldBe 37
+                }
+
+                førteTil shouldBe Stans.toString()
+            }
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+
+            // Verifiser at vi kan håndtere melding om avsluttet arbeidssøkerperiode etter stans
+            person.avsluttArbeidssøkerperiode(
+                fastsattMeldingsdag = 4.juli(2018),
+                avsluttetTidspunkt = 4.juli(2018).atTime(11, 21),
+            )
+            behovsløsere.løsTilForslag()
+
+            // Stans på stans skal fortsatt være stans
+            behandlingsresultat {
+                førteTil shouldBe Endring.toString()
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 1.juli(2018) harRett true
+                    fra(2.juli(2018)) harRett false
+                }
+                opplysning(RegistrertArbeidssøker.registrertArbeidssøker) {
+                    fra(21.juni(2018)) til 4.juli(2018) verdi true
+                    fra(5.juli(2018)) verdi false
+                }
+            }
+
+            person.søkDagpenger(13.august(2018))
+            behovsløsere.løsTilForslag()
+            saksbehandler.leggTilOpplysning(
+                RegistrertArbeidssøker.oppyllerKravTilRegistrertArbeidssøker,
+                true,
+                "test",
+                Gyldighetsperiode(13.august(2018)),
+            )
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                førteTil shouldBe Gjenopptak.toString()
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 1.juli(2018) harRett true
+                    fra(2.juli(2018)) til 12.august(2018) harRett false
+                    fra(13.august(2018)) harRett true
                 }
             }
         }
