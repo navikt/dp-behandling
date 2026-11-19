@@ -126,7 +126,8 @@ object ReellArbeidssøker {
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere", "Reell arbeidssøker")) {
-            skalVurderes { it.oppfyller(kravTilAlder) && it.erSann(skalReellArbeidssøkerVurderes) }
+            forutsetter(Alderskrav.regelsett)
+            aktivNår(skalReellArbeidssøkerVurderes)
 
             regel(ønsketArbeidstid) { innhentMed(søknadIdOpplysningstype) }
             regel(minimumVanligArbeidstid) { somUtgangspunkt(18.75, søknadIdOpplysningstype) }

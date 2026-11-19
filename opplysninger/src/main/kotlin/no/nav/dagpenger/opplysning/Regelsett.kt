@@ -24,6 +24,7 @@ class Regelsett internal constructor(
     val påvirkerResultat: (opplysninger: LesbarOpplysninger) -> Boolean,
     val betingelser: List<Opplysningstype<Boolean>>,
     val kvoter: List<KvoteDefinisjon> = emptyList(),
+    val aktivOpplysning: Opplysningstype<Boolean>? = null,
 ) {
     val navn: String = hjemmel.kortnavn
 

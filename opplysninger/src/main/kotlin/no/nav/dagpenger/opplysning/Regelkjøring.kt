@@ -140,8 +140,32 @@ class Regelkjøring(
         observatører.add(observer)
     }
 
+    private val aktivOpplysningPerType: Map<Opplysningstype<*>, Opplysningstype<Boolean>> by lazy {
+        forretningsprosess
+            .regelsett()
+            .mapNotNull { rs -> rs.aktivOpplysning?.let { aktiv -> rs.produserer.filter { it != aktiv }.map { it to aktiv } } }
+            .flatten()
+            .toMap()
+    }
+
+    // En tombstone skal bare bli stående så lenge hele perioden den dekker fortsatt er inaktiv
+    private fun skjulerInaktivPeriode(tombstone: Tombstone<*>): Boolean {
+        val aktiv = aktivOpplysningPerType[tombstone.opplysningstype] ?: return false
+        val inaktive = opplysninger.finnAlle(aktiv).filter { !it.verdi }.map { it.gyldighetsperiode }
+        return tombstone.gyldighetsperiode.minus(inaktive).isEmpty()
+    }
+
+    private fun skjulOpplysningerFraInaktiveRegelsett() {
+        forretningsprosess
+            .regelsett()
+            .forEach { regelsett ->
+                regelsett.aktivOpplysning?.let { opplysninger.skjulNårIkkeAktiv(it, regelsett.produserer) }
+            }
+    }
+
     fun evaluer(): Regelkjøringsrapport =
         tracer.medSpan("regelkjøring.evaluer", mapOf("regelverksdato" to regelverksdato.toString())) { span ->
+            skjulOpplysningerFraInaktiveRegelsett()
             var totalRapport: Regelkjøringsrapport? = null
             var aktiveDatoer = 0
             for (dato in prøvingsperiode) {
@@ -212,6 +236,8 @@ class Regelkjøring(
                 val tilhørerDenneRegelkjøringen = it.gyldighetsperiode.fraOgMed >= prøvingsdato || it.behandletVed == prøvingsdato
 
                 if (opplysningFraSaksbehandler || opplysningFraHendelse) return@fjernHvis false
+                // Tombstones som skjuler opplysninger fra regelsett som ikke er aktive skal bli stående
+                if (it is Tombstone<*> && skjulerInaktivPeriode(it)) return@fjernHvis false
 
                 trengsIkke && tilhørerDenneRegelkjøringen
             }
@@ -336,10 +362,18 @@ class Regelkjøring(
         val forDato = opplysninger.forDato(påDato)
 
         val regelsettKanKjøres = produserende.skalKjøres(forDato)
-        val kanEndreEksisterende = forDato.har(opplysningstype)
+        val kanEndreEksisterende = forDato.har(opplysningstype) || erSkjultAvInaktivtRegelsett(produserende, opplysningstype, påDato)
 
         return regelsettKanKjøres || kanEndreEksisterende
     }
+
+    // Skjulte opplysninger finnes fortsatt, og kan korrigeres av saksbehandler selv om regelsettet er avskrudd
+    private fun erSkjultAvInaktivtRegelsett(
+        regelsett: Regelsett,
+        opplysningstype: Opplysningstype<*>,
+        påDato: LocalDate,
+    ) = regelsett.aktivOpplysning != null &&
+        opplysninger.alleRå().any { it.opplysningstype == opplysningstype && it.gyldighetsperiode.inneholder(påDato) }
 
     private data class Regelkjøringstilstand(
         val prøvingsdato: LocalDate,

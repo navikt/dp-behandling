@@ -70,7 +70,7 @@ object Gjenopptak {
         vilkår(
             folketrygden.hjemmel(4, 16, "Gjenopptak av løpende stønadsperiode", "Gjenopptak"),
         ) {
-            skalVurderes { opplysninger -> opplysninger.erSann(skalGjenopptakVurderes) }
+            aktivNår(skalGjenopptakVurderes)
 
             // Sjekk at perioden har vært påstartet med forbruk
             regel(harForbrukt) { har(sisteForbruksdag) }

@@ -15,6 +15,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.AntallDagsatsForEgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.EgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.IngenEgenandelId
 import no.nav.dagpenger.regel.OpplysningsTyper.TreGangerDagsatsId
+import no.nav.dagpenger.regel.Porter
 import no.nav.dagpenger.regel.kravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringFiskeforedlingVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
@@ -32,7 +33,7 @@ object Egenandel {
         fastsettelse(
             folketrygden.hjemmel(4, 9, "Egenandel", "Egenandel"),
         ) {
-            skalVurderes { kravPåDagpenger(it) }
+            forutsetter(Porter.kravPåDagpenger)
             skalRevurderes { it.mangler(egenandel) }
 
             regel(antallDagsatsIEgenandel) { oppslag(prøvingsdato) { 3.0 } }

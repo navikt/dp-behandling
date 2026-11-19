@@ -41,6 +41,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.samordnetUkessatsUtenforFolketryg
 import no.nav.dagpenger.regel.OpplysningsTyper.skalSamordnesMedYtelserUtenforFolketrygdenId
 import no.nav.dagpenger.regel.OpplysningsTyper.sumYtelserUtenforFolketrygdenId
 import no.nav.dagpenger.regel.OpplysningsTyper.terskelVedSamordningId
+import no.nav.dagpenger.regel.Porter
 import no.nav.dagpenger.regel.kravPåDagpenger
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
@@ -159,7 +160,7 @@ object SamordingUtenforFolketrygden {
                 "Samordning utenfor folketrygden",
             ),
         ) {
-            skalVurderes { kravPåDagpenger(it) }
+            forutsetter(Porter.kravPåDagpenger)
 
             regel(andreYtelser) { innhentes }
 

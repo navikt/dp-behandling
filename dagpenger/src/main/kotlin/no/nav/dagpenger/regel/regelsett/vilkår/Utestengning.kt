@@ -12,6 +12,7 @@ import no.nav.dagpenger.regel.Avklaringspunkter.Utestengt
 import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.OpplysningsTyper.brukerErUtestengtFraDagpengerId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravTilIkkeUtestengtId
+import no.nav.dagpenger.regel.Porter
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 
@@ -34,7 +35,7 @@ object Utestengning {
         vilkår(
             folketrygden.hjemmel(4, 28, "Utestengning", "Utestengning"),
         ) {
-            skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
+            forutsetter(Porter.minsteinntektEllerVerneplikt)
 
             regel(utestengt) { innhentMed(prøvingsdato) }
             utfall(oppfyllerKravetTilIkkeUtestengt) { ikke(utestengt) }

@@ -18,6 +18,7 @@ import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.Avklaringspunkter.OppgirSelvforskyldtArbeidsløshet
 import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.OpplysningsTyper
+import no.nav.dagpenger.regel.Porter
 import no.nav.dagpenger.regel.kravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.dagerIUka
@@ -70,7 +71,7 @@ object Sanksjonsperiode {
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 10, "Sanksjonsperiode ved selvforskyldt arbeidsløshet", "Sanksjonsperiode")) {
-            skalVurderes { kravPåDagpenger(it) }
+            forutsetter(Porter.kravPåDagpenger)
 
             regel(oppgirSelvforskyldtArbeidsløshet) { innhentMed(søknadIdOpplysningstype) }
 

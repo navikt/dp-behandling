@@ -30,7 +30,7 @@ object PermitteringFraFiskeindustrienFastsetting {
                 kortnavn = "Permittering fiskeindustri",
             ),
         ) {
-            skalVurderes { it.erSann(oppfyllerKravetTilPermitteringFiskeindustri) }
+            aktivNår(oppfyllerKravetTilPermitteringFiskeindustri)
 
             regel(permitteringFraFiskeindustriPeriode) { oppslag(prøvingsdato) { 52 } }
 

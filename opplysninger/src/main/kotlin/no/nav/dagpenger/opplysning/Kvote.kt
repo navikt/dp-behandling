@@ -18,6 +18,8 @@ data class KvoteDefinisjon(
     val sisteGjenstående: Opplysningstype<Int>,
     val forbrukstype: Forbrukstype = Forbrukstype.Rettighet,
     val utløsendeBetingelse: Opplysningstype<Boolean>,
+    // Når satt skrives ikke kvoteopplysninger for datoer hvor denne er usann (regelsettet er ikke aktivt)
+    val aktiv: Opplysningstype<Boolean>? = null,
 ) {
     val navn get() = hjemmel.kortnavn
 

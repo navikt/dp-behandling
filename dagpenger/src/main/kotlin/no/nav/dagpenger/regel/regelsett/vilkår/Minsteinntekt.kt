@@ -65,7 +65,7 @@ object Minsteinntekt {
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 4, "Krav til minsteinntekt", "Minsteinntekt")) {
-            skalVurderes { it.oppfyller(kravTilAlder) }
+            forutsetter(Alderskrav.regelsett)
             skalRevurderes { !it.har(minsteinntekt) }
 
             regel(tellendeInntekt) { filtrerRelevanteInntekter(inntektFraSkatt, listOf(InntektKlasse.ARBEIDSINNTEKT)) }

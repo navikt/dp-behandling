@@ -37,7 +37,7 @@ object RegistrertArbeidssøker {
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 5, "Reelle arbeidssøkere - registrert som arbeidssøker", "Registrert som arbeidssøker")) {
-            skalVurderes { it.har(kravTilAlder) }
+            forutsetterVurdert(Alderskrav.regelsett)
 
             regel(registrertArbeidssøker) { innhentMed(tidligsteVurderingsdato) }
             regel(ønskerÅVæreRegistrertArbeidssøker) { somUtgangspunkt(true, tidligsteVurderingsdato) }

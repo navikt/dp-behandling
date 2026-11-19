@@ -63,7 +63,7 @@ object PermitteringFastsetting {
         fastsettelse(
             folketrygden.hjemmel(4, 7, "Dagpenger til permitterte", "Permittering"),
         ) {
-            skalVurderes { it.erSann(skalPermitteringVurderes) }
+            aktivNår(skalPermitteringVurderes)
 
             regel(permitteringsdagerIUka) { somUtgangspunkt(5) }
             regel(permitteringsperiode) { somUtgangspunkt(26) }
@@ -88,6 +88,7 @@ object PermitteringFastsetting {
                     sisteForbruk = sistePermitteringsdag,
                     sisteGjenstående = sisteGjenståendePermittering,
                     utløsendeBetingelse = innenforFritaksperioden,
+                    aktiv = skalPermitteringVurderes,
                 ),
             )
 

@@ -92,12 +92,30 @@ class KvotetellingsSkriver(
         resultat: Kvotetellingsresultat,
     ) {
         opplysninger.leggTil { fakta ->
-            resultat.forbruktTeller.forEach { fakta.add(Faktum(definisjon.forbruksteller, it.verdi, it.gyldighetsperiode)) }
-            resultat.gjenstående.forEach { fakta.add(Faktum(definisjon.gjenstående, it.verdi, it.gyldighetsperiode)) }
-            resultat.sisteDagMedForbruk?.let { fakta.add(Faktum(definisjon.sisteForbruk, it.verdi, it.gyldighetsperiode)) }
-            resultat.sisteGjenstående?.let { fakta.add(Faktum(definisjon.sisteGjenstående, it.verdi, it.gyldighetsperiode)) }
+            resultat.forbruktTeller.filter { erAktiv(opplysninger, it) }.forEach {
+                fakta.add(Faktum(definisjon.forbruksteller, it.verdi, it.gyldighetsperiode))
+            }
+            resultat.gjenstående.filter { erAktiv(opplysninger, it) }.forEach {
+                fakta.add(Faktum(definisjon.gjenstående, it.verdi, it.gyldighetsperiode))
+            }
+            resultat.sisteDagMedForbruk?.takeIf { erAktiv(opplysninger, it) }?.let {
+                fakta.add(Faktum(definisjon.sisteForbruk, it.verdi, it.gyldighetsperiode))
+            }
+            resultat.sisteGjenstående?.takeIf { erAktiv(opplysninger, it) }?.let {
+                fakta.add(Faktum(definisjon.sisteGjenstående, it.verdi, it.gyldighetsperiode))
+            }
         }
     }
+
+    private fun erAktiv(
+        opplysninger: Opplysninger,
+        verdi: KvotetellingsVerdi<*>,
+    ) = erAktiv(opplysninger, verdi.gyldighetsperiode.fraOgMed)
+
+    private fun erAktiv(
+        opplysninger: Opplysninger,
+        dato: LocalDate,
+    ) = definisjon.aktiv?.let { opplysninger.forDato(dato).finnNullableOpplysning(it)?.verdi } != false
 
     /**
      * Utløsende betingelse er alltid et resultat av siste telling: usann fra dagen etter at kvoten
@@ -120,6 +138,8 @@ class KvotetellingsSkriver(
             } else {
                 gjenåpningsdato(opplysninger, betingelse, meldeperiode) ?: return
             }
+
+        if (!erAktiv(opplysninger, fraOgMed)) return
 
         val gjeldende = opplysninger.forDato(fraOgMed).finnNullableOpplysning(betingelse)?.verdi
         if (gjeldende == ønsketVerdi) return

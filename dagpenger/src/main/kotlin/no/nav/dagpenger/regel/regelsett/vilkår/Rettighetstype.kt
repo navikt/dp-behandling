@@ -29,7 +29,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.skalEksportVurderesId
 import no.nav.dagpenger.regel.OpplysningsTyper.skalEtableringVurderesId
 import no.nav.dagpenger.regel.OpplysningsTyper.skalGjenopptakVurderesId
 import no.nav.dagpenger.regel.kravPåDagpenger
-import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt.avtjentVerneplikt
 
@@ -61,7 +60,7 @@ object Rettighetstype {
         fastsettelse(
             folketrygden.hjemmel(0, 0, "Rettighetstype", "Rettighetstype"),
         ) {
-            skalVurderes { it.oppfyller(kravTilAlder) }
+            forutsetter(Alderskrav.regelsett)
 
             regel(skalPermitteringVurderes) { innhentMed(søknadIdOpplysningstype) }
             regel(ordinærArbeid) { innhentMed(søknadIdOpplysningstype) }

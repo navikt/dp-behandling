@@ -72,7 +72,11 @@ class EtableringTest {
                 Etablering.overFemtiProsentEierandel,
             ).forEach { saksbehandler.leggTilOpplysning(it, false, gyldighetsperiode = Gyldighetsperiode(fraOgMed = etableringFra)) }
 
-            saksbehandler.leggTilOpplysning(Etablering.sluttDato, 31.januar(2025))
+            saksbehandler.leggTilOpplysning(
+                Etablering.sluttDato,
+                31.januar(2025),
+                gyldighetsperiode = Gyldighetsperiode(fraOgMed = etableringFra),
+            )
             behovsløsere.løsTilForslag()
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -88,7 +92,7 @@ class EtableringTest {
                     fra(etableringFra) verdi true
                 }
                 opplysning(etableringGodkjent) {
-                    erIkkeVurdert()
+                    fra(etableringFra) til 31.januar(2025) verdi false
                 }
             }
         }
@@ -140,7 +144,11 @@ class EtableringTest {
                 }
             }
 
-            saksbehandler.leggTilOpplysning(Etablering.sluttDato, 31.januar(2025))
+            saksbehandler.leggTilOpplysning(
+                Etablering.sluttDato,
+                31.januar(2025),
+                gyldighetsperiode = Gyldighetsperiode(fraOgMed = etableringFra),
+            )
             listOf(
                 Etablering.nyVirksomhet,
                 Etablering.selvforsørget,

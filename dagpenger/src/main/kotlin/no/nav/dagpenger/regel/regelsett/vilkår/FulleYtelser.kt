@@ -6,6 +6,7 @@ import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.OpplysningsTyper.IkkeFulleYtelserId
+import no.nav.dagpenger.regel.Porter
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden.skalSamordnesUtenforFolketrygden
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.skalSamordnes
@@ -17,7 +18,7 @@ object FulleYtelser {
         vilkår(
             folketrygden.hjemmel(4, 24, "Medlem som har fulle ytelser etter folketrygdloven eller avtalefestet pensjon", "Fulle ytelser"),
         ) {
-            skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
+            forutsetter(Porter.minsteinntektEllerVerneplikt)
 
             utfall(ikkeFulleYtelser) { somUtgangspunkt(true) }
 
