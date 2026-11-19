@@ -24,6 +24,7 @@ class Regelsett internal constructor(
     val påvirkerResultat: (opplysninger: LesbarOpplysninger) -> Boolean,
     val betingelser: List<Opplysningstype<Boolean>>,
     val kvoter: List<KvoteDefinisjon> = emptyList(),
+    val aktivOpplysning: Opplysningstype<Boolean>? = null,
 ) {
     val navn: String = hjemmel.kortnavn
 
@@ -53,4 +54,8 @@ class Regelsett internal constructor(
     fun regler(forDato: LocalDate = LocalDate.MIN) = regler.map { it.value.get(forDato) }.toList()
 
     override fun toString() = "Regelsett(navn=$navn, type=$type)"
+
+    init {
+        aktivOpplysning?.let { aktiv -> produserer.filter { it != aktiv }.forEach { it.maskertAv = aktiv } }
+    }
 }

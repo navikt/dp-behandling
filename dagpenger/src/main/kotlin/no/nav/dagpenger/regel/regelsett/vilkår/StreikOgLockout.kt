@@ -9,6 +9,7 @@ import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.regel.OpplysningsTyper.deltarStreikEllerLockoutId
 import no.nav.dagpenger.regel.OpplysningsTyper.ikkePåvirketAvStreikEllerLockoutId
 import no.nav.dagpenger.regel.OpplysningsTyper.ledigVedSammeBedriftOgPåvirketAvUtfalletId
+import no.nav.dagpenger.regel.Porter
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 
 object StreikOgLockout {
@@ -36,7 +37,7 @@ object StreikOgLockout {
         vilkår(
             folketrygden.hjemmel(4, 22, "Bortfall ved streik og lock-out", "Streik og lock-out"),
         ) {
-            skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
+            forutsetter(Porter.minsteinntektEllerVerneplikt)
 
             regel(deltarIStreikOgLockout) { somUtgangspunkt(false) }
             regel(sammeBedriftOgPåvirket) { somUtgangspunkt(false) }

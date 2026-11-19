@@ -222,6 +222,21 @@ class Opplysninger private constructor(
     // Rådata slik de er lagt til, uten utflating. Det er dette som skal persisteres.
     fun rå(): List<Opplysning<*>> = egne.toList()
 
+    /**
+     * Legger til opplysningen bare hvis den avviker fra det som allerede er lagret på tidspunktet den gjelder fra.
+     * Sammenligner mot lagrede verdier uten maskering, slik at skrivere utenfor regelmotoren ser sine egne
+     * verdier også i perioder hvor regelsettet er inaktivt. Returnerer om noe ble lagt til.
+     */
+    fun <T : Any> leggTilHvisEndret(opplysning: Opplysning<T>): Boolean {
+        val lagret =
+            indeks
+                .gjeldendeUtenMaskering(opplysning.opplysningstype)
+                .lastOrNull { it.gyldighetsperiode.inneholder(opplysning.gyldighetsperiode.fraOgMed) }
+        if (lagret?.verdi == opplysning.verdi) return false
+        leggTil(opplysning)
+        return true
+    }
+
     fun alleRå(): List<Opplysning<*>> = basertPåOpplysninger + egne
 
     fun fjernet(): Set<Opplysning<*>> = fjernet.toSet()

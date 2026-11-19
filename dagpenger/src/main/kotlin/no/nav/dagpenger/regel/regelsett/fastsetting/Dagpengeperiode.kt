@@ -33,6 +33,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.Terskel12Id
 import no.nav.dagpenger.regel.OpplysningsTyper.Terskel36Id
 import no.nav.dagpenger.regel.OpplysningsTyper.TerskelFaktor12Id
 import no.nav.dagpenger.regel.OpplysningsTyper.TerskelFaktor36Id
+import no.nav.dagpenger.regel.Porter
 import no.nav.dagpenger.regel.kravPåDagpenger
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
@@ -82,7 +83,7 @@ object Dagpengeperiode {
         fastsettelse(
             folketrygden.hjemmel(4, 15, "Antall stønadsuker (stønadsperiode)", "Periode"),
         ) {
-            skalVurderes { kravPåDagpenger(it) }
+            forutsetter(Porter.kravPåDagpenger)
             skalRevurderes { it.mangler(ordinærPeriode) || it.mangler(antallStønadsdager) }
 
             regel(kortPeriode) { oppslag(prøvingsdato) { 52 } }

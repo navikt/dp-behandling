@@ -18,7 +18,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.FørsteMånedAvOpptjeningsperiode
 import no.nav.dagpenger.regel.OpplysningsTyper.MaksPeriodeLengdeId
 import no.nav.dagpenger.regel.OpplysningsTyper.PliktigRapporteringsfristId
 import no.nav.dagpenger.regel.OpplysningsTyper.SisteAvsluttendeKalenderMånedId
-import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntektFraSkatt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import java.time.LocalDate
@@ -44,7 +43,7 @@ object Opptjeningstid {
         fastsettelse(
             aOpplynsingsLoven.hjemmel(1, 2, "Frist for levering av opplysninger", "Opptjeningsperiode"),
         ) {
-            skalVurderes { it.oppfyller(kravTilAlder) }
+            forutsetter(Alderskrav.regelsett)
             skalRevurderes {
                 (!it.har(inntektFraSkatt)) ||
                     it.erSann(Gjenopptak.oppholdMedArbeidI12ukerEllerMer)

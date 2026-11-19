@@ -5,7 +5,9 @@ import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.oppslag
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.OpplysningsTyper.permitteringFraFiskeindustriPeriodeId
+import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien
 import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringFiskeforedlingVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 
 object PermitteringFraFiskeindustrienFastsetting {
@@ -30,7 +32,8 @@ object PermitteringFraFiskeindustrienFastsetting {
                 kortnavn = "Permittering fiskeindustri",
             ),
         ) {
-            skalVurderes { it.erSann(oppfyllerKravetTilPermitteringFiskeindustri) }
+            forutsetter(PermitteringFraFiskeindustrien.regelsett)
+            aktivNår(skalPermitteringFiskeforedlingVurderes)
 
             regel(permitteringFraFiskeindustriPeriode) { oppslag(prøvingsdato) { 52 } }
 

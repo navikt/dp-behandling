@@ -42,7 +42,8 @@ class PermitteringSteg : No {
         }
 
         Så("skal søker få {boolsk} av permittering") { utfall: Boolean ->
-            opplysninger.finnOpplysning(Permittering.oppfyllerKravetTilPermittering).verdi shouldBe utfall
+            // Vilkåret finnes ikke når permittering ikke skal vurderes
+            (opplysninger.finnNullableOpplysning(Permittering.oppfyllerKravetTilPermittering)?.verdi ?: false) shouldBe utfall
         }
     }
 }

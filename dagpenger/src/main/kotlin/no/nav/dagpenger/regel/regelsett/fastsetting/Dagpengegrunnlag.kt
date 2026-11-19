@@ -56,6 +56,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.UavrundetGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode1Id
 import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode2Id
 import no.nav.dagpenger.regel.OpplysningsTyper.UtbetaltArbeidsinntektPeriode3Id
+import no.nav.dagpenger.regel.Porter
 import no.nav.dagpenger.regel.kravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnbeløpForDagpengeGrunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.vernepliktGrunnlag
@@ -134,7 +135,7 @@ object Dagpengegrunnlag {
         fastsettelse(
             folketrygden.hjemmel(4, 11, "Dagpengegrunnlag", "Dagpengegrunnlag"),
         ) {
-            skalVurderes { (kravPåDagpenger(it) || it.erSann(skalVernepliktVurderes)) }
+            forutsetterEnAv(Porter.kravPåDagpenger, Porter.skalVernepliktVurderes)
             skalRevurderes {
                 // Om *denne* behandlingen har inntekter må grunnlag fastsettes på nytt
                 it.kunEgne.har(inntektFraSkatt)

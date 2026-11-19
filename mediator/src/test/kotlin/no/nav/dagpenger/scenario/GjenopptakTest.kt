@@ -147,6 +147,156 @@ class GjenopptakTest {
     }
 
     @Test
+    fun `tester innvilgelse, stans, og gjenopptak, ny stans og nytt gjenopptak`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            val innvilgelseBehandlingId = person.behandlingId
+            behandlingsresultat {
+                førteTil shouldBe "Innvilgelse"
+                rettighetsperioder {
+                    fra(21.juni(2018)) harRett true
+                }
+
+                opplysninger(oppholdINorge) shouldHaveSize 1
+            }
+
+            // Må ha startet forbruk for å kunne gjenoppta
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            // Opprett stans
+            person.opprettBehandling(22.juli(2018))
+            saksbehandler.leggTilOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(22.juli(2018)))
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                førteTil shouldBe "Stans"
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 21.juli(2018) harRett true
+                    fra(22.juli(2018)) harRett false
+                }
+
+                opplysning(oppholdINorge) {
+                    fra(21.juni(2018)) til 21.juli(2018) verdi true opprinnelse Periodestatus.Arvet
+                    fra(22.juli(2018)) verdi false opprinnelse Periodestatus.Ny
+                }
+                opplysning(Opphold.oppfyllerKravetTilOpphold) {
+                    fra(21.juni(2018)) til 21.juli(2018) verdi true
+                    fra(22.juli(2018)) verdi false
+                }
+            }
+
+            // Gjenoppta
+            person.søkGjenopptak(23.august(2018))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.leggTilOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(23.august(2018)))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                behandlingskjedeId shouldBe innvilgelseBehandlingId
+                førteTil shouldBe "Gjenopptak"
+
+                with(opplysninger(Opptjeningstid.sisteAvsluttendendeKalenderMåned)) {
+                    // Vi skal ikke fastsette grunnlag på nytt
+                    this shouldHaveSize 1
+                }
+
+                opplysning(Gjenopptak.skalGjenopptas) {
+                    fra(23.august(2018)) verdi true opprinnelse Periodestatus.Ny
+                }
+
+                with(opplysninger(Minsteinntekt.minsteinntekt)) { this shouldHaveSize 1 }
+                opplysning(grunnlag) {
+                    fra(21.juni(2018)) verdi Beløp(517349) opprinnelse Periodestatus.Arvet
+                }
+
+                // Regresjonstest: dagpengeperioden (stønadsuker/-dager) skal arves fra
+                // førstegangsbehandlingen og ikke utledes på nytt ved gjenopptak.
+                opplysning(ordinærPeriode) {
+                    fra(21.juni(2018)) verdi 104 opprinnelse Periodestatus.Arvet
+                }
+                opplysning(antallStønadsdager) {
+                    fra(21.juni(2018)) verdi 520 opprinnelse Periodestatus.Arvet
+                }
+
+                opplysning(Opphold.oppfyllerKravetTilOpphold) {
+                    fra(21.juni(2018)) til 21.juli(2018) verdi true
+                    fra(22.juli(2018)) til 22.august(2018) verdi false
+                    fra(23.august(2018)) verdi true
+                }
+
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 21.juli(2018) harRett true
+                    fra(22.juli(2018)) til 22.august(2018) harRett false
+                    fra(23.august(2018)) harRett true
+                }
+
+                opplysning(oppholdINorge) {
+                    fra(21.juni(2018)) til 21.juli(2018) verdi true opprinnelse Periodestatus.Arvet
+                    fra(22.juli(2018)) til 22.august(2018) verdi false opprinnelse Periodestatus.Arvet
+                    fra(23.august(2018)) verdi true opprinnelse Periodestatus.Ny
+                }
+            }
+
+            // Opprett stans
+            person.opprettBehandling(26.august(2018))
+            saksbehandler.leggTilOpplysning(oppholdINorge, false, "Er i utlandet", Gyldighetsperiode(26.august(2018)))
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                førteTil shouldBe "Stans"
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 21.juli(2018) harRett true
+                    fra(22.juli(2018)) til 22.august(2018) harRett false
+                    fra(23.august(2018)) til 25.august(2018) harRett true
+                    fra(26.august(2018)) harRett false
+                }
+            }
+
+            // Gjenoppta
+            person.søkGjenopptak(28.august(2018))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.leggTilOpplysning(oppholdINorge, true, "Tilbake fra utlandet", Gyldighetsperiode(28.august(2018)))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat {
+                førteTil shouldBe "Gjenopptak"
+                rettighetsperioder {
+                    fra(21.juni(2018)) til 21.juli(2018) harRett true
+                    fra(22.juli(2018)) til 22.august(2018) harRett false
+                    fra(23.august(2018)) til 25.august(2018) harRett true
+                    fra(26.august(2018)) til 27.august(2018) harRett false
+                    fra(28.august(2018)) harRett true
+                }
+            }
+        }
+    }
+
+    @Test
     fun `bekrefter opphold i Norge på nytt med lik verdi etter meldekort`() {
         // Saksbehandler bekrefter (domenemessig meningsløst) at bruker fortsatt oppholder seg i
         // Norge, med samme verdi (true) som allerede gjelder, men fra en senere dato. Dette gir en
@@ -394,7 +544,12 @@ class GjenopptakTest {
 
             behovsløsere.løsTilForslag()
 
-            saksbehandler.leggTilOpplysning(oppholdINorge, true, "Tok en tur til Afrika", Gyldighetsperiode(21.juni(2018), 25.juni(2018)))
+            saksbehandler.leggTilOpplysning(
+                oppholdINorge,
+                true,
+                "Tok en tur til Afrika",
+                Gyldighetsperiode(21.juni(2018), 25.juni(2018)),
+            )
 
             saksbehandler.lukkAlleAvklaringer()
             saksbehandler.godkjenn()
@@ -441,7 +596,12 @@ class GjenopptakTest {
             person.søkDagpenger(18.mai(2027), ønskerFraDato = 1.mars(2027))
             behovsløsere.løsTilForslag()
 
-            saksbehandler.leggTilOpplysning(ReellArbeidssøker.erArbeidsfør, true, "Noe syk", Gyldighetsperiode(18.mai(2027), 31.mai(2027)))
+            saksbehandler.leggTilOpplysning(
+                ReellArbeidssøker.erArbeidsfør,
+                true,
+                "Noe syk",
+                Gyldighetsperiode(18.mai(2027), 31.mai(2027)),
+            )
             saksbehandler.leggTilOpplysning(
                 beregnetArbeidstid,
                 26.5,

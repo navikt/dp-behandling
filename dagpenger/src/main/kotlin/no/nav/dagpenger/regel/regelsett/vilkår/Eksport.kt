@@ -88,7 +88,7 @@ object Eksport {
         vilkår(
             trygdeforordningen.hjemmel(64, 0, "Eksport av dagpenger til EØS-land", "Eksport til EØS-land"),
         ) {
-            skalVurderes { it.erSann(Rettighetstype.skalEksportVurderes) }
+            aktivNår(Rettighetstype.skalEksportVurderes)
 
             regel(skalHaEksport) { erSann(Rettighetstype.skalEksportVurderes) }
             regel(skalHaEksportFra) { fraOgMed(Rettighetstype.skalEksportVurderes) }

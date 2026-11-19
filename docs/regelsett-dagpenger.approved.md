@@ -40,7 +40,7 @@ graph LR
   R17["Opphold (Vilkår)"]:::Vilkår
   R18["Opptjeningsperiode (Fastsettelse)"]:::Fastsettelse
   R19["Permittering (Vilkår)"]:::Vilkår
-  R20["Permittering (Fastsettelse)"]:::Fastsettelse
+  R20["Permittering (fastsettelse) (Fastsettelse)"]:::Fastsettelse
   R21["Permittering fiskeindustri (Vilkår)"]:::Vilkår
   R22["Permittering fiskeindustri (Fastsettelse)"]:::Fastsettelse
   R23["Reell arbeidssøker (Vilkår)"]:::Vilkår
@@ -136,6 +136,7 @@ graph LR
   R25 -->|påvirkerResultat| R21
   R31 -->|data| R22
   R21 -->|skalVurderes| R22
+  R25 -->|skalVurderes| R22
   R21 -->|påvirkerResultat| R22
   R31 -->|data| R23
   R0 -->|skalVurderes| R23
@@ -211,9 +212,9 @@ graph LR
   R25 -->|skalVurderes| R40
   R39 -->|påvirkerResultat| R40
   R2 -->|påvirkerResultat| R40
-  linkStyle 0,1,2,3,4,5,8,9,10,13,14,15,19,20,21,24,27,34,35,36,39,41,42,47,52,54,55,61,62,69,72,79,83,84,86,87,88,89,93,94,95,98,99,105,106,107,108,109,110,111,112,115,117,120,125,130,131,132,136,141,142 stroke:#888888
-  linkStyle 6,11,16,22,25,28,30,31,37,38,40,43,46,48,49,53,56,57,59,63,64,65,70,73,74,80,85,90,96,97,100,101,102,113,114,116,118,119,121,122,126,127,133,137,143 stroke:#d6336c
-  linkStyle 7,12,17,18,23,26,29,32,33,44,45,50,51,58,60,66,67,68,71,75,76,77,78,81,82,91,92,103,104,123,124,128,129,134,135,138,139,140,144,145 stroke:#f08c00
+  linkStyle 0,1,2,3,4,5,8,9,10,13,14,15,19,20,21,24,27,34,35,36,39,41,42,47,52,54,55,61,62,69,73,80,84,85,87,88,89,90,94,95,96,99,100,106,107,108,109,110,111,112,113,116,118,121,126,131,132,133,137,142,143 stroke:#888888
+  linkStyle 6,11,16,22,25,28,30,31,37,38,40,43,46,48,49,53,56,57,59,63,64,65,70,71,74,75,81,86,91,97,98,101,102,103,114,115,117,119,120,122,123,127,128,134,138,144 stroke:#d6336c
+  linkStyle 7,12,17,18,23,26,29,32,33,44,45,50,51,58,60,66,67,68,72,76,77,78,79,82,83,92,93,104,105,124,125,129,130,135,136,139,140,141,145,146 stroke:#f08c00
 ```
 
 ## Tabell
@@ -239,10 +240,10 @@ graph LR
 | Skal omgjøring uten klage vurderes? (Prosess) | - | - | - |
 | Opphold (Vilkår) | Søknadstidspunkt (Fastsettelse) | Minsteinntekt (Vilkår), Verneplikt (Vilkår) | Minsteinntekt (Vilkår), Verneplikt (Vilkår) |
 | Opptjeningsperiode (Fastsettelse) | Søknadstidspunkt (Fastsettelse) | Alder (Vilkår) | - |
-| Permittering (Vilkår) | Permittering (Fastsettelse), Rettighetstype (Fastsettelse) | Alder (Vilkår), Rettighetstype (Fastsettelse) | Rettighetstype (Fastsettelse) |
-| Permittering (Fastsettelse) | - | Rettighetstype (Fastsettelse) | Permittering (Vilkår) |
+| Permittering (Vilkår) | Permittering (fastsettelse) (Fastsettelse), Rettighetstype (Fastsettelse) | Alder (Vilkår), Rettighetstype (Fastsettelse) | Rettighetstype (Fastsettelse) |
+| Permittering (fastsettelse) (Fastsettelse) | - | Rettighetstype (Fastsettelse) | Permittering (Vilkår) |
 | Permittering fiskeindustri (Vilkår) | Rettighetstype (Fastsettelse), Søknadstidspunkt (Fastsettelse) | Minsteinntekt (Vilkår), Rettighetstype (Fastsettelse), Verneplikt (Vilkår) | Minsteinntekt (Vilkår), Rettighetstype (Fastsettelse), Verneplikt (Vilkår) |
-| Permittering fiskeindustri (Fastsettelse) | Søknadstidspunkt (Fastsettelse) | Permittering fiskeindustri (Vilkår) | Permittering fiskeindustri (Vilkår) |
+| Permittering fiskeindustri (Fastsettelse) | Søknadstidspunkt (Fastsettelse) | Permittering fiskeindustri (Vilkår), Rettighetstype (Fastsettelse) | Permittering fiskeindustri (Vilkår) |
 | Reell arbeidssøker (Vilkår) | Søknadstidspunkt (Fastsettelse) | Alder (Vilkår), Rettighetstype (Fastsettelse) | Alder (Vilkår), Minsteinntekt (Vilkår), Rettighetstype (Fastsettelse), Verneplikt (Vilkår) |
 | Registrert som arbeidssøker (Vilkår) | Søknadstidspunkt (Fastsettelse) | Alder (Vilkår) | Alder (Vilkår), Rettighetstype (Fastsettelse) |
 | Rettighetstype (Fastsettelse) | Søknadstidspunkt (Fastsettelse), Verneplikt (Vilkår) | Alder (Vilkår) | - |
@@ -252,7 +253,7 @@ graph LR
 | Streik og lock-out (Vilkår) | - | Minsteinntekt (Vilkår), Verneplikt (Vilkår) | Minsteinntekt (Vilkår), Verneplikt (Vilkår) |
 | Søknad (Vilkår) | Søknadstidspunkt (Fastsettelse) | - | - |
 | Søknadstidspunkt (Fastsettelse) | - | - | - |
-| Tap av arbeidsinntekt og arbeidstid (Vilkår) | Dagpengegrunnlag (Fastsettelse), Dagpenger ved verneplikt (Fastsettelse), Fastsettelse av arbeidstid (Fastsettelse), Permittering (Fastsettelse), Permittering fiskeindustri (Vilkår), Rettighetstype (Fastsettelse), Søknadstidspunkt (Fastsettelse) | Minsteinntekt (Vilkår), Verneplikt (Vilkår) | - |
+| Tap av arbeidsinntekt og arbeidstid (Vilkår) | Dagpengegrunnlag (Fastsettelse), Dagpenger ved verneplikt (Fastsettelse), Fastsettelse av arbeidstid (Fastsettelse), Permittering (fastsettelse) (Fastsettelse), Permittering fiskeindustri (Vilkår), Rettighetstype (Fastsettelse), Søknadstidspunkt (Fastsettelse) | Minsteinntekt (Vilkår), Verneplikt (Vilkår) | - |
 | Tidsbegrenset bortfall (Vilkår) | Periode (Fastsettelse) | kravPåDagpenger | - |
 | Tre meldeperioder uten tilstrekkelig tap (Vilkår) | Søknadstidspunkt (Fastsettelse) | Gjenopptak (Vilkår), Meldekortberegning (Fastsettelse) | - |
 | Uriktige opplysninger og tilbakeholdelse (Vilkår) | - | - | - |

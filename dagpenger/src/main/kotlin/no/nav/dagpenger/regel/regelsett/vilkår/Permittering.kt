@@ -17,7 +17,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.godkjentPermitteringsårsakId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilPermitteringFraDatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilPermitteringId
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.innenforFritaksperioden
-import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringVurderes
 
 object Permittering {
@@ -43,7 +42,8 @@ object Permittering {
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 7, "Dagpenger til permitterte", "Permittering")) {
-            skalVurderes { it.erSann(kravTilAlder) && it.erSann(skalPermitteringVurderes) }
+            forutsetter(Alderskrav.regelsett)
+            aktivNår(skalPermitteringVurderes)
 
             regel(godkjentPermitteringsårsak) { somUtgangspunkt(true) }
             regel(erPermitteringenMidlertidig) { somUtgangspunkt(true) }
@@ -60,12 +60,14 @@ object Permittering {
             regel(oppfyllerKravetTilPermitteringFraDato) { fraOgMed(oppfyllerKravetTilPermittering) }
             ønsketResultat(oppfyllerKravetTilPermitteringFraDato)
 
-            påvirkerResultat { it.erSann(skalPermitteringVurderes) }
+            påvirkerResultat {
+                it.erSann(skalPermitteringVurderes)
+            }
 
             avklaring(HarOppgittPermittering)
         }
 
-    private fun erPermittert(): (LesbarOpplysninger) -> Boolean = { it.erSann(skalPermitteringVurderes) }
+    private fun erPermittert(): (LesbarOpplysninger) -> Boolean = { it.finnAlle(skalPermitteringVurderes).any { utfall -> utfall.verdi } }
 
     val PermitteringKontroll =
         Kontrollpunkt(HarOppgittPermittering) {

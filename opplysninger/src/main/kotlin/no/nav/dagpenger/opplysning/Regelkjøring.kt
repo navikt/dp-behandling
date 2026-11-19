@@ -336,10 +336,18 @@ class Regelkjøring(
         val forDato = opplysninger.forDato(påDato)
 
         val regelsettKanKjøres = produserende.skalKjøres(forDato)
-        val kanEndreEksisterende = forDato.har(opplysningstype)
+        val kanEndreEksisterende = forDato.har(opplysningstype) || erMaskert(produserende, opplysningstype, påDato)
 
         return regelsettKanKjøres || kanEndreEksisterende
     }
+
+    // Maskerte opplysninger finnes fortsatt som rådata, og kan korrigeres selv om regelsettet er avskrudd
+    private fun erMaskert(
+        regelsett: Regelsett,
+        opplysningstype: Opplysningstype<*>,
+        påDato: LocalDate,
+    ) = regelsett.aktivOpplysning != null &&
+        opplysninger.alleRå().any { it.opplysningstype == opplysningstype && it.gyldighetsperiode.inneholder(påDato) }
 
     private data class Regelkjøringstilstand(
         val prøvingsdato: LocalDate,
@@ -462,10 +470,14 @@ class Regelkjøring(
             TODO("Not yet implemented")
         }
 
+        // Testprosessen ignorerer forutsetninger, men må respektere aktivNår siden opplysningene ellers maskeres
         override fun produsenter(
             regelverksdato: LocalDate,
             opplysningerPåPrøvingsdato: LesbarOpplysninger,
-        ) = regelsett.flatMap { it.regler(regelverksdato) }.associateBy { it.produserer }
+        ) = regelsett
+            .filter { rs -> rs.aktivOpplysning?.let { opplysningerPåPrøvingsdato.erSann(it) } ?: true }
+            .flatMap { it.regler(regelverksdato) }
+            .associateBy { it.produserer }
 
         override fun ønsketResultat(opplysninger: LesbarOpplysninger): Set<Opplysningstype<*>> = opplysningstypes
     }
