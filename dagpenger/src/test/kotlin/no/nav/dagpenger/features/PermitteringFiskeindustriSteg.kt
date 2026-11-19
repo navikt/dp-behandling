@@ -51,7 +51,14 @@ class PermitteringFiskeindustriSteg : No {
         }
 
         Så("skal søker få {boolsk} av permittering fra fiskeindustrien") { utfall: Boolean ->
-            opplysninger.finnOpplysning(PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri).verdi shouldBe utfall
+            // Vilkåret finnes ikke når permittering fra fiskeindustrien ikke skal vurderes
+            (
+                opplysninger
+                    .finnNullableOpplysning(
+                        PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri,
+                    )?.verdi ?: false
+            ) shouldBe
+                utfall
         }
     }
 }

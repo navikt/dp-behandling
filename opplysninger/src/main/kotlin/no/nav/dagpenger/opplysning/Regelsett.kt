@@ -54,4 +54,8 @@ class Regelsett internal constructor(
     fun regler(forDato: LocalDate = LocalDate.MIN) = regler.map { it.value.get(forDato) }.toList()
 
     override fun toString() = "Regelsett(navn=$navn, type=$type)"
+
+    init {
+        aktivOpplysning?.let { aktiv -> produserer.filter { it != aktiv }.forEach { it.maskertAv = aktiv } }
+    }
 }

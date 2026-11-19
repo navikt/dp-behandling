@@ -222,6 +222,21 @@ class Opplysninger private constructor(
     // Rådata slik de er lagt til, uten utflating. Det er dette som skal persisteres.
     fun rå(): List<Opplysning<*>> = egne.toList()
 
+    /**
+     * Legger til opplysningen bare hvis den avviker fra det som allerede er lagret på tidspunktet den gjelder fra.
+     * Sammenligner mot lagrede verdier uten maskering, slik at skrivere utenfor regelmotoren ser sine egne
+     * verdier også i perioder hvor regelsettet er inaktivt. Returnerer om noe ble lagt til.
+     */
+    fun <T : Any> leggTilHvisEndret(opplysning: Opplysning<T>): Boolean {
+        val lagret =
+            indeks
+                .gjeldendeUtenMaskering(opplysning.opplysningstype)
+                .lastOrNull { it.gyldighetsperiode.inneholder(opplysning.gyldighetsperiode.fraOgMed) }
+        if (lagret?.verdi == opplysning.verdi) return false
+        leggTil(opplysning)
+        return true
+    }
+
     fun alleRå(): List<Opplysning<*>> = basertPåOpplysninger + egne
 
     fun fjernet(): Set<Opplysning<*>> = fjernet.toSet()
@@ -243,8 +258,6 @@ class Opplysninger private constructor(
     private fun fjern(opplysning: Opplysning<*>) {
         // Fjern alle opplysninger som er utledet av opplysningen som fjernes
         fjernAvhengigheter(opplysning)
-        // En tombstone som skjuler en opplysning som fjernes har ikke lenger noe å skjule
-        egne.filter { it is Tombstone<*> && it.erstatter?.id == opplysning.id }.forEach { fjern(it) }
 
         if (egne.remove(opplysning)) {
             fjernet.add(opplysning)
@@ -298,29 +311,6 @@ class Opplysninger private constructor(
     private val arvedeIder: Set<UUID> by lazy { basertPåOpplysninger.mapTo(HashSet()) { it.id } }
 
     fun erArvet(opplysning: Opplysning<*>): Boolean = opplysning.id in arvedeIder
-
-    /**
-     * Skjuler (også arvede) opplysninger i perioder hvor aktiv-opplysningen er usann, og fjerner egne
-     * tombstones som ikke lenger bare dekker inaktive perioder, slik at de ikke skjuler noe i en periode
-     * hvor regelsettet igjen er aktivt.
-     */
-    fun skjulNårIkkeAktiv(
-        aktiv: Opplysningstype<Boolean>,
-        produserte: Collection<Opplysningstype<*>>,
-    ) {
-        val skjulbare = produserte.filter { it != aktiv }
-        val inaktive =
-            indeks
-                .gjeldende(aktiv)
-                .filter { it !is Tombstone<*> && !it.verdi }
-                .map { it.gyldighetsperiode }
-
-        egne
-            .filter { it is Tombstone<*> && it.opplysningstype in skjulbare && it.gyldighetsperiode.minus(inaktive).isNotEmpty() }
-            .forEach { fjern(it) }
-
-        inaktive.forEach { periode -> skjulbare.forEach { tombstone(it, periode, behandlet = true) } }
-    }
 
     /**
      * Skjuler gjeldende opplysninger av [opplysningstype] i [periode] ved å legge til tombstones.

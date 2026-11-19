@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
 import no.nav.dagpenger.regel.regelsett.vilkår.Permittering
+import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 
 class PermitteringFastsettingSteg : No {
@@ -29,6 +30,7 @@ class PermitteringFastsettingSteg : No {
     init {
         Gitt("at søker skal innvilges {boolsk} med permittering") { søkt: Boolean ->
             opplysninger.leggTil(Faktum(prøvingsdato, fraDato))
+            opplysninger.leggTil(Faktum(Rettighetstype.skalPermitteringVurderes, true))
             opplysninger.leggTil(Faktum(Permittering.oppfyllerKravetTilPermittering, søkt) as Opplysning<*>).also { regelkjøring.evaluer() }
         }
 

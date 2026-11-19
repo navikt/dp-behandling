@@ -36,6 +36,7 @@ class PermitteringFiskeindustrienFastsettingSteg : No {
     init {
         Gitt("at søker skal innvilges {boolsk} med permittering fra fiskeindustrien") { søkt: Boolean ->
             opplysninger.leggTil(Faktum(prøvingsdato, fraDato))
+            opplysninger.leggTil(Faktum(Rettighetstype.skalPermitteringFiskeforedlingVurderes, true))
             opplysninger
                 .leggTil(Faktum(PermitteringFraFiskeindustrien.oppfyllerKravetTilPermitteringFiskeindustri, søkt) as Opplysning<*>)
                 .also { regelkjøring.evaluer() }

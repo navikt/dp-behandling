@@ -88,7 +88,6 @@ object PermitteringFastsetting {
                     sisteForbruk = sistePermitteringsdag,
                     sisteGjenstående = sisteGjenståendePermittering,
                     utløsendeBetingelse = innenforFritaksperioden,
-                    aktiv = skalPermitteringVurderes,
                 ),
             )
 

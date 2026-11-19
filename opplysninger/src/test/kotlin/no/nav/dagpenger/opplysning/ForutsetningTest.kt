@@ -67,8 +67,6 @@ class ForutsetningTest {
         o.leggTil(Faktum(aktiv, false, Gyldighetsperiode(10.januar, 19.januar)))
         o.leggTil(Faktum(aktiv, true, Gyldighetsperiode(20.januar)))
 
-        o.skjulNårIkkeAktiv(aktiv, medScope.produserer)
-
         o.forDato(5.januar).har(resultat) shouldBe true
         o.forDato(15.januar).har(resultat) shouldBe false
         o.forDato(25.januar).har(resultat) shouldBe true
@@ -79,19 +77,16 @@ class ForutsetningTest {
         val o = Opplysninger()
         o.leggTil(Faktum(resultat, true, Gyldighetsperiode(1.januar)))
         o.leggTil(Faktum(aktiv, false, Gyldighetsperiode(10.januar, 19.januar)))
-        o.skjulNårIkkeAktiv(aktiv, medScope.produserer)
         o.forDato(15.januar).har(resultat) shouldBe false
 
         // Perioden flyttes: det som ikke lenger er inaktivt skal tilbake, det nye skal skjules
         o.leggTil(Faktum(aktiv, true, Gyldighetsperiode(10.januar, 14.januar)))
         o.leggTil(Faktum(aktiv, false, Gyldighetsperiode(15.januar, 19.januar)))
-        o.skjulNårIkkeAktiv(aktiv, medScope.produserer)
         o.forDato(12.januar).har(resultat) shouldBe true
         o.forDato(17.januar).har(resultat) shouldBe false
 
         // Aktiv hele veien: alt er tilbake
         o.leggTil(Faktum(aktiv, true, Gyldighetsperiode(1.januar)))
-        o.skjulNårIkkeAktiv(aktiv, medScope.produserer)
         o.forDato(17.januar).har(resultat) shouldBe true
     }
 

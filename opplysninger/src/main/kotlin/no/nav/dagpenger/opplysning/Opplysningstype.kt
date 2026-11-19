@@ -41,6 +41,10 @@ class Opplysningstype<T : Any>(
 ) : Klassifiserbart {
     val datatype = id.datatype
 
+    /** Settes av regelsettet som produserer typen: opplysninger av typen er borte i perioder hvor denne er usann. */
+    var maskertAv: Opplysningstype<Boolean>? = null
+        internal set
+
     data class Id<T>(
         val uuid: UUID,
         val datatype: Datatype<T>,
