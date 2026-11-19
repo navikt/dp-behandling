@@ -32,7 +32,7 @@ import no.nav.dagpenger.regelverk.RegelverkRegistrering
 import no.nav.dagpenger.utestengning.UtestengningRegistrering
 import no.nav.helse.rapids_rivers.RapidApplication
 import org.apache.kafka.clients.producer.ProducerConfig
-import org.apache.kafka.common.record.CompressionType
+import org.apache.kafka.common.record.internal.CompressionType
 import java.util.Properties
 
 class AivenConfigCompression(
