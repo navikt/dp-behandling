@@ -11,7 +11,6 @@ import no.nav.dagpenger.regel.Behov
 import no.nav.dagpenger.regel.OpplysningsTyper.avtjentVernepliktId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilVernepliktId
 import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
-import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.kravTilAlder
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalVernepliktVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
@@ -30,10 +29,7 @@ object Verneplikt {
         vilkår(
             folketrygden.hjemmel(4, 19, "Dagpenger etter avtjent verneplikt", "Verneplikt"),
         ) {
-            skalVurderes {
-                it.oppfyller(kravTilAlder)
-                // && it.erSann(skalVernepliktVurderes)
-            }
+            forutsetter(Alderskrav.regelsett)
 
             regel(avtjentVerneplikt) { innhentMed(søknadIdOpplysningstype) }
             utfall(oppfyllerKravetTilVerneplikt) { erSann(avtjentVerneplikt) }

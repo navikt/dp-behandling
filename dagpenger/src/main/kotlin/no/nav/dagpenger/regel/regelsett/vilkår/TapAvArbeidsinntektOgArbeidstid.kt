@@ -39,7 +39,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.manglerKravPåLønnId
 import no.nav.dagpenger.regel.OpplysningsTyper.nyArbeidstidPerUkeId
 import no.nav.dagpenger.regel.OpplysningsTyper.ordinærtKravTilTaptArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.tapAvArbeidstidErMinstTerskelId
-import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
+import no.nav.dagpenger.regel.Porter
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.innenforFritaksperioden
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
@@ -141,7 +141,7 @@ object TapAvArbeidsinntektOgArbeidstid {
         vilkår(
             folketrygden.hjemmel(4, 3, "Tap av arbeidsinntekt og arbeidstid", "Tap av arbeidsinntekt og arbeidstid"),
         ) {
-            skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
+            forutsetter(Porter.minsteinntektEllerVerneplikt)
 
             regel(kravPåLønn) { innhentMed(søknadIdOpplysningstype) }
             regel(manglerKravPåLønn) { ikke(kravPåLønn) }

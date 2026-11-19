@@ -55,6 +55,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.NittiProsentId
 import no.nav.dagpenger.regel.OpplysningsTyper.SamordnetDagsatsMedBarnetilleggId
 import no.nav.dagpenger.regel.OpplysningsTyper.UkessatsId
 import no.nav.dagpenger.regel.OpplysningsTyper.beløpOverMaksId
+import no.nav.dagpenger.regel.Porter
 import no.nav.dagpenger.regel.kravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag.grunnlag
 import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden.dagsatsSamordnetUtenforFolketrygden
@@ -153,7 +154,7 @@ object DagpengenesStørrelse {
         fastsettelse(
             folketrygden.hjemmel(4, 12, "Dagpengenes størrelse", "Sats og barnetillegg"),
         ) {
-            skalVurderes { kravPåDagpenger(it) }
+            forutsetter(Porter.kravPåDagpenger)
 
             regel(barn) { innhentMed(søknadIdOpplysningstype) }
             regel(barnSomGirTillegg) {

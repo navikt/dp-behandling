@@ -13,6 +13,7 @@ import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.OpplysningsTyper
+import no.nav.dagpenger.regel.Porter
 import no.nav.dagpenger.regel.kravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.dagerIUka
@@ -51,7 +52,7 @@ object TidsbegrensetBortfall {
 
     val regelsett =
         vilkår(folketrygden.hjemmel(4, 20, "Tidsbegrenset bortfall av dagpenger", "Tidsbegrenset bortfall")) {
-            skalVurderes { kravPåDagpenger(it) }
+            forutsetter(Porter.kravPåDagpenger)
 
             utfall(harTidsbegrensetBortfall) { somUtgangspunkt(false) }
             regel(antallBortfallsuker) { somUtgangspunkt(18) }

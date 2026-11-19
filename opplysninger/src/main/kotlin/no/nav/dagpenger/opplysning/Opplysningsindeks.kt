@@ -21,6 +21,9 @@ internal class Opplysningsindeks(
 
     private val egneOpplysninger: MutableSet<Opplysning<*>> = egneVedOppstart.toHashSet()
 
+    // Typer som er maskert av en aktiv-opplysning, slik at de løses opp på nytt når denne endres
+    private val maskertAvAktiv = mutableMapOf<Opplysningstype<*>, MutableSet<Opplysningstype<*>>>()
+
     private val gjeldendePerType = mutableMapOf<Opplysningstype<*>, List<Opplysning<*>>>()
     private val gjeldendeEgnePerType = mutableMapOf<Opplysningstype<*>, List<Opplysning<*>>>()
 
@@ -39,6 +42,14 @@ internal class Opplysningsindeks(
         oppfrisk(type)
         return gjeldendePerType[type].orEmpty() as List<Opplysning<T>>
     }
+
+    /** Som [gjeldende], men uten maskering av inaktive perioder. Brukes av de som skriver opplysninger utenfor regelmotoren. */
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> gjeldendeUtenMaskering(type: Opplysningstype<T>): List<Opplysning<T>> =
+        løsOppOverlappInnadIType(
+            arvedePerType[type].orEmpty() + egnePerType[type].orEmpty().kunSisteHvisKrevd(type),
+            type.overlappStrategi,
+        ).filterNot { it is Tombstone<*> } as List<Opplysning<T>>
 
     /** Som [gjeldende], men kun egne (ikke-arvede) opplysninger. */
     @Suppress("UNCHECKED_CAST")
@@ -82,6 +93,8 @@ internal class Opplysningsindeks(
         påvirkedeEgneTyper += type
         gjeldendeFlat = null
         gjeldendeEgenFlat = null
+        // Typer som maskeres av denne kan selv være aktiv-opplysning for andre typer
+        maskertAvAktiv[type]?.forEach { if (it !in påvirkedeTyper) merkPåvirket(it) }
     }
 
     private fun flatt(
@@ -124,8 +137,21 @@ internal class Opplysningsindeks(
             return
         }
         val utflatet = løsOppOverlappInnadIType(rå, type.overlappStrategi)
-        val synlige = utflatet.filterNot { it is Tombstone<*> }
+        val synlige = utflatet.filterNot { it is Tombstone<*> }.utenInaktivePerioder(type)
         if (synlige.isEmpty()) gjeldende.remove(type) else gjeldende[type] = synlige
+    }
+
+    private fun List<Opplysning<*>>.utenInaktivePerioder(type: Opplysningstype<*>): List<Opplysning<*>> {
+        val aktiv = type.maskertAv ?: return this
+        maskertAvAktiv.getOrPut(aktiv) { mutableSetOf() }.add(type)
+        val inaktive = gjeldende(aktiv).filter { !it.verdi }.map { it.gyldighetsperiode }
+        if (inaktive.isEmpty()) return this
+
+        return flatMap { opplysning ->
+            opplysning.gyldighetsperiode.minus(inaktive).map { periode ->
+                if (periode == opplysning.gyldighetsperiode) opplysning else opplysning.medGyldighetsperiode(periode)
+            }
+        }
     }
 
     companion object {

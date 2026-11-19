@@ -121,9 +121,7 @@ class KvotetellingsSkriver(
                 gjenåpningsdato(opplysninger, betingelse, meldeperiode) ?: return
             }
 
-        val gjeldende = opplysninger.forDato(fraOgMed).finnNullableOpplysning(betingelse)?.verdi
-        if (gjeldende == ønsketVerdi) return
-        opplysninger.leggTil(Faktum(betingelse, ønsketVerdi, Gyldighetsperiode(fraOgMed)))
+        if (!opplysninger.leggTilHvisEndret(Faktum(betingelse, ønsketVerdi, Gyldighetsperiode(fraOgMed)))) return
 
         // Slik at konsekvensene av endret kvotestatus utledes i samme pass, ikke først i neste meldeperiode.
         kontekst.beOmRekjøring()

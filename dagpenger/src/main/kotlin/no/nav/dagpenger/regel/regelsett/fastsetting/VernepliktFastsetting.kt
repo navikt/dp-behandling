@@ -52,7 +52,7 @@ object VernepliktFastsetting {
         fastsettelse(
             folketrygden.hjemmel(4, 19, "Dagpenger etter avtjent verneplikt", "Dagpenger ved verneplikt"),
         ) {
-            skalVurderes { it.erSann(skalVernepliktVurderes) }
+            aktivNår(skalVernepliktVurderes)
 
             regel(antallG) { oppslag(prøvingsdato) { 3.0 } }
             regel(vernepliktGrunnlag) { multiplikasjon(grunnbeløpForDagpengeGrunnlag, antallG) }

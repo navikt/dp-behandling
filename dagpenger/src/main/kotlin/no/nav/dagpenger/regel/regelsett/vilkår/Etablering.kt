@@ -42,7 +42,7 @@ object Etablering {
                 kortnavn = "Etablering",
             ),
         ) {
-            skalVurderes { opplysninger -> opplysninger.erSann(skalEtableringVurderes) }
+            aktivNår(skalEtableringVurderes)
 
             regel(nyVirksomhet) { somUtgangspunkt(false, skalEtableringVurderes) }
             regel(selvforsørget) { somUtgangspunkt(false, skalEtableringVurderes) }

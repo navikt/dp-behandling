@@ -61,9 +61,9 @@ object PermitteringFastsetting {
 
     val regelsett =
         fastsettelse(
-            folketrygden.hjemmel(4, 7, "Dagpenger til permitterte", "Permittering"),
+            folketrygden.hjemmel(4, 7, "Dagpenger til permitterte", "Permittering (fastsettelse)"),
         ) {
-            skalVurderes { it.erSann(skalPermitteringVurderes) }
+            aktivNår(skalPermitteringVurderes)
 
             regel(permitteringsdagerIUka) { somUtgangspunkt(5) }
             regel(permitteringsperiode) { somUtgangspunkt(26) }
@@ -91,7 +91,13 @@ object PermitteringFastsetting {
                 ),
             )
 
-            ønsketResultat(antallPermitteringsdager, permitteringsdag, innenforFritaksperioden)
+            ønsketResultat(
+                permitteringsperiode,
+                permitteringsdagerIUka,
+                antallPermitteringsdager,
+                permitteringsdag,
+                innenforFritaksperioden,
+            )
 
             påvirkerResultat { it.erSann(oppfyllerKravetTilPermittering) }
         }

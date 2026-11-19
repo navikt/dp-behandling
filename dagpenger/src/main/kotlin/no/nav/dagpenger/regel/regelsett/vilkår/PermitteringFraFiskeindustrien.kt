@@ -16,6 +16,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.erPermitteringenFraFiskeindustriM
 import no.nav.dagpenger.regel.OpplysningsTyper.godkjentÅrsakPermitteringFraFiskindustriId
 import no.nav.dagpenger.regel.OpplysningsTyper.kravTilProsentvisTapAvArbeidstidFiskepermitteringId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilPermitteringFiskeindustriId
+import no.nav.dagpenger.regel.Porter
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringFiskeforedlingVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
@@ -59,7 +60,8 @@ object PermitteringFraFiskeindustrien {
                 kortnavn = "Permittering fiskeindustri",
             ),
         ) {
-            skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) && it.erSann(skalPermitteringFiskeforedlingVurderes) }
+            forutsetter(Porter.minsteinntektEllerVerneplikt)
+            aktivNår(skalPermitteringFiskeforedlingVurderes)
 
             regel(godkjentÅrsakPermitteringFraFiskindustri) { somUtgangspunkt(true) }
             regel(erPermitteringenFraFiskeindustriMidlertidig) { somUtgangspunkt(true) }

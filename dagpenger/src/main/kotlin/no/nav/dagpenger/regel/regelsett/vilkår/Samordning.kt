@@ -49,7 +49,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.uføreBeløpSomSkalSamordnesId
 import no.nav.dagpenger.regel.OpplysningsTyper.uføreDagsatsId
 import no.nav.dagpenger.regel.OpplysningsTyper.uføreId
 import no.nav.dagpenger.regel.OpplysningsTyper.utfallEtterSamordningId
-import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
+import no.nav.dagpenger.regel.Porter
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsatsEtterNittiProsent
 import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.harBarnetillegg
 import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.skalSamordnes
@@ -235,7 +235,7 @@ object Samordning {
                 kortnavn = "Samordning reduserte ytelser",
             ),
         ) {
-            skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
+            forutsetter(Porter.minsteinntektEllerVerneplikt)
 
             regel(sykepenger) { innhentMed(prøvingsdato) }
             regel(pleiepenger) { innhentMed(prøvingsdato) }

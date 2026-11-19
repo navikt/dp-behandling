@@ -21,6 +21,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerKravetTilOppholdId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppfyllerMedlemskapId
 import no.nav.dagpenger.regel.OpplysningsTyper.OppholdINorgeId
 import no.nav.dagpenger.regel.OpplysningsTyper.UnntakForOppholdId
+import no.nav.dagpenger.regel.Porter
 import no.nav.dagpenger.regel.oppfyllerKravetTilMinsteinntektEllerVerneplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 
@@ -54,7 +55,7 @@ object Opphold {
         vilkår(
             folketrygden.hjemmel(4, 2, "Opphold i Norge", "Opphold"),
         ) {
-            skalVurderes { oppfyllerKravetTilMinsteinntektEllerVerneplikt(it) }
+            forutsetter(Porter.minsteinntektEllerVerneplikt)
 
             regel(bostedsland) { innhentMed(søknadIdOpplysningstype) }
             regel(oppholdINorge) { erSann(bostedsland) }
