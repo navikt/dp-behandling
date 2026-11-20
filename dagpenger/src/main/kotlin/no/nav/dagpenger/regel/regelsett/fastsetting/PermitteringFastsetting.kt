@@ -61,7 +61,7 @@ object PermitteringFastsetting {
 
     val regelsett =
         fastsettelse(
-            folketrygden.hjemmel(4, 7, "Dagpenger til permitterte", "Permittering"),
+            folketrygden.hjemmel(4, 7, "Dagpenger til permitterte", "Permittering (fastsettelse)"),
         ) {
             aktivNår(skalPermitteringVurderes)
 
