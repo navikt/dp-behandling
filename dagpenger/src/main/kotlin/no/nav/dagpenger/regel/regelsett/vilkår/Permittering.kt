@@ -67,7 +67,7 @@ object Permittering {
             avklaring(HarOppgittPermittering)
         }
 
-    private fun erPermittert(): (LesbarOpplysninger) -> Boolean = { it.erSann(skalPermitteringVurderes) }
+    private fun erPermittert(): (LesbarOpplysninger) -> Boolean = { it.finnAlle(skalPermitteringVurderes).any { utfall -> utfall.verdi } }
 
     val PermitteringKontroll =
         Kontrollpunkt(HarOppgittPermittering) {
