@@ -40,7 +40,7 @@ graph LR
   R17["Opphold (Vilkår)"]:::Vilkår
   R18["Opptjeningsperiode (Fastsettelse)"]:::Fastsettelse
   R19["Permittering (Vilkår)"]:::Vilkår
-  R20["Permittering (Fastsettelse)"]:::Fastsettelse
+  R20["Permittering (fastsettelse) (Fastsettelse)"]:::Fastsettelse
   R21["Permittering fiskeindustri (Vilkår)"]:::Vilkår
   R22["Permittering fiskeindustri (Fastsettelse)"]:::Fastsettelse
   R23["Reell arbeidssøker (Vilkår)"]:::Vilkår

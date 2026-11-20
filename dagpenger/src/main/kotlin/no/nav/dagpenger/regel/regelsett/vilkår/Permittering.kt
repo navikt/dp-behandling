@@ -17,7 +17,6 @@ import no.nav.dagpenger.regel.OpplysningsTyper.godkjentPermitteringsårsakId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilPermitteringFraDatoId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppfyllerKravetTilPermitteringId
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.innenforFritaksperioden
-import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.etableringGodkjent
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringVurderes
 
 object Permittering {
