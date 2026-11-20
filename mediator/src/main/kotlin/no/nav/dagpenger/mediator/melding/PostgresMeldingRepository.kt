@@ -9,6 +9,7 @@ import no.nav.dagpenger.mediator.mottak.AvbrytBehandlingMessage
 import no.nav.dagpenger.mediator.mottak.AvklaringIkkeRelevantMessage
 import no.nav.dagpenger.mediator.mottak.BehandlingStårFastMessage
 import no.nav.dagpenger.mediator.mottak.BeregnMeldekortMottak.BeregnMeldekortMessage
+import no.nav.dagpenger.mediator.mottak.EndreOpplysningMessage
 import no.nav.dagpenger.mediator.mottak.FjernOpplysningMessage
 import no.nav.dagpenger.mediator.mottak.FlyttBehandlingMottak.FlyttBehandlingMessage
 import no.nav.dagpenger.mediator.mottak.GodkjennBehandlingMessage
@@ -178,9 +179,13 @@ internal class PostgresMeldingRepository(
                 MeldingTypeDTO.REKJØR_BEHANDLING
             }
 
+            is EndreOpplysningMessage -> {
+                MeldingTypeDTO.ENDRE_OPPLYSNING
+            }
+
             else -> {
                 null.also {
-                    logger.warn { "ukjent meldingstype ${hendelseMessage::class.simpleName}: melding lagres ikke" }
+                    logger.error { "ukjent meldingstype ${hendelseMessage::class.simpleName}: melding lagres ikke" }
                 }
             }
         }
@@ -210,4 +215,5 @@ private enum class MeldingTypeDTO {
     SAMORDNING_HENDELSE,
     SØKNAD_INNSENDT,
     UTBETALING_STATUS,
+    ENDRE_OPPLYSNING,
 }
