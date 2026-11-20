@@ -957,6 +957,31 @@ internal class BehandlingApiTest {
     }
 
     @Test
+    fun `avviser endring utenfor perioden regelsettet kan kjøres før melding publiseres`() {
+        medSikretBehandlingApi { testContext ->
+            val søknadsdato = 1.april(Year.now().value)
+            person.søkDagpenger(søknadsdato)
+            behovsløsere.løsTilForslag()
+
+            val behandlingId = person.behandlingId
+            val opplysning = hentOpplysningsperioder(testContext, behandlingId, DagpengenesStørrelse.barn).last()
+            val antallMeldinger = rapidInspektør.size
+
+            val response =
+                testContext.autentisert(
+                    httpMethod = HttpMethod.Put,
+                    endepunkt = "/behandling/$behandlingId/opplysning/${opplysning.path("id").asString()}",
+                    // language=JSON
+                    body = """{"gyldigFraOgMed":"${søknadsdato.minusDays(1)}","begrunnelse":"endrer periode"}""",
+                )
+
+            response.status shouldBe HttpStatusCode.InternalServerError
+            response.bodyAsText() shouldContain "regelsettet den tilhører kan ikke kjøres"
+            rapidInspektør.size shouldBe antallMeldinger
+        }
+    }
+
+    @Test
     fun `saksbehandler kan legge til, endre og fjerne en opplysning`() {
         medSikretBehandlingApi { testContext ->
             person.søkDagpenger(1.april(Year.now().value))

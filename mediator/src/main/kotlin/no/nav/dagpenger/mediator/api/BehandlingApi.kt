@@ -598,6 +598,11 @@ internal fun Application.behandlingApi(
                                     begrunnelse = endring.begrunnelse,
                                 )
 
+                            behandling.kanLeggeTil(
+                                opplysningstype,
+                                endring.gyldigFraOgMed ?: opplysning.gyldighetsperiode.fraOgMed,
+                            )
+
                             apiRepositoryPostgres.endreOpplysning(behandlingId, opplysningstype.behovId) {
                                 logger.info { "Starter en endring av eksisterende opplysning i behandling" }
                                 messageContext(behandling.behandler.ident).publish(svar.toJson())
