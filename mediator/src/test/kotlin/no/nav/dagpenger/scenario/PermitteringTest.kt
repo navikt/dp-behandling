@@ -86,6 +86,46 @@ class PermitteringTest {
     }
 
     @Test
+    fun `rett fra før omgjøring beholdes når permittering slår inn senere`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juni(2018))
+
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.sendInnMeldekort(1)
+            meldekortBatch(markerFerdig = true)
+
+            saksbehandler.omgjørBehandling(3.juli(2018))
+            saksbehandler.leggTilOpplysning(
+                skalPermitteringVurderes,
+                false,
+                "Permittering vurderes",
+                Gyldighetsperiode(21.juni(2018), 2.juli(2018)),
+            )
+            saksbehandler.leggTilOpplysning(
+                skalPermitteringVurderes,
+                true,
+                "Permittering vurderes",
+                Gyldighetsperiode(3.juli(2018)),
+            )
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(3) {
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder.forAll { it.harRett shouldBe true }
+            }
+        }
+    }
+
+    @Test
     fun `tester innvilgelse av permittering på løpende sak`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
