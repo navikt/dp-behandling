@@ -61,7 +61,7 @@ object Permittering {
             ønsketResultat(oppfyllerKravetTilPermitteringFraDato)
 
             påvirkerResultat {
-                it.erSann(skalPermitteringVurderes) && it.finnAlle(oppfyllerKravetTilPermittering).any { utfall -> utfall.verdi }
+                it.erSann(skalPermitteringVurderes)
             }
 
             avklaring(HarOppgittPermittering)
