@@ -91,12 +91,10 @@ internal class Opplysningsindeks(
     private fun merkPåvirket(type: Opplysningstype<*>) {
         påvirkedeTyper += type
         påvirkedeEgneTyper += type
-        maskertAvAktiv[type]?.forEach {
-            påvirkedeTyper += it
-            påvirkedeEgneTyper += it
-        }
         gjeldendeFlat = null
         gjeldendeEgenFlat = null
+        // Typer som maskeres av denne kan selv være aktiv-opplysning for andre typer
+        maskertAvAktiv[type]?.forEach { if (it !in påvirkedeTyper) merkPåvirket(it) }
     }
 
     private fun flatt(

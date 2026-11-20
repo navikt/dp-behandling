@@ -27,6 +27,20 @@ class ForutsetningTest {
             aktivNår(aktiv)
         }
 
+    private val flaggB = boolsk("FlaggB")
+    private val aktivA = boolsk("AktivA")
+    private val verdiC = boolsk("VerdiC")
+    private val maskererA =
+        fastsettelse(tomHjemmel("MaskererA")) {
+            regel(aktivA) { innhentes }
+            aktivNår(flaggB)
+        }
+    private val maskererC =
+        fastsettelse(tomHjemmel("MaskererC")) {
+            regel(verdiC) { innhentes }
+            aktivNår(aktivA)
+        }
+
     private fun opplysninger(
         a: Boolean? = null,
         b: Boolean? = null,
@@ -98,5 +112,22 @@ class ForutsetningTest {
         medScope.skalKjøres(o) shouldBe false
         o.leggTil(Faktum(aktiv, true, Gyldighetsperiode(5.januar)))
         medScope.skalKjøres(o.forDato(6.januar)) shouldBe true
+    }
+
+    @Test
+    fun `maskering oppdateres gjennom kjeden når en maskert aktiv-opplysning endres`() {
+        maskererA.aktivOpplysning shouldBe flaggB
+        maskererC.aktivOpplysning shouldBe aktivA
+
+        val o = Opplysninger()
+        o.leggTil(Faktum(verdiC, true))
+        o.leggTil(Faktum(aktivA, false))
+        o.leggTil(Faktum(flaggB, true))
+        o.har(verdiC) shouldBe false
+
+        // aktivA skjules nå, og uten aktiv-opplysning skjuler ikke lenger noe verdiC
+        o.leggTil(Faktum(flaggB, false))
+        o.har(aktivA) shouldBe false
+        o.har(verdiC) shouldBe true
     }
 }
