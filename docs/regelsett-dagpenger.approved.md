@@ -240,8 +240,8 @@ graph LR
 | Skal omgjøring uten klage vurderes? (Prosess) | - | - | - |
 | Opphold (Vilkår) | Søknadstidspunkt (Fastsettelse) | Minsteinntekt (Vilkår), Verneplikt (Vilkår) | Minsteinntekt (Vilkår), Verneplikt (Vilkår) |
 | Opptjeningsperiode (Fastsettelse) | Søknadstidspunkt (Fastsettelse) | Alder (Vilkår) | - |
-| Permittering (Vilkår) | Permittering (Fastsettelse), Rettighetstype (Fastsettelse) | Alder (Vilkår), Rettighetstype (Fastsettelse) | Rettighetstype (Fastsettelse) |
-| Permittering (Fastsettelse) | - | Rettighetstype (Fastsettelse) | Permittering (Vilkår) |
+| Permittering (Vilkår) | Permittering (fastsettelse) (Fastsettelse), Rettighetstype (Fastsettelse) | Alder (Vilkår), Rettighetstype (Fastsettelse) | Rettighetstype (Fastsettelse) |
+| Permittering (fastsettelse) (Fastsettelse) | - | Rettighetstype (Fastsettelse) | Permittering (Vilkår) |
 | Permittering fiskeindustri (Vilkår) | Rettighetstype (Fastsettelse), Søknadstidspunkt (Fastsettelse) | Minsteinntekt (Vilkår), Rettighetstype (Fastsettelse), Verneplikt (Vilkår) | Minsteinntekt (Vilkår), Rettighetstype (Fastsettelse), Verneplikt (Vilkår) |
 | Permittering fiskeindustri (Fastsettelse) | Søknadstidspunkt (Fastsettelse) | Permittering fiskeindustri (Vilkår), Rettighetstype (Fastsettelse) | Permittering fiskeindustri (Vilkår) |
 | Reell arbeidssøker (Vilkår) | Søknadstidspunkt (Fastsettelse) | Alder (Vilkår), Rettighetstype (Fastsettelse) | Alder (Vilkår), Minsteinntekt (Vilkår), Rettighetstype (Fastsettelse), Verneplikt (Vilkår) |
@@ -253,7 +253,7 @@ graph LR
 | Streik og lock-out (Vilkår) | - | Minsteinntekt (Vilkår), Verneplikt (Vilkår) | Minsteinntekt (Vilkår), Verneplikt (Vilkår) |
 | Søknad (Vilkår) | Søknadstidspunkt (Fastsettelse) | - | - |
 | Søknadstidspunkt (Fastsettelse) | - | - | - |
-| Tap av arbeidsinntekt og arbeidstid (Vilkår) | Dagpengegrunnlag (Fastsettelse), Dagpenger ved verneplikt (Fastsettelse), Fastsettelse av arbeidstid (Fastsettelse), Permittering (Fastsettelse), Permittering fiskeindustri (Vilkår), Rettighetstype (Fastsettelse), Søknadstidspunkt (Fastsettelse) | Minsteinntekt (Vilkår), Verneplikt (Vilkår) | - |
+| Tap av arbeidsinntekt og arbeidstid (Vilkår) | Dagpengegrunnlag (Fastsettelse), Dagpenger ved verneplikt (Fastsettelse), Fastsettelse av arbeidstid (Fastsettelse), Permittering (fastsettelse) (Fastsettelse), Permittering fiskeindustri (Vilkår), Rettighetstype (Fastsettelse), Søknadstidspunkt (Fastsettelse) | Minsteinntekt (Vilkår), Verneplikt (Vilkår) | - |
 | Tidsbegrenset bortfall (Vilkår) | Periode (Fastsettelse) | kravPåDagpenger | - |
 | Tre meldeperioder uten tilstrekkelig tap (Vilkår) | Søknadstidspunkt (Fastsettelse) | Gjenopptak (Vilkår), Meldekortberegning (Fastsettelse) | - |
 | Uriktige opplysninger og tilbakeholdelse (Vilkår) | - | - | - |
