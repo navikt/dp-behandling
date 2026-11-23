@@ -29,6 +29,12 @@ class TaptArbeidstidStans : ProsessPlugin {
         if (påfølgendeUtenTapt.size >= maksAntallPerioder.verdi) {
             val stansFraOgMed = påfølgendeUtenTapt.first().gyldighetsperiode.fraOgMed
             val stansperiode = Gyldighetsperiode(stansFraOgMed)
+            val stansedePerioder =
+                opplysninger
+                    .finnAlle(trePåfølgendePerioderUtenTilstrekkeligTap)
+                    .filter { !it.verdi }
+                    .map { it.gyldighetsperiode }
+            if (stansperiode.minus(stansedePerioder).isEmpty()) return
 
             kontekst.info(
                 "Bruker har ikke oppfylt kravet til tapt arbeidstid i ${påfølgendeUtenTapt.size} påfølgende perioder. Stans av dagpenger fra og med $stansFraOgMed.",
