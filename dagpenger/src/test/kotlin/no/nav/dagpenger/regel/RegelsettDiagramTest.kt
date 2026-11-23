@@ -4,9 +4,8 @@ import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Regelsett
+import no.nav.dagpenger.testsupport.dokumentasjon.markdownOptions
 import org.approvaltests.Approvals
-import org.approvaltests.core.Options
-import org.approvaltests.namer.NamerWrapper
 import org.junit.jupiter.api.Test
 import java.nio.file.Paths
 import java.time.LocalDate
@@ -15,7 +14,6 @@ import java.util.UUID
 class RegelsettDiagramTest {
     private companion object {
         val path = "${Paths.get("").toAbsolutePath().toString().substringBeforeLast("/")}/docs/"
-        val options = Options().forFile().withExtension(".md")
         const val MAKS_KJØRINGER = 2000
         const val MIN_STYRTE_REGELSETT = 5
     }
@@ -225,7 +223,6 @@ class RegelsettDiagramTest {
     }
 
     private fun skriv(dokumentasjon: String) {
-        Approvals.namerCreater = { _ -> NamerWrapper({ "regelsett-dagpenger" }, { path }) }
-        Approvals.verify(dokumentasjon, options)
+        Approvals.verify(dokumentasjon, markdownOptions(path, "regelsett-dagpenger"))
     }
 }

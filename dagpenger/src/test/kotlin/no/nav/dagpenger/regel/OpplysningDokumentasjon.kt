@@ -11,9 +11,8 @@ import no.nav.dagpenger.regel.hendelse.SøknadInnsendtHendelse.Companion.fagsakI
 import no.nav.dagpenger.regel.prosess.Manuellprosess
 import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
 import no.nav.dagpenger.regel.prosess.Søknadsprosess
+import no.nav.dagpenger.testsupport.dokumentasjon.markdownOptions
 import org.approvaltests.Approvals
-import org.approvaltests.core.Options
-import org.approvaltests.namer.NamerWrapper
 import org.junit.jupiter.api.Test
 import java.nio.file.Paths
 import java.time.LocalDate
@@ -233,14 +232,12 @@ class OpplysningDokumentasjon {
 
     private companion object {
         val path = "${Paths.get("").toAbsolutePath().toString().substringBeforeLast("/")}/docs/"
-        val options = Options().forFile().withExtension(".md")
     }
 
     private fun skriv(
         filnavn: String,
         innhold: String,
     ) {
-        Approvals.namerCreater = { _ -> NamerWrapper({ filnavn }, { path }) }
-        Approvals.verify(innhold, options)
+        Approvals.verify(innhold, markdownOptions(path, filnavn))
     }
 }
