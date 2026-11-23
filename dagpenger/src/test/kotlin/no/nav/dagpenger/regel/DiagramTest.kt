@@ -1,5 +1,4 @@
 package no.nav.dagpenger.regel
-import com.spun.util.persistence.Loader
 import no.nav.dagpenger.dag.printer.MermaidPrinter
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.RegelverkType
@@ -66,7 +65,7 @@ class DiagramTest {
     }
 
     fun skriv(dokumentasjon: String) {
-        Approvals.namerCreater = Loader { NamerWrapper({ "regeltre-dagpenger" }, { path }) }
+        Approvals.namerCreater = { _ -> NamerWrapper({ "regeltre-dagpenger" }, { path }) }
         Approvals
             .verify(
                 dokumentasjon,

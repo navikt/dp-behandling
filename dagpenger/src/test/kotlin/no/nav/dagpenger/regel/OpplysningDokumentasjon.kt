@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel
 
-import com.spun.util.persistence.Loader
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Avklaringkode.Companion.alleAvklaringer
@@ -241,7 +240,7 @@ class OpplysningDokumentasjon {
         filnavn: String,
         innhold: String,
     ) {
-        Approvals.namerCreater = Loader { NamerWrapper({ filnavn }, { path }) }
+        Approvals.namerCreater = { _ -> NamerWrapper({ filnavn }, { path }) }
         Approvals.verify(innhold, options)
     }
 }

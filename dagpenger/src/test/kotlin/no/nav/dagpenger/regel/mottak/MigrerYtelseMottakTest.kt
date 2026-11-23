@@ -3,7 +3,6 @@ package no.nav.dagpenger.regel.mottak
 import com.github.navikt.tbd_libs.rapids_and_rivers.JsonMessage
 import com.github.navikt.tbd_libs.rapids_and_rivers.test_support.TestRapid
 import com.github.navikt.tbd_libs.rapids_and_rivers_api.MessageContext
-import com.spun.util.persistence.Loader
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
@@ -688,7 +687,7 @@ class MigrerYtelseMottakTest {
                     .toAbsolutePath()
                     .normalize()
                     .toString()
-            Approvals.namerCreater = Loader { NamerWrapper({ "migrering-meldingsdialog" }, { path }) }
+            Approvals.namerCreater = { _ -> NamerWrapper({ "migrering-meldingsdialog" }, { path }) }
             Approvals.verify(
                 dialog.markdown(RegelverkDagpenger.avgjørelse(opplysninger).toString()),
                 Options().forFile().withExtension(".md"),
