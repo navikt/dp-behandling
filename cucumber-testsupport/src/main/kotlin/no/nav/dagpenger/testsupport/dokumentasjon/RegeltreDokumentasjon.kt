@@ -1,6 +1,5 @@
 package no.nav.dagpenger.testsupport.dokumentasjon
 
-import com.spun.util.persistence.Loader
 import io.cucumber.java.Scenario
 import io.cucumber.plugin.ConcurrentEventListener
 import io.cucumber.plugin.event.EmbedEvent
@@ -84,7 +83,7 @@ abstract class RegeltreDokumentasjonPlugin(
         tittel: String,
         dokumentasjon: String,
     ) {
-        Approvals.namerCreater = Loader { NamerWrapper({ "${oppsett.dokumentasjonskatalog}/$tittel" }, { path }) }
+        Approvals.namerCreater = { _ -> NamerWrapper({ "${oppsett.dokumentasjonskatalog}/$tittel" }, { path }) }
         Approvals.verify(
             dokumentasjon,
             options,
