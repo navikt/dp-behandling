@@ -68,10 +68,9 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import no.nav.dagpenger.regel.regelsett.vilkår.Utestengning
 import no.nav.dagpenger.regel.regelsett.vilkår.Verneplikt
 import no.nav.dagpenger.regelverk.HendelseMottaker
+import no.nav.dagpenger.testsupport.dokumentasjon.markdownOptions
 import no.nav.dagpenger.uuid.UUIDv7
 import org.approvaltests.Approvals
-import org.approvaltests.core.Options
-import org.approvaltests.namer.NamerWrapper
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.NullSource
@@ -679,22 +678,16 @@ class MigrerYtelseMottakTest {
         opplysninger.finnOpplysning(Søknadstidspunkt.tidligsteVurderingsdato).verdi shouldBe LocalDate.of(2026, 1, 5)
         opplysninger.finnOpplysning(SøknadInnsendtHendelse.fagsakIdOpplysningstype).verdi shouldBe 13699879
         RegelverkDagpenger.avgjørelse(opplysninger) shouldBe Avgjørelse.Innvilgelse
-        val opprinneligNamer = Approvals.namerCreater
-        try {
-            val path =
-                Paths
-                    .get("../docs")
-                    .toAbsolutePath()
-                    .normalize()
-                    .toString()
-            Approvals.namerCreater = { _ -> NamerWrapper({ "migrering-meldingsdialog" }, { path }) }
-            Approvals.verify(
-                dialog.markdown(RegelverkDagpenger.avgjørelse(opplysninger).toString()),
-                Options().forFile().withExtension(".md"),
-            )
-        } finally {
-            Approvals.namerCreater = opprinneligNamer
-        }
+        val path =
+            Paths
+                .get("../docs")
+                .toAbsolutePath()
+                .normalize()
+                .toString()
+        Approvals.verify(
+            dialog.markdown(RegelverkDagpenger.avgjørelse(opplysninger).toString()),
+            markdownOptions(path, "migrering-meldingsdialog"),
+        )
     }
 
     @Test

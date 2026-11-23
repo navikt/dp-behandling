@@ -11,8 +11,6 @@ import no.nav.dagpenger.dag.printer.MermaidPrinter
 import no.nav.dagpenger.opplysning.Regelsett
 import no.nav.dagpenger.opplysning.dag.RegeltreBygger
 import org.approvaltests.Approvals
-import org.approvaltests.core.Options
-import org.approvaltests.namer.NamerWrapper
 import java.nio.file.Paths
 
 data class RegeltreDokumentasjonOppsett(
@@ -76,17 +74,15 @@ abstract class RegeltreDokumentasjonPlugin(
     private companion object {
         val path =
             "${Paths.get("").toAbsolutePath().toString().substringBeforeLast("/")}/docs/"
-        val options = Options().forFile().withExtension(".md")
     }
 
     protected fun skriv(
         tittel: String,
         dokumentasjon: String,
     ) {
-        Approvals.namerCreater = { _ -> NamerWrapper({ "${oppsett.dokumentasjonskatalog}/$tittel" }, { path }) }
         Approvals.verify(
             dokumentasjon,
-            options,
+            markdownOptions(path, "${oppsett.dokumentasjonskatalog}/$tittel"),
         )
     }
 

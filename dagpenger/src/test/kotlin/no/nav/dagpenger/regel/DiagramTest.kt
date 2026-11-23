@@ -4,9 +4,8 @@ import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.dag.RegeltreBygger
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
+import no.nav.dagpenger.testsupport.dokumentasjon.markdownOptions
 import org.approvaltests.Approvals
-import org.approvaltests.core.Options
-import org.approvaltests.namer.NamerWrapper
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -17,7 +16,6 @@ class DiagramTest {
         val path = "${
             Paths.get("").toAbsolutePath().toString().substringBeforeLast("/")
         }/docs/"
-        val options = Options().forFile().withExtension(".md")
     }
 
     @Test
@@ -65,11 +63,6 @@ class DiagramTest {
     }
 
     fun skriv(dokumentasjon: String) {
-        Approvals.namerCreater = { _ -> NamerWrapper({ "regeltre-dagpenger" }, { path }) }
-        Approvals
-            .verify(
-                dokumentasjon,
-                options,
-            )
+        Approvals.verify(dokumentasjon, markdownOptions(path, "regeltre-dagpenger"))
     }
 }
