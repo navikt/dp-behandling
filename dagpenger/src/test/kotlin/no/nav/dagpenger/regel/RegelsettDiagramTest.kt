@@ -1,6 +1,5 @@
 package no.nav.dagpenger.regel
 
-import com.spun.util.persistence.Loader
 import no.nav.dagpenger.opplysning.LesbarOpplysninger
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -226,7 +225,7 @@ class RegelsettDiagramTest {
     }
 
     private fun skriv(dokumentasjon: String) {
-        Approvals.namerCreater = Loader { NamerWrapper({ "regelsett-dagpenger" }, { path }) }
+        Approvals.namerCreater = { _ -> NamerWrapper({ "regelsett-dagpenger" }, { path }) }
         Approvals.verify(dokumentasjon, options)
     }
 }
