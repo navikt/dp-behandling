@@ -1124,7 +1124,7 @@ class Behandling private constructor(
                             "REGELKJØRING_LOOP",
                             "Feil i regelkjøring",
                             "Det er oppdaget en feil i regelkjøringen som gjør at behandlingen ikke kan ferdigstilles. Kontakt systemansvarlig.",
-                            kanKvitteres = false,
+                            kanKvitteres = true,
                         ),
                     ),
                 )
