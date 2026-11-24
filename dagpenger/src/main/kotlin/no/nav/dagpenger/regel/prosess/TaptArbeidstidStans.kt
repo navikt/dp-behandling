@@ -43,7 +43,7 @@ class TaptArbeidstidStans : ProsessPlugin {
             val utledetAv = opplysninger.finnOpplysning(trePåfølgendePerioderUtenTilstrekkeligTap).utledetAv
             opplysninger.leggTil(Faktum(trePåfølgendePerioderUtenTilstrekkeligTap, false, stansperiode, utledetAv))
 
-            kontekst.beOmRekjøring()
+            kontekst.beOmRekjøring(javaClass.simpleName)
         }
     }
 

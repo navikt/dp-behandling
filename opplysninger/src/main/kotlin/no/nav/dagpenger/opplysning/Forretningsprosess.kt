@@ -86,17 +86,51 @@ data class Prosesskontekst(
         aktivitetslogg.kontekst(this)
     }
 
-    var kreverRekjøring: Boolean = false
-        private set
+    private val rekjøringshistorikk = mutableListOf<Historikkpost>()
 
-    fun beOmRekjøring() {
-        kreverRekjøring = true
+    private val rekjøringer get() = rekjøringshistorikk.filterIsInstance<Historikkpost.Rekjøring>()
+
+    val kreverRekjøring: Boolean get() = rekjøringshistorikk.lastOrNull() is Historikkpost.Rekjøring
+
+    val antallRekjøringerRunder: Int get() = rekjøringer.map { it.runde }.distinct().size
+
+    val rekjøringerPerÅrsak: Map<String, Int> get() = rekjøringer.groupingBy { it.årsak }.eachCount()
+
+    fun startNyRunde() {
+        check(antallRekjøringerRunder <= MAKS_REKJØRINGER) {
+            val årsaker = rekjøringerPerÅrsak.toSortedMap().entries.joinToString { "${it.key}=${it.value}" }
+            "Fanget i uendelig løkke: Regler og plugins blir aldri enige. Rekjøringsårsaker: $årsaker"
+        }
+        rekjøringshistorikk.add(Historikkpost.Startet)
+    }
+
+    fun beOmRekjøring(årsak: String) {
+        val runde = rekjøringshistorikk.count { it is Historikkpost.Startet }
+        val post = Historikkpost.Rekjøring(runde, årsak)
+        if (post in rekjøringshistorikk) return
+
+        rekjøringshistorikk.add(post)
+        val antall = rekjøringerPerÅrsak.getValue(årsak)
+        info("$årsak har bedt om rekjøring $antall ganger.")
     }
 
     override fun toSpesifikkKontekst(): SpesifikkKontekst =
         SpesifikkKontekst(
             "Prosesskontekst",
         )
+
+    private companion object {
+        const val MAKS_REKJØRINGER = 10
+    }
+
+    private sealed interface Historikkpost {
+        data object Startet : Historikkpost
+
+        data class Rekjøring(
+            val runde: Int,
+            val årsak: String,
+        ) : Historikkpost
+    }
 }
 
 class Prosessregister {

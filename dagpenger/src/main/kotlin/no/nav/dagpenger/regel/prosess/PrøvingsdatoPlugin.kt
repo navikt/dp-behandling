@@ -59,7 +59,7 @@ class PrøvingsdatoPlugin : ProsessPlugin {
             ),
         )
 
-        kontekst.beOmRekjøring()
+        kontekst.beOmRekjøring(javaClass.simpleName)
     }
 
     override fun toSpesifikkKontekst() = SpesifikkKontekst("PrøvingsdatoPlugin")

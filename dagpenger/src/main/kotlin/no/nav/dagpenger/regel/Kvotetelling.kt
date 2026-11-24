@@ -102,7 +102,7 @@ class KvotetellingsSkriver(
     /**
      * Utløsende betingelse er alltid et resultat av siste telling: usann fra dagen etter at kvoten
      * er tom, ellers sann. Verdien skrives kun når den avviker fra det som gjelder fra før.
-     * Svinger verdien for alltid stopper rekjøringsløkka i Behandling (MAKS_ITERASJONER).
+     * Svinger verdien for alltid stopper rekjøringsløkka i Behandling (Prosesskontekst.startNyRunde).
      */
     private fun synkroniserUtløsendeBetingelse(
         kontekst: Prosesskontekst,
@@ -126,7 +126,7 @@ class KvotetellingsSkriver(
         opplysninger.leggTil(Faktum(betingelse, ønsketVerdi, Gyldighetsperiode(fraOgMed)))
 
         // Slik at konsekvensene av endret kvotestatus utledes i samme pass, ikke først i neste meldeperiode.
-        kontekst.beOmRekjøring()
+        kontekst.beOmRekjøring("${javaClass.simpleName} (${definisjon.navn})")
     }
 
     // Datoen der en eksisterende usann betingelse skal overstyres med sann. Null hvis kvoten aldri var oppbrukt.

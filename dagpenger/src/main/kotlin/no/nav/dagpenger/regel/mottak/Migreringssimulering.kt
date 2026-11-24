@@ -9,10 +9,11 @@ import no.nav.dagpenger.opplysning.regel.Regel
 
 internal fun Forretningsprosess.simulerMigrering(opplysninger: Opplysninger): Regelkjøringsrapport {
     val kjørteRegler = mutableSetOf<Regel<*>>()
+    val kontekst = Prosesskontekst(opplysninger)
     repeat(11) {
+        kontekst.startNyRunde()
         val rapport = regelkjøring(opplysninger).evaluer()
         kjørteRegler.addAll(rapport.kjørteRegler)
-        val kontekst = Prosesskontekst(opplysninger)
         kjørEtterRegelkjøring(kontekst)
         if (rapport.erFerdig()) {
             kjørRegelkjøringFerdig(kontekst)
@@ -21,5 +22,8 @@ internal fun Forretningsprosess.simulerMigrering(opplysninger: Opplysninger): Re
             return rapport.copy(kjørteRegler = kjørteRegler.toSet())
         }
     }
-    throw RegelkjøringLoopException("Regler og plugins blir ikke enige under simulering av migrering")
+    throw RegelkjøringLoopException(
+        "Regler og plugins blir ikke enige under simulering av migrering. " +
+            "Rekjøringer per årsak: ${kontekst.rekjøringerPerÅrsak}",
+    )
 }

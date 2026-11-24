@@ -536,9 +536,14 @@ class MigrerYtelseMottakTest {
     fun `simulering rekjører regler når plugin ber om det og beholder kjørte regler i rapporten`() {
         val event = lagFerdigFaktagrunnlag(LocalDate.of(1990, 1, 1)).event
         val plugin = mockk<ProsessPlugin>(relaxed = true)
+        val kontekster = mutableListOf<Prosesskontekst>()
+        val kreverRekjøringVedStart = mutableListOf<Boolean>()
         var runder = 0
         every { plugin.etterRegelkjøring(any()) } answers {
-            if (runder++ == 0) firstArg<Prosesskontekst>().beOmRekjøring()
+            val kontekst = firstArg<Prosesskontekst>()
+            kontekster.add(kontekst)
+            kreverRekjøringVedStart.add(kontekst.kreverRekjøring)
+            if (runder++ == 0) kontekst.beOmRekjøring("TestPlugin")
         }
         event.forretningsprosess.registrer(plugin)
         val fakta = event.lagFaktagrunnlag()
@@ -549,6 +554,9 @@ class MigrerYtelseMottakTest {
         rapport.kjørteRegler.isNotEmpty() shouldBe true
         verify(exactly = 2) { plugin.etterRegelkjøring(any()) }
         verify(exactly = 2) { plugin.regelkjøringFerdig(any()) }
+        kontekster.size shouldBe 2
+        kontekster.all { it === kontekster.first() } shouldBe true
+        kreverRekjøringVedStart shouldBe listOf(false, false)
         fakta.har(KravPåDagpenger.harLøpendeRett) shouldBe true
     }
 
@@ -556,12 +564,16 @@ class MigrerYtelseMottakTest {
     fun `simulering returnerer nye mangler etter rekjøring`() {
         val event = lagFerdigFaktagrunnlag(LocalDate.of(1990, 1, 1)).event
         val plugin = mockk<ProsessPlugin>(relaxed = true)
+        val kontekster = mutableListOf<Prosesskontekst>()
+        val kreverRekjøringVedStart = mutableListOf<Boolean>()
         var runder = 0
         every { plugin.etterRegelkjøring(any()) } answers {
+            val kontekst = firstArg<Prosesskontekst>()
+            kontekster.add(kontekst)
+            kreverRekjøringVedStart.add(kontekst.kreverRekjøring)
             if (runder++ == 0) {
-                val kontekst = firstArg<Prosesskontekst>()
                 kontekst.opplysninger.fjern(kontekst.opplysninger.finnOpplysning(Alderskrav.fødselsdato).id)
-                kontekst.beOmRekjøring()
+                kontekst.beOmRekjøring("TestPlugin")
             }
         }
         event.forretningsprosess.registrer(plugin)
@@ -571,22 +583,32 @@ class MigrerYtelseMottakTest {
         rapport.erFerdig() shouldBe false
         (Alderskrav.fødselsdato in rapport.mangler) shouldBe true
         verify(exactly = 1) { plugin.regelkjøringFerdig(any()) }
+        kontekster.size shouldBe 2
+        kontekster.all { it === kontekster.first() } shouldBe true
+        kreverRekjøringVedStart shouldBe listOf(false, false)
     }
 
     @Test
     fun `simulering avbryter når plugin alltid ber om rekjøring`() {
         val event = lagFerdigFaktagrunnlag(LocalDate.of(1990, 1, 1)).event
         val plugin = mockk<ProsessPlugin>(relaxed = true)
+        val kontekster = mutableListOf<Prosesskontekst>()
         every { plugin.etterRegelkjøring(any()) } answers {
-            firstArg<Prosesskontekst>().beOmRekjøring()
+            val kontekst = firstArg<Prosesskontekst>()
+            kontekster.add(kontekst)
+            kontekst.beOmRekjøring("TestPlugin")
         }
         event.forretningsprosess.registrer(plugin)
 
-        shouldThrow<RegelkjøringLoopException> {
-            event.forretningsprosess.simulerMigrering(event.lagFaktagrunnlag())
-        }
+        val exception =
+            shouldThrow<RegelkjøringLoopException> {
+                event.forretningsprosess.simulerMigrering(event.lagFaktagrunnlag())
+            }
 
         verify(exactly = 11) { plugin.etterRegelkjøring(any()) }
+        kontekster.size shouldBe 11
+        kontekster.all { it === kontekster.first() } shouldBe true
+        exception.message.orEmpty().contains("TestPlugin=11") shouldBe true
     }
 
     @Test

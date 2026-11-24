@@ -150,8 +150,6 @@ class Behandling private constructor(
             } catch (e: IllegalArgumentException) {
                 throw IllegalArgumentException("Fant flere behandlinger med samme id, id=$behandlingId", e)
             }
-
-        private const val MAKS_ITERASJONER = 10
     }
 
     fun tilstand() = Pair(tilstand.type, tilstand.opprettet)
@@ -1102,12 +1100,10 @@ class Behandling private constructor(
     // Kjører alle regler, logger hvilke regler som er kjørt , sender ut behov, og avgjør neste tilstand
     private tailrec fun kjørRegler(
         hendelse: PersonHendelse,
-        iterasjon: Int = 0,
+        kontekst: Prosesskontekst = Prosesskontekst(opplysninger, hendelse),
     ) {
         hendelse.fase("regelkjøring")
-        if (iterasjon > MAKS_ITERASJONER) {
-            throw IllegalStateException("Fanget i uendelig løkke: Regler og plugins blir aldri enige.")
-        }
+        kontekst.startNyRunde()
 
         // Snapshot av avklaringer før regelkjøring
         val avklaringerFør = avklaringer.avklaringer().associate { it.id to it.måAvklares() }
@@ -1169,7 +1165,6 @@ class Behandling private constructor(
         hendelse.lagBehov(rapport.informasjonsbehov)
 
         // 2. Kjører plugins via Kontekst
-        val kontekst = Prosesskontekst(opplysninger, hendelse)
         forretningsprosess.kjørEtterRegelkjøring(kontekst)
 
         if (rapport.erFerdig()) {
@@ -1178,9 +1173,9 @@ class Behandling private constructor(
 
         // 3. Sjekker status - Det "magiske" punktet
         if (kontekst.kreverRekjøring) {
-            hendelse.info("Plugin endret datagrunnlaget. Rekjører regler (Runde $iterasjon).")
+            hendelse.info("Plugin endret datagrunnlaget. Rekjører regler (Runde ${kontekst.antallRekjøringerRunder}).")
             // Her kaller vi funksjonen på nytt - kompilatoren optimaliserer dette til en loop
-            return kjørRegler(hendelse, iterasjon + 1)
+            return kjørRegler(hendelse, kontekst)
         }
 
         // 4. Hvis vi kommer hit, er dataene stabile. Håndter ferdigstillelse.
