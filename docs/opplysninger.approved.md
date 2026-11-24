@@ -77,7 +77,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
 |0194881f-9444-7a73-a458-0af81c034d85|Har rett til ordinære dagpenger gjennom arbeidsforhold|Boolsk|boolean|Ordinær||Ekstern
-|0194881f-9444-7a73-a458-0af81c034d86|Skal permittering vurderes|Boolsk|boolean|Permittert||Ekstern
+|0194881f-9444-7a73-a458-0af81c034d86|Skal permittering vurderes|Boolsk|boolean|Permittert||Resultat
 |0194881f-9444-7a73-a458-0af81c034d87|Forskutterte lønnsgarantimidler i form av dagpenger|Boolsk|boolean|Lønnsgaranti||Ekstern
 |0194881f-9444-7a73-a458-0af81c034d88|Skal permittert fra fiskeindustrien vurderes|Boolsk|boolean|PermittertFiskeforedling||Ekstern
 |0194881f-9444-7a73-a458-0af81c034d89|Har rett til ordinære dagpenger uten arbeidsforhold|Boolsk|boolean|||Intern

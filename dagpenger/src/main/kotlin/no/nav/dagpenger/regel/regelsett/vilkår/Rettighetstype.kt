@@ -1,4 +1,5 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
+
 import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningsformål.Bruker
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -40,7 +41,8 @@ object Rettighetstype {
             synlig = { !kravPåDagpenger(it) || !it.erSann(skalReellArbeidssøkerVurderes) },
         )
 
-    val ordinærArbeid = boolsk(OrdinærId, beskrivelse = "Har rett til ordinære dagpenger gjennom arbeidsforhold", behovId = Ordinær)
+    val ordinærArbeid =
+        boolsk(OrdinærId, beskrivelse = "Har rett til ordinære dagpenger gjennom arbeidsforhold", behovId = Ordinær, synlig = aldriSynlig)
     val lønnsgaranti =
         boolsk(LønnsgarantiId, beskrivelse = "Forskutterte lønnsgarantimidler i form av dagpenger", behovId = Lønnsgaranti)
 
@@ -51,7 +53,7 @@ object Rettighetstype {
     val skalGjenopptakVurderes = boolsk(skalGjenopptakVurderesId, "Skal gjenopptak vurderes")
     val skalEksportVurderes = boolsk(skalEksportVurderesId, "Skal eksport vurderes")
 
-    private val ordinær = boolsk(HarRettTilOrdinærId, "Ordinære dagpenger")
+    private val ordinær = boolsk(HarRettTilOrdinærId, "Ordinære dagpenger", synlig = aldriSynlig)
     private val ingenArbeid = boolsk(IngenArbeidId, "Har rett til ordinære dagpenger uten arbeidsforhold", synlig = aldriSynlig)
     val skalEtableringVurderes = boolsk(skalEtableringVurderesId, "Skal etablering vurderes")
     private val rettighetstype = boolsk(RettighetstypeId, beskrivelse = "Rettighetstype", behovId = "Rettighetstype", synlig = aldriSynlig)
@@ -62,26 +64,28 @@ object Rettighetstype {
         ) {
             forutsetter(Alderskrav.regelsett)
 
+            // Brukes for avslag
+            regel(skalReellArbeidssøkerVurderes) { somUtgangspunkt(true) }
+
+            regel(skalGjenopptakVurderes) { somUtgangspunkt(false) }
             regel(skalPermitteringVurderes) { innhentMed(søknadIdOpplysningstype) }
+            regel(skalPermitteringFiskeforedlingVurderes) { innhentMed(søknadIdOpplysningstype) }
+
+            regel(skalVernepliktVurderes) { erSann(avtjentVerneplikt) }
+            regel(skalEksportVurderes) { somUtgangspunkt(false) }
+            regel(skalEtableringVurderes) { somUtgangspunkt(false) }
+
             regel(ordinærArbeid) { innhentMed(søknadIdOpplysningstype) }
             regel(lønnsgaranti) { innhentMed(søknadIdOpplysningstype) }
-            regel(skalPermitteringFiskeforedlingVurderes) { innhentMed(søknadIdOpplysningstype) }
 
             regel(ingenArbeid) { ingenAv(ordinærArbeid, skalPermitteringVurderes, lønnsgaranti, skalPermitteringFiskeforedlingVurderes) }
             regel(ordinær) { enAv(ordinærArbeid, ingenArbeid) }
 
             regel(rettighetstype) { enAv(ordinær, skalPermitteringVurderes, lønnsgaranti, skalPermitteringFiskeforedlingVurderes) }
 
-            regel(skalReellArbeidssøkerVurderes) { somUtgangspunkt(true) }
-            regel(skalVernepliktVurderes) { erSann(avtjentVerneplikt) }
-
-            regel(skalGjenopptakVurderes) { somUtgangspunkt(false) }
-
-            regel(skalEksportVurderes) { somUtgangspunkt(false) }
-            regel(skalEtableringVurderes) { somUtgangspunkt(false) }
-
             ønsketResultat(
                 rettighetstype,
+                skalPermitteringVurderes,
                 skalReellArbeidssøkerVurderes,
                 skalVernepliktVurderes,
                 skalGjenopptakVurderes,
