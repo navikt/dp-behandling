@@ -5,6 +5,7 @@ import no.nav.dagpenger.modell.hendelser.MigreringId
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
+import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.opplysning.regel.Utgangspunkt
 import no.nav.dagpenger.opplysning.verdier.Beløp
@@ -14,11 +15,16 @@ import no.nav.dagpenger.regel.hendelse.MigrertYtelse
 import no.nav.dagpenger.regel.hendelse.Tilleggsopplysning
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting
+import no.nav.dagpenger.regel.regelsett.fastsetting.SamordingUtenforFolketrygden
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
+import no.nav.dagpenger.regel.regelsett.vilkår.Etablering
 import no.nav.dagpenger.regel.regelsett.vilkår.Permittering
+import no.nav.dagpenger.regel.regelsett.vilkår.ReellArbeidssøker
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
+import no.nav.dagpenger.regel.regelsett.vilkår.Samordning
 import no.nav.dagpenger.regel.regelsett.vilkår.Sanksjonsperiode
 import no.nav.dagpenger.regel.regelsett.vilkår.TidsbegrensetBortfall
+import no.nav.dagpenger.regel.regelsett.vilkår.Utdanning
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -56,7 +62,7 @@ class MigreringsprosessTest {
 
         val rapport = Migreringsprosess().regelkjøring(opplysninger).evaluer()
 
-        rapport.mangler.intersect(Migreringsprosess.migreringssaldoer) shouldBe
+        rapport.mangler.intersect(Migreringsprosess.kvoterViSkalMigrere) shouldBe
             setOf(Beregning.gjenståendeDager, Beregning.forbrukt, Beregning.gjenståendeEgenandel)
     }
 
@@ -68,9 +74,206 @@ class MigreringsprosessTest {
         repeat(2) {
             val rapport = prosess.regelkjøring(opplysninger).evaluer()
 
-            rapport.mangler.intersect(Migreringsprosess.migreringssaldoer) shouldBe emptySet()
+            rapport.mangler.intersect(Migreringsprosess.kvoterViSkalMigrere) shouldBe emptySet()
         }
         opplysninger.har(Beregning.sisteForbruksdag) shouldBe false
+    }
+
+    @Test
+    fun `etterspør sanksjonsuker når bruker oppgir selvforskyldt arbeidsløshet`() {
+        val opplysninger =
+            grunnlag.also {
+                it.leggTil(
+                    Faktum(
+                        Sanksjonsperiode.oppgirSelvforskyldtArbeidsløshet,
+                        true,
+                        Gyldighetsperiode.kun(prøvingsdato),
+                    ),
+                )
+            }
+
+        val rapport = Migreringsprosess().regelkjøring(opplysninger).evaluer()
+
+        (Sanksjonsperiode.antallSanksjonsuker in rapport.mangler) shouldBe true
+        (opplysninger.finnNullableOpplysning(Sanksjonsperiode.harSanksjon)?.verdi == true) shouldBe false
+    }
+
+    @Test
+    fun `etterspør ikke sanksjonsuker når betingelsen mangler eller er usann`() {
+        val betingelseUsann =
+            grunnlag.also {
+                it.leggTil(
+                    Faktum(
+                        Sanksjonsperiode.oppgirSelvforskyldtArbeidsløshet,
+                        false,
+                        Gyldighetsperiode.kun(prøvingsdato),
+                    ),
+                )
+            }
+
+        listOf(grunnlag, betingelseUsann).forEach { opplysninger ->
+            val rapport = Migreringsprosess().regelkjøring(opplysninger).evaluer()
+
+            (Sanksjonsperiode.antallSanksjonsuker in rapport.mangler) shouldBe false
+        }
+    }
+
+    @Test
+    fun `beholder oppgitte sanksjonsuker fremfor standardverdien`() {
+        val antallUkerOppgitt = 7
+        val opplysninger =
+            grunnlag.also {
+                it.leggTil(
+                    Faktum(
+                        Sanksjonsperiode.oppgirSelvforskyldtArbeidsløshet,
+                        true,
+                        Gyldighetsperiode.kun(prøvingsdato),
+                    ),
+                )
+                it.leggTil(
+                    Faktum(
+                        Sanksjonsperiode.antallSanksjonsuker,
+                        antallUkerOppgitt,
+                        Gyldighetsperiode.kun(prøvingsdato),
+                    ),
+                )
+            }
+
+        val rapport = Migreringsprosess().regelkjøring(opplysninger).evaluer()
+
+        (Sanksjonsperiode.antallSanksjonsuker in rapport.mangler) shouldBe false
+        opplysninger.finnOpplysning(Sanksjonsperiode.antallSanksjonsuker).verdi shouldBe antallUkerOppgitt
+    }
+
+    @Test
+    fun `etterspør sanksjonsuker når opplysningen endres fra usann til sann og tilbake`() {
+        val opplysninger =
+            grunnlag.also {
+                it.leggTil(
+                    Faktum(
+                        Sanksjonsperiode.oppgirSelvforskyldtArbeidsløshet,
+                        false,
+                        Gyldighetsperiode.kun(prøvingsdato),
+                    ),
+                )
+            }
+        val prosess = Migreringsprosess()
+
+        (Sanksjonsperiode.antallSanksjonsuker in prosess.regelkjøring(opplysninger).evaluer().mangler) shouldBe false
+
+        val oppgittArbeidsløshet =
+            opplysninger.finnOpplysning(Sanksjonsperiode.oppgirSelvforskyldtArbeidsløshet)
+        opplysninger.endre(oppgittArbeidsløshet, verdi = true)
+
+        (Sanksjonsperiode.antallSanksjonsuker in prosess.regelkjøring(opplysninger).evaluer().mangler) shouldBe true
+        (opplysninger.finnNullableOpplysning(Sanksjonsperiode.harSanksjon)?.verdi == true) shouldBe false
+
+        opplysninger.endre(opplysninger.finnOpplysning(Sanksjonsperiode.oppgirSelvforskyldtArbeidsløshet), verdi = false)
+
+        (Sanksjonsperiode.antallSanksjonsuker in prosess.regelkjøring(opplysninger).evaluer().mangler) shouldBe false
+    }
+
+    @Test
+    fun `etterspør betingede migreringsopplysninger bare for riktig verdi på prøvingsdato`() {
+        val krav =
+            listOf(
+                Triple(Samordning.sykepenger, true, setOf(Samordning.sykepengerDagsats)),
+                Triple(Samordning.pleiepenger, true, setOf(Samordning.pleiepengerDagsats)),
+                Triple(Samordning.omsorgspenger, true, setOf(Samordning.omsorgspengerDagsats)),
+                Triple(Samordning.opplæringspenger, true, setOf(Samordning.opplæringspengerDagsats)),
+                Triple(Samordning.uføre, true, setOf(Samordning.uføreDagsats)),
+                Triple(Samordning.foreldrepenger, true, setOf(Samordning.foreldrepengerDagsats)),
+                Triple(Samordning.svangerskapspenger, true, setOf(Samordning.svangerskapspengerDagsats)),
+                Triple(
+                    SamordingUtenforFolketrygden.andreYtelser,
+                    true,
+                    setOf(
+                        SamordingUtenforFolketrygden.pensjonFraOffentligTjenestepensjonsordning,
+                        SamordingUtenforFolketrygden.mottarRedusertUførepensjon,
+                        SamordingUtenforFolketrygden.vartpenger,
+                        SamordingUtenforFolketrygden.ventelønn,
+                        SamordingUtenforFolketrygden.etterlønn,
+                        SamordingUtenforFolketrygden.garantilottGFF,
+                    ),
+                ),
+                Triple(
+                    SamordingUtenforFolketrygden.pensjonFraOffentligTjenestepensjonsordning,
+                    true,
+                    setOf(SamordingUtenforFolketrygden.pensjonFraOffentligTjenestepensjonsordningBeløp),
+                ),
+                Triple(
+                    SamordingUtenforFolketrygden.mottarRedusertUførepensjon,
+                    true,
+                    setOf(SamordingUtenforFolketrygden.redusertUførepensjonBeløp),
+                ),
+                Triple(SamordingUtenforFolketrygden.vartpenger, true, setOf(SamordingUtenforFolketrygden.vartpengerBeløp)),
+                Triple(SamordingUtenforFolketrygden.ventelønn, true, setOf(SamordingUtenforFolketrygden.ventelønnBeløp)),
+                Triple(SamordingUtenforFolketrygden.etterlønn, true, setOf(SamordingUtenforFolketrygden.etterlønnBeløp)),
+                Triple(SamordingUtenforFolketrygden.garantilottGFF, true, setOf(SamordingUtenforFolketrygden.garantilottGFFBeløp)),
+                Triple(
+                    Utdanning.tarUtdanning,
+                    true,
+                    setOf(
+                        Utdanning.deltakelseIArbeidsmarkedstiltak,
+                        Utdanning.opplæringForInnvandrere,
+                        Utdanning.grunnskoleopplæring,
+                        Utdanning.høyereYrkesfagligUtdanning,
+                        Utdanning.høyereUtdanning,
+                        Utdanning.deltakelsePåKurs,
+                    ),
+                ),
+                Triple(
+                    Rettighetstype.skalEtableringVurderes,
+                    true,
+                    setOf(
+                        Etablering.nyVirksomhet,
+                        Etablering.selvforsørget,
+                        Etablering.godkjentNæringsfaglig,
+                        Etablering.ikkeSelvforskyldtArbeidsledig,
+                        Etablering.overFemtiProsentEierandel,
+                        Etablering.sluttDato,
+                    ),
+                ),
+                Triple(
+                    Rettighetstype.skalPermitteringVurderes,
+                    true,
+                    setOf(Permittering.godkjentPermitteringsårsak, Permittering.erPermitteringenMidlertidig),
+                ),
+                Triple(ReellArbeidssøker.kanJobbeDeltid, false, setOf(ReellArbeidssøker.godkjentDeltidssøker)),
+                Triple(ReellArbeidssøker.kanJobbeHvorSomHelst, false, setOf(ReellArbeidssøker.godkjentLokalArbeidssøker)),
+                Triple(ReellArbeidssøker.erArbeidsfør, false, setOf(ReellArbeidssøker.godkjentArbeidsufør)),
+            )
+
+        krav.forEach { (betingelse, ønsketVerdi, forventede) ->
+            listOf(null, !ønsketVerdi, ønsketVerdi).forEach { verdi ->
+                val opplysninger = grunnlag
+                if (verdi != null) opplysninger.leggTil(Faktum(betingelse, verdi, Gyldighetsperiode.kun(prøvingsdato)))
+                val prosess = Migreringsprosess()
+                val påPrøvingsdato = opplysninger.forDato(prøvingsdato)
+                val ønsket = prosess.ønsketResultat(påPrøvingsdato)
+                val produsenter = prosess.produsenter(prøvingsdato, påPrøvingsdato)
+
+                if (verdi == ønsketVerdi) {
+                    ønsket.intersect(forventede) shouldBe forventede
+                    forventede.forEach { (produsenter[it] is Ekstern<*>) shouldBe true }
+                } else {
+                    ønsket.intersect(forventede) shouldBe emptySet<Opplysningstype<*>>()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `betingelse utenfor prøvingsdato gir ikke betinget krav`() {
+        val opplysninger =
+            grunnlag.also {
+                it.leggTil(Faktum(Samordning.sykepenger, true, Gyldighetsperiode.kun(prøvingsdato.minusDays(1))))
+                it.leggTil(Faktum(Samordning.sykepenger, false, Gyldighetsperiode.kun(prøvingsdato)))
+            }
+
+        val ønsket = Migreringsprosess().ønsketResultat(opplysninger.forDato(prøvingsdato))
+
+        (Samordning.sykepengerDagsats in ønsket) shouldBe false
     }
 
     @Test
@@ -82,7 +285,7 @@ class MigreringsprosessTest {
             .regelkjøring(opplysninger)
             .evaluer()
             .mangler
-            .intersect(Migreringsprosess.migreringssaldoer) shouldBe
+            .intersect(Migreringsprosess.kvoterViSkalMigrere) shouldBe
             setOf(Beregning.sisteForbruksdag)
 
         opplysninger.leggTil(Faktum(Beregning.sisteForbruksdag, prøvingsdato.minusDays(10), saldoperiode))
@@ -91,7 +294,7 @@ class MigreringsprosessTest {
             .regelkjøring(opplysninger)
             .evaluer()
             .mangler
-            .intersect(Migreringsprosess.migreringssaldoer) shouldBe emptySet()
+            .intersect(Migreringsprosess.kvoterViSkalMigrere) shouldBe emptySet()
     }
 
     @Test
@@ -106,7 +309,7 @@ class MigreringsprosessTest {
             .regelkjøring(opplysninger)
             .evaluer()
             .mangler
-            .intersect(Migreringsprosess.migreringssaldoer) shouldBe
+            .intersect(Migreringsprosess.kvoterViSkalMigrere) shouldBe
             setOf(Beregning.gjenståendeDager)
     }
 

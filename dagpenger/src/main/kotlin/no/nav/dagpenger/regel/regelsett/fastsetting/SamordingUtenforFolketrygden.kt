@@ -57,20 +57,20 @@ object SamordingUtenforFolketrygden {
             behovId = OppgittAndreYtelserUtenforNav,
         )
 
-    private val pensjonFraOffentligTjenestepensjonsordning =
+    internal val pensjonFraOffentligTjenestepensjonsordning =
         Opplysningstype.boolsk(
             mottarPensjonFraEnOffentligTjenestepensjonsordningId,
             "Mottar pensjon fra en offentlig tjenestepensjonsordning",
         )
-    private val mottarRedusertUførepensjon =
+    internal val mottarRedusertUførepensjon =
         Opplysningstype.boolsk(
             redusertUførepensjonId,
             "Mottar redusert uførepensjon fra offentlig pensjonsordning",
         )
-    private val vartpenger = Opplysningstype.boolsk(mottarVartpengerId, "Mottar vartpenger")
-    private val ventelønn = Opplysningstype.boolsk(mottarVentelønnId, "Mottar ventelønn")
-    private val etterlønn = Opplysningstype.boolsk(mottarEtterlønnId, "Mottar etterlønn")
-    private val garantilottGFF =
+    internal val vartpenger = Opplysningstype.boolsk(mottarVartpengerId, "Mottar vartpenger")
+    internal val ventelønn = Opplysningstype.boolsk(mottarVentelønnId, "Mottar ventelønn")
+    internal val etterlønn = Opplysningstype.boolsk(mottarEtterlønnId, "Mottar etterlønn")
+    internal val garantilottGFF =
         Opplysningstype.boolsk(mottarGarantilottId, "Mottar garantilott fra Garantikassen for fiskere.")
 
     val pensjonFraOffentligTjenestepensjonsordningBeløp =

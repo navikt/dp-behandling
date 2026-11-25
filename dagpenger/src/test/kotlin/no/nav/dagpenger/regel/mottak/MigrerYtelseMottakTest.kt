@@ -159,7 +159,7 @@ class MigrerYtelseMottakTest {
 
         val regelkjøringsrapport = event.forretningsprosess.regelkjøring(forhåndskjøring).evaluer()
 
-        regelkjøringsrapport.mangler.filterNot { it in Migreringsprosess.migreringssaldoer }.size shouldBe 1
+        regelkjøringsrapport.mangler.filterNot { it in Migreringsprosess.kvoterViSkalMigrere }.size shouldBe 1
     }
 
     @Test
@@ -428,7 +428,7 @@ class MigrerYtelseMottakTest {
         val simulerte = svar["simulerteOpplysninger"].values().toList()
         simulerte.isNotEmpty() shouldBe true
         simulerte.forEach {
-            it["opplysningTypeId"].isTextual shouldBe true
+            it["opplysningTypeId"].isString shouldBe true
             it["perioder"].isArray shouldBe true
             it["perioder"].forEach { periode ->
                 periode.has("id") shouldBe true
@@ -474,25 +474,22 @@ class MigrerYtelseMottakTest {
                 it.opplysningTypeId == søknadIdUuid
             }
         val forventedeVerdier =
-            jsonMapper.readValue<List<Map<String, Any?>>>(jsonMapper.writeValueAsString(forventet))
+            jsonMapper.readTree(jsonMapper.writeValueAsString(forventet)).values().toList()
         val simulerteUtenSøknadId =
             simulerte.filterNot { it["opplysningTypeId"].asString() == søknadIdUuid }
         simulerteUtenSøknadId.size shouldBe
-            forventedeVerdier.map { it.getValue("opplysningTypeId") }.toSet().size
+            forventedeVerdier.map { it["opplysningTypeId"].asString() }.toSet().size
         simulerteUtenSøknadId.map { it["opplysningTypeId"].asString() }.toSet() shouldBe
-            forventedeVerdier.map { it.getValue("opplysningTypeId") as String }.toSet()
+            forventedeVerdier.map { it["opplysningTypeId"].asString() }.toSet()
         // Period-ID-er og opprettelsestidspunkt er nye for hver hendelse; sammenlign derfor perioder etter gyldighetsdato.
         forventedeVerdier.forEach { forventetVerdi ->
-            val typeId = forventetVerdi.getValue("opplysningTypeId") as String
+            val typeId = forventetVerdi["opplysningTypeId"].asString()
             withClue("Opplysningstype $typeId") {
                 val gruppe = simulerteUtenSøknadId.single { it["opplysningTypeId"].asString() == typeId }
-                gruppe["navn"].asString() shouldBe forventetVerdi.getValue("navn")
-                gruppe["datatype"].asString() shouldBe forventetVerdi.getValue("datatype")
-                val faktiskePerioder =
-                    gruppe["perioder"].values().map {
-                        jsonMapper.readValue<Map<String, Any?>>(it.toString())
-                    }
-                val forventedePerioder = forventetVerdi.getValue("perioder") as List<Map<String, Any?>>
+                gruppe["navn"] shouldBe forventetVerdi["navn"]
+                gruppe["datatype"] shouldBe forventetVerdi["datatype"]
+                val faktiskePerioder = gruppe["perioder"].values().toList()
+                val forventedePerioder = forventetVerdi["perioder"].values().toList()
                 faktiskePerioder.size shouldBe forventedePerioder.size
 
                 fun gyldighetsperiode(
@@ -500,33 +497,35 @@ class MigrerYtelseMottakTest {
                     til: String?,
                 ) = fra.orEmpty() to til.orEmpty()
 
-                fun Map<String, Any?>.gyldighetsperiode() =
+                fun JsonNode.gyldighetsperiode() =
                     gyldighetsperiode(
-                        this["gyldigFraOgMed"] as String?,
-                        this["gyldigTilOgMed"] as String?,
+                        this["gyldigFraOgMed"]?.takeUnless { it.isNull }?.asString(),
+                        this["gyldigTilOgMed"]?.takeUnless { it.isNull }?.asString(),
                     )
 
                 val faktiskePerioderPerGyldighet = faktiskePerioder.groupBy { it.gyldighetsperiode() }
                 val forventedePerioderPerGyldighet = forventedePerioder.groupBy { it.gyldighetsperiode() }
                 faktiskePerioderPerGyldighet.keys shouldBe forventedePerioderPerGyldighet.keys
 
-                fun sammenlignbarVerdi(periode: Map<String, Any?>): Any? {
-                    val verdi = periode.getValue("verdi")
+                fun sammenlignbarVerdi(periode: JsonNode): String {
+                    val verdi = periode["verdi"]
                     return if (typeId ==
                         DagpengenesStørrelse.barnSomGirTillegg.id.uuid
                             .toString()
                     ) {
-                        (verdi as Map<String, Any?>).filterKeys { it != "søknadBarnId" }
+                        jsonMapper.writeValueAsString(
+                            verdi.properties().filter { it.key != "søknadBarnId" }.associate { it.key to it.value },
+                        )
                     } else {
-                        verdi
+                        verdi.toString()
                     }
                 }
 
                 faktiskePerioderPerGyldighet.forEach { (gyldighetsperiode, faktiske) ->
                     val forventede = forventedePerioderPerGyldighet.getValue(gyldighetsperiode)
                     faktiske.size shouldBe forventede.size
-                    faktiske.map { jsonMapper.writeValueAsString(sammenlignbarVerdi(it)) }.sorted() shouldBe
-                        forventede.map { jsonMapper.writeValueAsString(sammenlignbarVerdi(it)) }.sorted()
+                    faktiske.map { sammenlignbarVerdi(it) }.sorted() shouldBe
+                        forventede.map { sammenlignbarVerdi(it) }.sorted()
                 }
             }
         }
@@ -537,16 +536,16 @@ class MigrerYtelseMottakTest {
             simulert(DagpengenesStørrelse.barn)["id"].asString()
         simulertBarnMedTillegg["verdi"].isArray shouldBe true
         val forventetBarnMedTillegg =
-            (
-                forventedeVerdier
-                    .single {
-                        it.getValue("opplysningTypeId") ==
-                            DagpengenesStørrelse.barnSomGirTillegg.id.uuid
-                                .toString()
-                    }.getValue("perioder") as List<Map<String, Any?>>
-            ).single().getValue("verdi") as Map<String, Any?>
-        UUID.fromString(forventetBarnMedTillegg.getValue("søknadBarnId") as String)
-        forventetBarnMedTillegg.getValue("søknadBarnId") shouldBe
+            forventedeVerdier
+                .single {
+                    it["opplysningTypeId"].asString() ==
+                        DagpengenesStørrelse.barnSomGirTillegg.id.uuid
+                            .toString()
+                }["perioder"]
+                .values()
+                .single()["verdi"]
+        UUID.fromString(forventetBarnMedTillegg["søknadBarnId"].asString())
+        forventetBarnMedTillegg["søknadBarnId"].asString() shouldBe
             behandling.opplysninger
                 .finnOpplysning(DagpengenesStørrelse.barn)
                 .id
@@ -727,7 +726,7 @@ class MigrerYtelseMottakTest {
                 val type = typerEtterUuid.getValue(uuid)
                 val verdi = standardverdier[type] ?: syntetiskVerdi(type)
                 sendteFakta[uuid] =
-                    if (type in Migreringsprosess.migreringssaldoer) {
+                    if (type in Migreringsprosess.kvoterViSkalMigrere) {
                         opplysning(type, jsonVerdi(verdi))
                     } else {
                         opplysning(type, jsonVerdi(verdi), "2026-01-05")
@@ -860,6 +859,68 @@ class MigrerYtelseMottakTest {
     }
 
     @Test
+    fun `migrering etterspør sanksjonsuker når selvforskyldt arbeidsløshet er oppgitt`() {
+        val faktagrunnlag =
+            lagFerdigFaktagrunnlag(
+                LocalDate.of(1990, 1, 1),
+                listOf(Tilleggsopplysning(Sanksjonsperiode.oppgirSelvforskyldtArbeidsløshet, false)),
+            )
+        val opplysninger =
+            faktagrunnlag.opplysninger
+                .filterNot { (type, _) ->
+                    type == Sanksjonsperiode.oppgirSelvforskyldtArbeidsløshet ||
+                        type == Sanksjonsperiode.antallSanksjonsuker
+                }.map { (type, verdi) -> opplysning(type, jsonVerdi(verdi)) } +
+                opplysning(Sanksjonsperiode.oppgirSelvforskyldtArbeidsløshet, true)
+
+        rapid.sendTestMessage(melding(opplysninger))
+
+        rapid.inspektør.size shouldBe 1
+        val svar = rapid.inspektør.message(0)
+        svar["@event_name"].asString() shouldBe "migrering_manglende_opplysninger"
+        svar["manglendeOpplysninger"].values().map { it["uuid"].asString() } shouldBe
+            listOf(
+                Sanksjonsperiode.antallSanksjonsuker.id.uuid
+                    .toString(),
+            )
+        verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+    }
+
+    @Test
+    fun `migrering etterspør opplysninger betinget på både sann og usann verdi`() {
+        val faktagrunnlag = lagFerdigFaktagrunnlag(LocalDate.of(1990, 1, 1))
+        val opplysninger =
+            faktagrunnlag.opplysninger
+                .filterNot { (type, _) ->
+                    type in
+                        setOf(
+                            Samordning.sykepenger,
+                            Samordning.sykepengerDagsats,
+                            ReellArbeidssøker.kanJobbeDeltid,
+                            ReellArbeidssøker.godkjentDeltidssøker,
+                        )
+                }.map { (type, verdi) -> opplysning(type, jsonVerdi(verdi)) } +
+                listOf(
+                    opplysning(Samordning.sykepenger, true),
+                    opplysning(ReellArbeidssøker.kanJobbeDeltid, false),
+                )
+
+        rapid.sendTestMessage(melding(opplysninger))
+
+        rapid.inspektør.size shouldBe 1
+        val svar = rapid.inspektør.message(0)
+        svar["@event_name"].asString() shouldBe "migrering_manglende_opplysninger"
+        svar["manglendeOpplysninger"].values().map { it["uuid"].asString() }.toSet() shouldBe
+            setOf(
+                Samordning.sykepengerDagsats.id.uuid
+                    .toString(),
+                ReellArbeidssøker.godkjentDeltidssøker.id.uuid
+                    .toString(),
+            )
+        verify(exactly = 0) { hendelseMottaker.behandle(any(), any(), any()) }
+    }
+
+    @Test
     fun `avviser tilleggsopplysninger fra objektformatet`() {
         val type = DagpengenesStørrelse.antallBarn
         val packet =
@@ -929,7 +990,7 @@ class MigrerYtelseMottakTest {
                 mapOf("gyldigFraOgMed" to "2026-01-10", "gyldigTilOgMed" to "2026-01-09"),
                 mapOf("gyldigFraOgMed" to "ugyldig", "gyldigTilOgMed" to "ugyldig"),
             )
-        Migreringsprosess.migreringssaldoer.forEach { type ->
+        Migreringsprosess.kvoterViSkalMigrere.forEach { type ->
             val verdi = if (type.datatype == Dato) "2026-01-02" else 40
             perioder.forEach { periode ->
                 withClue("Opplysningstype ${type.id.uuid}, periode $periode") {
@@ -1300,7 +1361,7 @@ class MigrerYtelseMottakTest {
         Tilleggsopplysning(
             type as Opplysningstype<Any>,
             verdi,
-            if (type in Migreringsprosess.migreringssaldoer) Gyldighetsperiode.kun(LocalDate.of(2026, 1, 4)) else null,
+            if (type in Migreringsprosess.kvoterViSkalMigrere) Gyldighetsperiode.kun(LocalDate.of(2026, 1, 4)) else null,
         )
 
     private fun syntetiskVerdi(type: Opplysningstype<*>): Any =
@@ -1432,7 +1493,7 @@ class MigrerYtelseMottakTest {
             put("uuid", type.id.uuid.toString())
             put("navn", type.navn)
             put("verdi", verdi)
-            val erSaldo = type in Migreringsprosess.migreringssaldoer
+            val erSaldo = type in Migreringsprosess.kvoterViSkalMigrere
             put("gyldigFraOgMed", fraOgMed ?: if (erSaldo) "2026-01-04" else "2024-01-01")
             (tilOgMed ?: if (erSaldo) "2026-01-04" else null)?.let { put("gyldigTilOgMed", it) }
         }

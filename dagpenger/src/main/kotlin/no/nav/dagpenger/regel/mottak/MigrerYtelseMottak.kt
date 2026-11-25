@@ -176,7 +176,7 @@ class MigrerYtelseMottak(
                 .sortedBy { it.uuid }
 
         if (!rapport.erFerdig() || manglendeOpplysninger.isNotEmpty()) {
-            logger.info { "Migrering av sakId $sakId mangler opplysninger $manglendeOpplysninger" }
+            logger.info { "Migrering av sakId $sakId mangler ${manglendeOpplysninger.size} opplysninger" }
             if (packet["opplysninger"].isMissingNode) {
                 packet["opplysninger"] = emptyList<Any>()
             }
@@ -318,7 +318,7 @@ private fun JsonNode.tilleggsopplysning(
             ?: throw IllegalArgumentException("Ukjent opplysningstype: $uuid")
     val verdi = get("verdi") ?: throw IllegalArgumentException("Opplysning $uuid mangler verdi")
     require(!verdi.isNull) { "Opplysning $uuid mangler verdi" }
-    val erMigreringssaldo = type in Migreringsprosess.migreringssaldoer
+    val erMigreringssaldo = type in Migreringsprosess.kvoterViSkalMigrere
     val saldodato = migreringTidspunkt.minusDays(1)
     val gyldigFraOgMed =
         if (erMigreringssaldo) {
