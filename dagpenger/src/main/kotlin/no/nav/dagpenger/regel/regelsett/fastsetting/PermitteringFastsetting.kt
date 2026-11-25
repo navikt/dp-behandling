@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.regelsett.fastsetting
 
+import no.nav.dagpenger.avklaring.KontrollpunktForAlleDatoer
 import no.nav.dagpenger.opplysning.Forbrukstype
 import no.nav.dagpenger.opplysning.KvoteDefinisjon
 import no.nav.dagpenger.opplysning.Opplysningstype
@@ -14,6 +15,7 @@ import no.nav.dagpenger.opplysning.regel.multiplikasjon
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.tomRegel
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
+import no.nav.dagpenger.regel.Avklaringspunkter.FritaksperiodenOppbrukt
 import no.nav.dagpenger.regel.OpplysningsTyper.antallPermitteringsdagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.forbruktPermitteringId
 import no.nav.dagpenger.regel.OpplysningsTyper.gjenståendePermitteringId
@@ -100,5 +102,13 @@ object PermitteringFastsetting {
             )
 
             påvirkerResultat { it.erSann(oppfyllerKravetTilPermittering) }
+
+            avklaring(FritaksperiodenOppbrukt)
+        }
+
+    val PermitteringOppbrukt =
+        KontrollpunktForAlleDatoer(avklaringkode = FritaksperiodenOppbrukt) { opplysninger ->
+            val permittering = opplysninger.har(skalPermitteringVurderes) && opplysninger.finnOpplysning(skalPermitteringVurderes).verdi
+            permittering && opplysninger.finnOpplysning(innenforFritaksperioden).verdi == false
         }
 }

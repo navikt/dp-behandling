@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.regel.Ekstern
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.PermitteringOppbrukt
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
 import no.nav.dagpenger.regel.regelsett.vilkår.TreMeldePerioderUtentilstrekkeligTapAvArbeidstid
@@ -60,6 +61,7 @@ class Meldekortprosess : Forretningsprosess(RegelverkDagpenger) {
         listOf(
             Alderskrav.StansAlderKontroll,
             TreMeldePerioderUtentilstrekkeligTapAvArbeidstid.OverTerskelKontroll,
+            PermitteringOppbrukt,
         )
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) =

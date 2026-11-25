@@ -91,6 +91,17 @@ object Avklaringspunkter {
                 Du må også sjekke om ny vanlig arbeidstid er korrekt.
                 """.trimIndent(),
         )
+    val FritaksperiodenOppbrukt =
+        Avklaringkode(
+            kode = "FritaksperiodenOppbrukt",
+            tittel = "Arbeidstid",
+            beskrivelse =
+                """
+                Sjekk om vanlig arbeidstid er korrekt og at det er brukt riktig beregningsregel. 
+                Du må også sjekke om ny vanlig arbeidstid er korrekt.
+                """.trimIndent(),
+            kanKvitteres = false,
+        )
 
     val EØSArbeid =
         Avklaringkode(

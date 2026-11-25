@@ -17,6 +17,7 @@ import no.nav.dagpenger.opplysning.Regelkjøring
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.prosess.PeriodeOverskrivingsStrategi.Companion.OVERSKRIV_ALLTID
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
+import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.PermitteringOppbrukt
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlage.OmgjøringUtenKlageKontroll
 import no.nav.dagpenger.regel.regelsett.prosessvilkår.OmgjøringUtenKlageValg.SkalOmgjøringUtenKlageVurderesKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger
@@ -61,7 +62,12 @@ class Omgjøringsprosess : Forretningsprosess(RegelverkDagpenger) {
     ): Boolean = regelverk.kanOppfriske(opplysningstype)
 
     override fun kontrollpunkter() =
-        listOf(OmgjøringUtenKlageKontroll, SkalOmgjøringUtenKlageVurderesKontroll, Utdanning.MeldekortMedUtdanningKontroll)
+        listOf(
+            OmgjøringUtenKlageKontroll,
+            SkalOmgjøringUtenKlageVurderesKontroll,
+            Utdanning.MeldekortMedUtdanningKontroll,
+            PermitteringOppbrukt,
+        )
 
     override fun kreverTotrinnskontroll(opplysninger: LesbarOpplysninger) = true
 

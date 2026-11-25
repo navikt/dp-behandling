@@ -11,6 +11,7 @@ import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.alle
 import no.nav.dagpenger.opplysning.regel.enAv
+import no.nav.dagpenger.opplysning.regel.erSann
 import no.nav.dagpenger.opplysning.regel.hvisSannMedResultat
 import no.nav.dagpenger.opplysning.regel.ikke
 import no.nav.dagpenger.opplysning.regel.innhentMed
@@ -40,13 +41,11 @@ import no.nav.dagpenger.regel.OpplysningsTyper.nyArbeidstidPerUkeId
 import no.nav.dagpenger.regel.OpplysningsTyper.ordinærtKravTilTaptArbeidstidId
 import no.nav.dagpenger.regel.OpplysningsTyper.tapAvArbeidstidErMinstTerskelId
 import no.nav.dagpenger.regel.Porter
-import no.nav.dagpenger.regel.regelsett.fastsetting.PermitteringFastsetting.innenforFritaksperioden
 import no.nav.dagpenger.regel.regelsett.fastsetting.Vanligarbeidstid.fastsattVanligArbeidstid
 import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.grunnlagForVernepliktErGunstigst
 import no.nav.dagpenger.regel.regelsett.fastsetting.VernepliktFastsetting.vernepliktFastsattVanligArbeidstid
 import no.nav.dagpenger.regel.regelsett.vilkår.PermitteringFraFiskeindustrien.kravTilArbeidstidsreduksjonVedFiskepermittering
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringFiskeforedlingVurderes
-import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalPermitteringVurderes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.søknadIdOpplysningstype
 
@@ -150,7 +149,8 @@ object TapAvArbeidsinntektOgArbeidstid {
             // (innenforFritaksperioden settes til usann, se PermitteringFastsetting), faller vilkåret
             // tilbake til reell vurdering av om bruker har krav på lønn.
             betingelse(kravTilTapAvArbeidsinntekt) {
-                hvisSannMedResultat(skalPermitteringVurderes, innenforFritaksperioden, manglerKravPåLønn)
+                erSann(manglerKravPåLønn)
+                // hvisSannMedResultat(skalPermitteringVurderes, innenforFritaksperioden, manglerKravPåLønn)
             }
 
             regel(ordinærtKravTilTaptArbeidstid) { oppslag(prøvingsdato) { 50.0 } }

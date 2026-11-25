@@ -705,12 +705,15 @@ class PermitteringTest {
             behandlingsresultat(2) {
                 førteTil shouldBe Endring.toString()
                 opplysninger(gjenståendePermittering).last().verdi.verdi shouldBe 6
+                opplysninger(skalPermitteringVurderes).last().verdi.verdi shouldBe true
             }
 
             person.sendInnMeldekort(2)
-            meldekortBatch()
-            behandlingsresultat(3) {
+            meldekortBatch(markerFerdig = false)
+
+            behandlingsresultatForslag(4) {
                 førteTil shouldBe Stans.toString()
+                opplysninger(skalPermitteringVurderes).last().verdi.verdi shouldBe true
                 opplysninger(gjenståendePermittering).last().verdi.verdi shouldBe 0
 
                 opplysning(oppfyllerKravetTilPermittering) {
