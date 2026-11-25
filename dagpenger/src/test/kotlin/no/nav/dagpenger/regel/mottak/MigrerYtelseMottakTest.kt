@@ -322,10 +322,11 @@ class MigrerYtelseMottakTest {
             svar["simulerteOpplysninger"]
                 .values()
                 .single {
-                    it["uuid"].asString() ==
+                    it["opplysningTypeId"].asString() ==
                         KravPåDagpenger.harLøpendeRett.id.uuid
                             .toString()
-                }["verdi"]
+                }["perioder"]
+                .single()["verdi"]["verdi"]
                 .isBoolean shouldBe true
 
             rapid.sendTestMessage(svar.toString())
@@ -427,19 +428,28 @@ class MigrerYtelseMottakTest {
         val simulerte = svar["simulerteOpplysninger"].values().toList()
         simulerte.isNotEmpty() shouldBe true
         simulerte.forEach {
-            it.has("kilde") shouldBe false
-            it.has("utledetAv") shouldBe false
+            it["opplysningTypeId"].isTextual shouldBe true
+            it["perioder"].isArray shouldBe true
+            it["perioder"].forEach { periode ->
+                periode.has("id") shouldBe true
+                periode.has("opprettet") shouldBe true
+                periode.has("type") shouldBe false
+                periode.has("kilde") shouldBe false
+                periode.has("utledetAv") shouldBe false
+                periode.has("erstatter") shouldBe false
+            }
             it.has("erstatter") shouldBe false
         }
 
-        fun simulert(type: Opplysningstype<*>) = simulerte.single { it["uuid"].asString() == type.id.uuid.toString() }
-        simulert(Alderskrav.kravTilAlder)["verdi"].asBoolean() shouldBe true
-        simulert(KravPåDagpenger.harLøpendeRett)["verdi"].asBoolean() shouldBe true
+        fun simulert(type: Opplysningstype<*>) =
+            simulerte.single { it["opplysningTypeId"].asString() == type.id.uuid.toString() }["perioder"].single()
+
+        simulert(Alderskrav.kravTilAlder)["verdi"]["verdi"].asBoolean() shouldBe true
+        simulert(KravPåDagpenger.harLøpendeRett)["verdi"]["verdi"].asBoolean() shouldBe true
         simulert(KravPåDagpenger.harLøpendeRett)["gyldigFraOgMed"].asString() shouldBe "2026-01-05"
-        jsonMapper.readValue<Map<String, Any?>>(simulert(Minsteinntekt.inntektFraSkatt)["verdi"].toString()) shouldBe
-            jsonMapper.readValue<Map<String, Any?>>(jsonMapper.writeValueAsString(jsonVerdi(inntekt)))
-        simulert(DagpengenesStørrelse.barn)["verdi"]["barn"][0]["fødselsdato"].asString() shouldBe "2020-03-01"
-        simulert(DagpengenesStørrelse.barn)["verdi"]["barn"][0]["forsørgeransvar"].asBoolean() shouldBe true
+        simulert(Minsteinntekt.inntektFraSkatt)["verdi"]["verdi"].asString() shouldBe inntekt.verdi.inntektsId
+        simulert(DagpengenesStørrelse.barn)["verdi"]["verdi"][0]["fødselsdato"].asString() shouldBe "2020-03-01"
+        simulert(DagpengenesStørrelse.barn)["verdi"]["verdi"][0]["forsørgeransvar"].asBoolean() shouldBe true
         (svar.toString().toByteArray(Charsets.UTF_8).size < 1_000_000) shouldBe true
 
         rapid.sendTestMessage(melding(fakta, simulering = false))
@@ -451,44 +461,96 @@ class MigrerYtelseMottakTest {
             (startet.captured.behandling(null, TemporalCollection()) as StartHendelseResultat.Opprettet).behandling
         behandling.håndter(startet.captured)
         RegelverkDagpenger.avgjørelse(behandling.opplysninger) shouldBe Avgjørelse.Innvilgelse
-        simulert(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)["verdi"].decimalValue() shouldBe
+        simulert(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)["verdi"]["verdi"].decimalValue() shouldBe
             behandling.opplysninger
                 .finnOpplysning(DagpengenesStørrelse.dagsatsEtterSamordningMedBarnetillegg)
                 .verdi.verdien
+        simulert(Minsteinntekt.inntektFraSkatt)["verdi"]["verdi"].asString() shouldBe inntekt.verdi.inntektsId
         val søknadIdUuid =
             Søknadstidspunkt.søknadIdOpplysningstype.id.uuid
                 .toString()
         val forventet =
-            behandling.opplysninger.simulerteOpplysninger().filterNot { it.uuid == søknadIdUuid }
-        val faktiskeVerdier =
-            jsonMapper.readValue<List<Map<String, Any?>>>(
-                jsonMapper.writeValueAsString(simulerte.filterNot { it["uuid"].asString() == søknadIdUuid }),
-            )
+            behandling.opplysninger.simulerteOpplysninger().filterNot {
+                it.opplysningTypeId == søknadIdUuid
+            }
         val forventedeVerdier =
             jsonMapper.readValue<List<Map<String, Any?>>>(jsonMapper.writeValueAsString(forventet))
-        faktiskeVerdier.size shouldBe forventedeVerdier.size
-        forventedeVerdier.forEachIndexed { indeks, forventetOpplysning ->
-            withClue("Opplysning $indeks: ${forventetOpplysning["navn"]} (${forventetOpplysning["uuid"]})") {
-                val faktiskOpplysning = faktiskeVerdier[indeks]
-                if (forventetOpplysning["uuid"] ==
-                    DagpengenesStørrelse.barnSomGirTillegg.id.uuid
-                        .toString()
-                ) {
-                    val faktiskeBarn = faktiskOpplysning.getValue("verdi") as Map<*, *>
-                    val forventedeBarn = forventetOpplysning.getValue("verdi") as Map<*, *>
-                    UUID.fromString(faktiskeBarn["søknadbarnId"] as String)
-                    forventedeBarn["søknadbarnId"] shouldBe
-                        behandling.opplysninger
-                            .finnOpplysning(DagpengenesStørrelse.barn)
-                            .id
+        val simulerteUtenSøknadId =
+            simulerte.filterNot { it["opplysningTypeId"].asString() == søknadIdUuid }
+        simulerteUtenSøknadId.size shouldBe
+            forventedeVerdier.map { it.getValue("opplysningTypeId") }.toSet().size
+        simulerteUtenSøknadId.map { it["opplysningTypeId"].asString() }.toSet() shouldBe
+            forventedeVerdier.map { it.getValue("opplysningTypeId") as String }.toSet()
+        // Period-ID-er og opprettelsestidspunkt er nye for hver hendelse; sammenlign derfor perioder etter gyldighetsdato.
+        forventedeVerdier.forEach { forventetVerdi ->
+            val typeId = forventetVerdi.getValue("opplysningTypeId") as String
+            withClue("Opplysningstype $typeId") {
+                val gruppe = simulerteUtenSøknadId.single { it["opplysningTypeId"].asString() == typeId }
+                gruppe["navn"].asString() shouldBe forventetVerdi.getValue("navn")
+                gruppe["datatype"].asString() shouldBe forventetVerdi.getValue("datatype")
+                val faktiskePerioder =
+                    gruppe["perioder"].values().map {
+                        jsonMapper.readValue<Map<String, Any?>>(it.toString())
+                    }
+                val forventedePerioder = forventetVerdi.getValue("perioder") as List<Map<String, Any?>>
+                faktiskePerioder.size shouldBe forventedePerioder.size
+
+                fun gyldighetsperiode(
+                    fra: String?,
+                    til: String?,
+                ) = fra.orEmpty() to til.orEmpty()
+
+                fun Map<String, Any?>.gyldighetsperiode() =
+                    gyldighetsperiode(
+                        this["gyldigFraOgMed"] as String?,
+                        this["gyldigTilOgMed"] as String?,
+                    )
+
+                val faktiskePerioderPerGyldighet = faktiskePerioder.groupBy { it.gyldighetsperiode() }
+                val forventedePerioderPerGyldighet = forventedePerioder.groupBy { it.gyldighetsperiode() }
+                faktiskePerioderPerGyldighet.keys shouldBe forventedePerioderPerGyldighet.keys
+
+                fun sammenlignbarVerdi(periode: Map<String, Any?>): Any? {
+                    val verdi = periode.getValue("verdi")
+                    return if (typeId ==
+                        DagpengenesStørrelse.barnSomGirTillegg.id.uuid
                             .toString()
-                    faktiskOpplysning - "verdi" shouldBe forventetOpplysning - "verdi"
-                    faktiskeBarn - "søknadbarnId" shouldBe forventedeBarn - "søknadbarnId"
-                } else {
-                    faktiskOpplysning shouldBe forventetOpplysning
+                    ) {
+                        (verdi as Map<String, Any?>).filterKeys { it != "søknadBarnId" }
+                    } else {
+                        verdi
+                    }
+                }
+
+                faktiskePerioderPerGyldighet.forEach { (gyldighetsperiode, faktiske) ->
+                    val forventede = forventedePerioderPerGyldighet.getValue(gyldighetsperiode)
+                    faktiske.size shouldBe forventede.size
+                    faktiske.map { jsonMapper.writeValueAsString(sammenlignbarVerdi(it)) }.sorted() shouldBe
+                        forventede.map { jsonMapper.writeValueAsString(sammenlignbarVerdi(it)) }.sorted()
                 }
             }
         }
+
+        val simulertBarnMedTillegg = simulert(DagpengenesStørrelse.barnSomGirTillegg)["verdi"]
+        UUID.fromString(simulertBarnMedTillegg["søknadBarnId"].asString())
+        simulertBarnMedTillegg["søknadBarnId"].asString() shouldBe
+            simulert(DagpengenesStørrelse.barn)["id"].asString()
+        simulertBarnMedTillegg["verdi"].isArray shouldBe true
+        val forventetBarnMedTillegg =
+            (
+                forventedeVerdier
+                    .single {
+                        it.getValue("opplysningTypeId") ==
+                            DagpengenesStørrelse.barnSomGirTillegg.id.uuid
+                                .toString()
+                    }.getValue("perioder") as List<Map<String, Any?>>
+            ).single().getValue("verdi") as Map<String, Any?>
+        UUID.fromString(forventetBarnMedTillegg.getValue("søknadBarnId") as String)
+        forventetBarnMedTillegg.getValue("søknadBarnId") shouldBe
+            behandling.opplysninger
+                .finnOpplysning(DagpengenesStørrelse.barn)
+                .id
+                .toString()
     }
 
     @Test

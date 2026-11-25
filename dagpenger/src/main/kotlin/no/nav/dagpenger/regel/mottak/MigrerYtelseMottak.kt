@@ -112,12 +112,6 @@ class MigrerYtelseMottak(
             return@withLoggingContext
         }
 
-        if (migreringId == "01a1e9fd-f13f-76e3-b68e-043267df1e5f") {
-            logger.info { "Skipper migrering med migreringId $migreringId" }
-            sikkerlogg.info { "Skipper melding : ${packet.toJson()}" }
-            return@withLoggingContext
-        }
-
         val ident = packet["ident"].asString()
         val message =
             try {
