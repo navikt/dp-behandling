@@ -11,6 +11,8 @@ import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
+import no.nav.dagpenger.mediator.oktober
+import no.nav.dagpenger.mediator.september
 import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse.Companion.behandlingFlyttetAvklaring
 import no.nav.dagpenger.opplysning.Avgjørelse
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -494,6 +496,38 @@ class ArbeidssøkerTest {
                     fra(17.august(2026)) harRett false
                 }
             }
+        }
+    }
+
+    @Test
+    fun `får stans på en sak som allerede stanset skal lage en avklaring`() {
+        nyttScenario {
+            inntektSiste12Mnd = 500000
+        }.test {
+            person.søkDagpenger(21.juli(2026))
+            behovsløsere.løsTilForslag()
+
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            behandlingsresultat(1) { }
+
+            saksbehandler.omgjørBehandling(22.juli(2026))
+            saksbehandler.leggTilOpplysning(kravPåLønn, true, "", Gyldighetsperiode(21.juli(2026), 30.september(2026)))
+            behovsløsere.løsTilForslag()
+            saksbehandler.leggTilOpplysning(kravPåLønn, false, "", Gyldighetsperiode(1.oktober(2026)))
+            behovsløsere.løsTilForslag()
+            saksbehandler.lukkAlleAvklaringer()
+            saksbehandler.godkjenn()
+            saksbehandler.beslutt()
+
+            person.avsluttArbeidssøkerperiode(
+                fastsattMeldingsdag = 3.august(2026),
+                avsluttetTidspunkt = 25.august(2026).atTime(2, 1),
+                fristBrutt = true,
+            )
+            saksbehandler.åpneAvklaringer().map { it.kode }.shouldContain("UtmeldtArbeidssøker")
         }
     }
 }

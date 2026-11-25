@@ -58,6 +58,8 @@ class AvsluttetArbeidssøkerperiodeHendelse(
         if (forrigeBehandling == null) {
             return StartHendelseResultat.OppdaterBehandling("Fant ingen behandling å kjede på")
         }
+        val meldingsdag = avsluttetArbeidssøkerperiode.fastsattMeldingsdag
+        val avregistrertFraArbeidssøkerRegister = avsluttetArbeidssøkerperiode.avsluttetTidspunkt.toLocalDate().plusDays(1)
 
         return Opprettet(
             opprettBehandling(
@@ -76,8 +78,15 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                         val rettighetsperioder = forrigeBehandling.vedtakopplysninger.rettighetsperioder
                         logger.info { "Rettighetsperioder : $rettighetsperioder" }
                         val sisteUtfall = rettighetsperioder.last()
+
+                        val nyStansdato =
+                            maxOf(
+                                avregistrertFraArbeidssøkerRegister,
+                                meldingsdag,
+                            )
+
                         // Om saken allerede er stanset kan vi bare oppdatere informasjonen automatisk
-                        if (sisteUtfall.harRett) {
+                        if (sisteUtfall.harRett || (sisteUtfall.fraOgMed.isAfter(nyStansdato))) {
                             // TODO: Ta bort denne når vi mener disse kan gå automatisk. Husk testene i ArbeidssøkerTest
                             add(
                                 Avklaring(
@@ -109,18 +118,18 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                     },
             ).apply {
                 // Bruker er registrert ut avsluttetTidspunkt, og ikke registrert fra dagen etter.
+
                 opplysninger.leggTil(
                     Faktum(
                         registrertArbeidssøker,
                         false,
-                        Gyldighetsperiode(fraOgMed = avsluttetArbeidssøkerperiode.avsluttetTidspunkt.toLocalDate().plusDays(1)),
+                        Gyldighetsperiode(fraOgMed = avregistrertFraArbeidssøkerRegister),
                         kilde = kilde,
                     ),
                 )
 
                 // Om bruker sier "nei" til å stå registrert på meldekort
                 if (avsluttetArbeidssøkerperiode.sagtNei) {
-                    val meldingsdag = avsluttetArbeidssøkerperiode.fastsattMeldingsdag
                     opplysninger.leggTil(
                         Faktum(
                             ønskerÅVæreRegistrertArbeidssøker,
@@ -132,7 +141,6 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                 }
                 // Om meldekort sendes inn etter 21-dagers fristen skal også få stans på § 4-8
                 if (avsluttetArbeidssøkerperiode.fristBrutt) {
-                    val meldingsdag = avsluttetArbeidssøkerperiode.fastsattMeldingsdag
                     opplysninger.leggTil(
                         Faktum(
                             oppfyllerMeldeplikt,
