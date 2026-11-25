@@ -122,4 +122,24 @@ class RettighetsperiodePluginTest {
         perioder[0].gyldighetsperiode shouldBe Gyldighetsperiode(1.januar(2018))
         perioder[0].verdi shouldBe true
     }
+
+    @Test
+    fun `slår sammen kant-i-kant perioder med lik verdi også når en av dem er lukket`() {
+        val plugin = RettighetsperiodePlugin(regelverk, slåSammenLike = false)
+
+        val opplysninger =
+            Opplysninger().apply {
+                leggTil(Faktum(utfall1, true, Gyldighetsperiode(1.januar(2018))))
+                leggTil(Faktum(utfall2, true, Gyldighetsperiode(1.januar(2018), 10.januar(2018))))
+                leggTil(Faktum(utfall2, true, Gyldighetsperiode(11.januar(2018), 20.januar(2018))))
+                leggTil(Faktum(utfall2, true, Gyldighetsperiode(21.januar(2018))))
+            }
+
+        plugin.regelkjøringFerdig(Prosesskontekst(opplysninger))
+
+        val perioder = opplysninger.finnAlle(harLøpendeRett)
+
+        perioder shouldHaveSize 1
+        perioder[0].gyldighetsperiode shouldBe Gyldighetsperiode(1.januar(2018))
+    }
 }
