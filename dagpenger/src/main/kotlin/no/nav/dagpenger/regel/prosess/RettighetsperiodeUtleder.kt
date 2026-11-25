@@ -3,7 +3,6 @@ package no.nav.dagpenger.regel.prosess
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysning
 import no.nav.dagpenger.opplysning.Tidslinje
-import java.time.LocalDate
 
 /**
  * Ny rettighetsperiode utledet fra kandidatperiodene, klar til å bli til en `Faktum` og lagt til
@@ -48,9 +47,13 @@ object RettighetsperiodeUtleder {
                 // (slåSammenLike=false) som treffer denne grenen.
                 val faktiskGyldighetsperiode =
                     when {
-                        erTilstøtendeMedLikVerdi(forrige, gyldighetsperiode, periode.verdi) ->
+                        erTilstøtendeMedLikVerdi(forrige, gyldighetsperiode, periode.verdi) -> {
                             Gyldighetsperiode(forrige!!.gyldighetsperiode.fraOgMed, gyldighetsperiode.tilOgMed)
-                        else -> gyldighetsperiode
+                        }
+
+                        else -> {
+                            gyldighetsperiode
+                        }
                     }
 
                 val ny = NyRettighetsperiode(faktiskGyldighetsperiode, periode.verdi)
@@ -77,7 +80,6 @@ object RettighetsperiodeUtleder {
         verdi: Boolean,
     ): Boolean {
         if (forrige == null) return false
-        if (gyldighetsperiode.tilOgMed != LocalDate.MAX) return false
         return forrige.verdi == verdi && forrige.gyldighetsperiode.tilstøter(gyldighetsperiode)
     }
 }
