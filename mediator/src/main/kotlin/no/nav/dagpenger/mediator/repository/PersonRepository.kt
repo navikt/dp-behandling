@@ -156,7 +156,7 @@ interface MeldekortRepository {
 
     fun settPåVent(meldekortId: MeldekortId)
 
-    fun sluttMedDerreVentegreieneNåDa(ident: String)
+    fun gjenopptaVentendeMeldekort(ident: String)
 
     fun harMeldekort(eksternMeldekortId: no.nav.dagpenger.modell.hendelser.MeldekortId): Boolean
 

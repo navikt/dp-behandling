@@ -185,7 +185,7 @@ class MeldekortRepositoryPostgres(
         }
     }
 
-    override fun sluttMedDerreVentegreieneNåDa(ident: String) {
+    override fun gjenopptaVentendeMeldekort(ident: String) {
         dbSession.session { session ->
             session.transaction { tx ->
                 tx.run(
@@ -441,6 +441,6 @@ class VentendeMeldekortDings(
         if (event.rettighetsperioder.filter { it.endret }.none { it.harRett }) return
 
         // Om det finnes noen rettighetsperioder som har rett, så kan vi prøve å behandle meldekort på nytt
-        meldekortRepository.sluttMedDerreVentegreieneNåDa(event.ident!!)
+        meldekortRepository.gjenopptaVentendeMeldekort(event.ident!!)
     }
 }
