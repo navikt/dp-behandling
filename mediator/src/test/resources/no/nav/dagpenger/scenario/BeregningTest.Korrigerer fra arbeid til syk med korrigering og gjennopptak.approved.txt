@@ -1,6 +1,7 @@
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
+melding: søknadsbehandling_opprettet
 Behov:
 - Fødselsdato
 - ØnskerDagpengerFraDato
@@ -62,6 +63,7 @@ Laget avklaring om GjenopptakBehandling
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
+melding: søknadsbehandling_opprettet
 Behov:
 - BostedslandErNorge
 - HelseTilAlleTyperJobb

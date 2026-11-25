@@ -105,7 +105,7 @@ class KafkaHendelserDokumentasjonTest {
             O -.implementeres av.-> FS["FlyttSøskenObserver"]
 
             PM -->|behandling_opprettet, behandling_endret_tilstand,\nforslag_til_behandlingsresultat, behandlingsresultat,\nbehandling_avbrutt, avklaring_lukket| K[(Kafka / rapid)]
-            SB -->|kun for søknad-behandlinger:\nsøknad_behandlet, søknadsbehandling_avbrutt| K
+            SB -->|kun for søknadsbehandlinger:\nsøknadsbehandling_opprettet, søknadsbehandling_ferdig,\nsøknadsbehandling_avbrutt| K
             FS -->|behandling flyttet mellom søsken| K
             OO -->|lagres for SSE-strøm til\nsaksbehandlere, ikke Kafka| DB[(Database)]
 

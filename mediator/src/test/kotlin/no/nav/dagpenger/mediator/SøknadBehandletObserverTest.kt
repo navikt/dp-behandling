@@ -9,6 +9,7 @@ import no.nav.dagpenger.modell.Arbeidssteg
 import no.nav.dagpenger.modell.Behandling
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingAvbrutt
 import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingFerdig
+import no.nav.dagpenger.modell.BehandlingObservatør.BehandlingOpprettet
 import no.nav.dagpenger.modell.Rettighetstatus
 import no.nav.dagpenger.modell.hendelser.ManuellId
 import no.nav.dagpenger.modell.hendelser.StartHendelse
@@ -27,6 +28,32 @@ import java.util.UUID
 class SøknadBehandletObserverTest {
     private val rapid = TestRapid()
     private val observer = SøknadBehandletObserver()
+    private val behandlingId = UUIDv7.ny()
+    private val behandlingskjedeId = UUIDv7.ny()
+
+    @Test
+    fun `publiserer søknadsbehandling_opprettet når en behandling av søknad opprettes`() {
+        val hendelse = TestBehandlinger.lagTestHendelse(ident = "12345678901")
+
+        observer.opprettet(behandlingOpprettet(hendelse))
+        observer.ferdigstill(rapid)
+
+        rapid.inspektør.size shouldBeExactly 1
+        val message = rapid.inspektør.message(0)
+        message["@event_name"].asString() shouldBe "søknadsbehandling_opprettet"
+        message["ident"].asString() shouldBe "12345678901"
+        message["behandlingId"].asString() shouldBe behandlingId.toString()
+        message["behandlingsskjedeId"].asString() shouldBe behandlingskjedeId.toString()
+        message["søknadId"].asString() shouldBe hendelse.eksternId.id.toString()
+    }
+
+    @Test
+    fun `ignorerer opprettede behandlinger som ikke er av en søknad`() {
+        observer.opprettet(behandlingOpprettet(TestManuellHendelse(ident = "12345678901")))
+        observer.ferdigstill(rapid)
+
+        rapid.inspektør.size shouldBeExactly 0
+    }
 
     @Test
     fun `publiserer søknadsbehandling_ferdig når en behandling av søknad er ferdig`() {
@@ -45,6 +72,8 @@ class SøknadBehandletObserverTest {
         val message = rapid.inspektør.message(0)
         message["@event_name"].asString() shouldBe "søknadsbehandling_ferdig"
         message["ident"].asString() shouldBe "12345678901"
+        message["behandlingId"].asString() shouldBe behandlingId.toString()
+        message["behandlingsskjedeId"].asString() shouldBe behandlingskjedeId.toString()
         message["søknadId"].asString() shouldBe hendelse.eksternId.id.toString()
         message["førteTil"].asString() shouldBe "Innvilgelse"
         message["rettighetsperioder"][0]["fraOgMed"].asString() shouldBe "2024-01-01"
@@ -77,6 +106,8 @@ class SøknadBehandletObserverTest {
         val message = rapid.inspektør.message(0)
         message["@event_name"].asString() shouldBe "søknadsbehandling_avbrutt"
         message["ident"].asString() shouldBe "12345678901"
+        message["behandlingId"].asString() shouldBe behandlingId.toString()
+        message["behandlingsskjedeId"].asString() shouldBe behandlingskjedeId.toString()
         message["søknadId"].asString() shouldBe hendelse.eksternId.id.toString()
         message["årsak"].asString() shouldBe "Trukket"
     }
@@ -91,12 +122,22 @@ class SøknadBehandletObserverTest {
         rapid.inspektør.size shouldBeExactly 0
     }
 
+    private fun behandlingOpprettet(hendelse: StartHendelse): BehandlingOpprettet =
+        BehandlingOpprettet(
+            behandlingId = behandlingId,
+            basertPåBehandlinger = null,
+            behandlingskjedeId = behandlingskjedeId,
+            regelverk = RegelverkType("Test"),
+            hendelse = hendelse,
+        ).also { it.ident = "12345678901" }
+
     private fun behandlingAvbrutt(
         behandlingAv: StartHendelse,
         årsak: String?,
     ): BehandlingAvbrutt =
         BehandlingAvbrutt(
-            behandlingId = UUIDv7.ny(),
+            behandlingId = behandlingId,
+            behandlingskjedeId = behandlingskjedeId,
             hendelse = behandlingAv.eksternId,
             behandlingAv = behandlingAv,
             årsak = årsak,
@@ -106,13 +147,12 @@ class SøknadBehandletObserverTest {
         behandlingAv: StartHendelse,
         avgjørelse: Avgjørelse,
         rettighetsperioder: List<Rettighetsperiode>,
-    ): BehandlingFerdig {
-        val behandlingId = UUIDv7.ny()
-        return BehandlingFerdig(
+    ): BehandlingFerdig =
+        BehandlingFerdig(
             Behandling.Resultat(
                 behandlingId = behandlingId,
                 basertPåBehandling = null,
-                behandlingskjedeId = behandlingId,
+                behandlingskjedeId = behandlingskjedeId,
                 regelverk = RegelverkType("Test"),
                 rettighetsperioder = rettighetsperioder,
                 avgjørelse = avgjørelse,
@@ -126,7 +166,6 @@ class SøknadBehandletObserverTest {
                 sistEndret = LocalDateTime.now(),
             ),
         ).also { it.ident = "12345678901" }
-    }
 
     private val Int.januar get() = LocalDate.of(2024, 1, this)
 

@@ -13,7 +13,7 @@ flowchart TD
     O -.implementeres av.-> FS["FlyttSøskenObserver"]
 
     PM -->|behandling_opprettet, behandling_endret_tilstand,\nforslag_til_behandlingsresultat, behandlingsresultat,\nbehandling_avbrutt, avklaring_lukket| K[(Kafka / rapid)]
-    SB -->|kun for søknad-behandlinger:\nsøknad_behandlet, søknadsbehandling_avbrutt| K
+    SB -->|kun for søknadsbehandlinger:\nsøknadsbehandling_opprettet, søknadsbehandling_ferdig,\nsøknadsbehandling_avbrutt| K
     FS -->|behandling flyttet mellom søsken| K
     OO -->|lagres for SSE-strøm til\nsaksbehandlere, ikke Kafka| DB[(Database)]
 
@@ -41,7 +41,7 @@ Publiseres når en behandling er ferdigstilt, med resultatet av behandlingen
 
 Fullstendig behandlingsresultat (opplysninger, utbetalinger, avgjørelse m.m.), publisert på rapid-topicet av `PersonMediator`. Samme schema (`Behandlingsresultat`) brukes også som respons for `GET /behandling/{behandlingId}/behandlingsresultat` i HTTP-API-et — Kafka- meldingen og HTTP-responsen er alltid i sync fordi begge genereres fra samme fabrikt-DTO.
 
-Schema: [`Behandlingsresultat`](../openapi/src/main/resources/behandling-api.yaml#L1228)
+Schema: [`Behandlingsresultat`](../openapi/src/main/resources/behandling-api.yaml#L1244)
 
 ### `søknadsbehandling_avbrutt`
 
@@ -49,7 +49,7 @@ Publiseres når en behandling av en søknad avbrytes uten å bli ferdigstilt
 
 Tynn hendelse med henvisning til søknadId og eventuell årsak. Publiseres på rapid-topicet, ikke via HTTP.
 
-Schema: [`SoknadsbehandlingAvbrutt`](../openapi/src/main/resources/behandling-api.yaml#L2126)
+Schema: [`SoknadsbehandlingAvbrutt`](../openapi/src/main/resources/behandling-api.yaml#L2169)
 
 ### `søknadsbehandling_ferdig`
 
@@ -57,5 +57,13 @@ Publiseres når en behandling av en søknad er ferdigstilt
 
 Tynn hendelse med henvisning til søknadId og utfallet av behandlingen (avgjørelse og rettighetsperioder). Publiseres på rapid-topicet, ikke via HTTP.
 
-Schema: [`SoknadsbehandlingFerdig`](../openapi/src/main/resources/behandling-api.yaml#L2099)
+Schema: [`SoknadsbehandlingFerdig`](../openapi/src/main/resources/behandling-api.yaml#L2138)
+
+### `søknadsbehandling_opprettet`
+
+Publiseres når en behandling av en søknad opprettes
+
+Tynn hendelse med henvisning til søknadId. Publiseres på rapid-topicet, ikke via HTTP.
+
+Schema: [`SoknadsbehandlingOpprettet`](../openapi/src/main/resources/behandling-api.yaml#L2115)
 

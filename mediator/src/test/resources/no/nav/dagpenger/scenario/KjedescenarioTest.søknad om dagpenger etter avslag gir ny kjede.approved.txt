@@ -1,6 +1,7 @@
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
+melding: søknadsbehandling_opprettet
 Behov:
 - Fødselsdato
 - ØnskerDagpengerFraDato
@@ -29,6 +30,7 @@ melding: søknadsbehandling_ferdig
 Laget avklaring om HarTilleggsopplysninger
 Opprettet ny behandling
 Behandling endret tilstand til: UnderBehandling
+melding: søknadsbehandling_opprettet
 Behov:
 - Fødselsdato
 - ØnskerDagpengerFraDato

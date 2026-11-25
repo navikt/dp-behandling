@@ -941,6 +941,22 @@ paths:
                 $ref: '#/components/schemas/HttpProblem'
 
 webhooks:
+  søknadsbehandling_opprettet:
+    post:
+      summary: Publiseres når en behandling av en søknad opprettes
+      description: >
+        Tynn hendelse med henvisning til søknadId. Publiseres på rapid-topicet, ikke via HTTP.
+      tags:
+        - Kafka-hendelser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SoknadsbehandlingOpprettet'
+      responses:
+        200:
+          description: Meldingen er mottatt
+
   søknadsbehandling_ferdig:
     post:
       summary: Publiseres når en behandling av en søknad er ferdigstilt
@@ -2093,9 +2109,32 @@ components:
           description: Når hendelsen skjedde på utsiden av vårt system
 
     # NB: Fabrikt ser ut til å ikke generere modellklasser for enkelte schema-navn med "ø" (bug,
-    # bekreftet med bl.a. "SøknadBehandlet"/"Søppelbøtte" i isolerte tester). Disse to Kafka-event-
+    # bekreftet med bl.a. "SøknadBehandlet"/"Søppelbøtte" i isolerte tester). Disse Kafka-event-
     # schemaene har derfor ASCII-navn her, mens webhooks-nøklene over beholder det norske navnet
     # som brukes i @event_name.
+    SoknadsbehandlingOpprettet:
+      description: >
+        Tynn Kafka-melding publisert (ikke en del av HTTP-API-et) når en behandling av en søknad
+        opprettes, med henvisning til søknadId.
+      type: object
+      required:
+        - ident
+        - behandlingId
+        - behandlingsskjedeId
+        - søknadId
+      properties:
+        ident:
+          type: string
+        behandlingId:
+          type: string
+          format: uuid
+        behandlingsskjedeId:
+          type: string
+          format: uuid
+        søknadId:
+          type: string
+          format: uuid
+
     SoknadsbehandlingFerdig:
       description: >
         Tynn Kafka-melding publisert (ikke en del av HTTP-API-et) når en behandling av en søknad er
@@ -2104,6 +2143,7 @@ components:
       required:
         - ident
         - behandlingId
+        - behandlingsskjedeId
         - søknadId
         - førteTil
         - rettighetsperioder
@@ -2111,6 +2151,9 @@ components:
         ident:
           type: string
         behandlingId:
+          type: string
+          format: uuid
+        behandlingsskjedeId:
           type: string
           format: uuid
         søknadId:
@@ -2131,11 +2174,15 @@ components:
       required:
         - ident
         - behandlingId
+        - behandlingsskjedeId
         - søknadId
       properties:
         ident:
           type: string
         behandlingId:
+          type: string
+          format: uuid
+        behandlingsskjedeId:
           type: string
           format: uuid
         søknadId:

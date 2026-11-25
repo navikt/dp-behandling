@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.dagpenger.modell.Behandling.TilstandType.Ferdig
 import no.nav.dagpenger.modell.Behandling.TilstandType.UnderBehandling
 import no.nav.dagpenger.modell.Behandling.TilstandType.UnderOpprettelse
+import no.nav.dagpenger.modell.hendelser.AvbrytBehandlingHendelse
 import no.nav.dagpenger.opplysning.Desimaltall
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -123,8 +124,33 @@ internal class BehandlingTest {
         }
     }
 
+    @Test
+    fun `opprettet og avbrutt varsles med kjedeidentifikator fra tidligere behandling`() {
+        val tidligereBehandling = behandlingskjede(1, testHendelse)
+        val behandling = Behandling(testHendelse, emptyList(), basertPå = tidligereBehandling)
+        val observatør = TestObservatør().also { behandling.registrer(it) }
+
+        behandling.håndter(testHendelse)
+        behandling.håndter(
+            AvbrytBehandlingHendelse(UUIDv7.ny(), ident, behandling.behandlingId, "Trukket", LocalDateTime.now()),
+        )
+
+        observatør.opprettetEventer.single().behandlingskjedeId shouldBe tidligereBehandling.behandlingId
+        observatør.avbruttEventer.single().behandlingskjedeId shouldBe tidligereBehandling.behandlingId
+    }
+
     private class TestObservatør : BehandlingObservatør {
         val endretTilstandEventer = mutableListOf<BehandlingObservatør.BehandlingEndretTilstand>()
+        val opprettetEventer = mutableListOf<BehandlingObservatør.BehandlingOpprettet>()
+        val avbruttEventer = mutableListOf<BehandlingObservatør.BehandlingAvbrutt>()
+
+        override fun opprettet(event: BehandlingObservatør.BehandlingOpprettet) {
+            opprettetEventer.add(event)
+        }
+
+        override fun avbrutt(event: BehandlingObservatør.BehandlingAvbrutt) {
+            avbruttEventer.add(event)
+        }
 
         override fun endretTilstand(event: BehandlingObservatør.BehandlingEndretTilstand) {
             endretTilstandEventer.add(event)
