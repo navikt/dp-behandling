@@ -426,6 +426,10 @@ class GjenopptakTest {
                 førteTil shouldBe "Gjenopptak"
 
                 with(opplysninger(Minsteinntekt.minsteinntekt)) { this shouldHaveSize 1 }
+                opplysning(Gjenopptak.harNyttGrunnlag) {
+                    fra(gjenopptaksdato) verdi true opprinnelse Periodestatus.Ny
+                }
+
                 opplysning(dagpengegrunnlag) {
                     fra(21.juni(2018)) til 22.august(2018) verdi Beløp(517349) opprinnelse Periodestatus.Arvet
                     fra(gjenopptaksdato) verdi Beløp(581298) opprinnelse Periodestatus.Ny
