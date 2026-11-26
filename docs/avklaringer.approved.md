@@ -251,6 +251,14 @@ Vurdering av reell arbeidssøker mangler. Utfør vurderingen før innvilgelse.
 - Skal eksport vurderes
 
 ---
+## Manuell behandling
+- **Kode:** `ManuellBehandling`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ❌ 
+### Beskrivelse
+Behandlingen er opprettet manuelt og kan ikke automatisk behandles
+
+---
 ## Bruker har blitt utmeldt av ASR utenfor dagpenger
 - **Kode:** `ManueltUtmeldt`
 - **Kan lukkes av saksbehandler:** ✅ 
@@ -294,6 +302,14 @@ Søker har åpne saker i Arena som kan være gjenopptak. Sjekk om saken kan gjen
 
 ### Opplysninger avklaringen ser på
 - Oppfyller kravet til alder
+
+---
+## Mulig samordning mot annen ytelse
+- **Kode:** `MuligSamordning`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ❌ 
+### Beskrivelse
+Behandlingen er opprettet manuelt og kan ikke automatisk behandles
 
 ---
 ## Grunnbeløpet for dagpengegrunnlag
@@ -462,6 +478,14 @@ Bruker er utestengt. Sjekk at dette stemmer.
 - [§ 4-28. Utestengning](./opplysninger.approved.md#-4-28-utestengning)
 ### Opplysninger avklaringen ser på
 - Bruker er utestengt fra dagpenger
+
+---
+## Bruker har blitt utmeldt av arbeidssøkerregisteret
+- **Kode:** `UtmeldtArbeidssøker`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ❌ 
+### Beskrivelse
+Bruker har blitt utmeldt av arbeidssøkerregisteret. Ta stilling til om forslaget til stans er riktig.
 
 ---
 ## Verneplikt

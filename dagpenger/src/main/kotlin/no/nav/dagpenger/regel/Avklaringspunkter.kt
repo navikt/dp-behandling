@@ -420,27 +420,35 @@ object Avklaringspunkter {
             kanAvbrytes = false,
         )
 
-    fun utmeldtArbeidssøker(beskrivelse: String) =
+    val UtmeldtArbeidssøker =
         Avklaringkode(
             kode = "UtmeldtArbeidssøker",
             tittel = "Bruker har blitt utmeldt av arbeidssøkerregisteret",
-            beskrivelse = "$beskrivelse. Ta stilling til om forslaget til stans er riktig.",
+            beskrivelse = "Bruker har blitt utmeldt av arbeidssøkerregisteret. Ta stilling til om forslaget til stans er riktig.",
             kanAvbrytes = false,
         )
 
-    fun muligSamordning(begrunnelse: String?) =
+    val MuligSamordning =
         Avklaringkode(
             kode = "MuligSamordning",
             tittel = "Mulig samordning mot annen ytelse",
-            beskrivelse = begrunnelse ?: "Behandlingen er opprettet manuelt og kan ikke automatisk behandles",
+            beskrivelse = "Behandlingen er opprettet manuelt og kan ikke automatisk behandles",
             kanAvbrytes = false,
         )
 
-    fun manuellBehandling(begrunnelse: String?) =
+    val ManuellBehandling =
         Avklaringkode(
             kode = "ManuellBehandling",
             tittel = "Manuell behandling",
-            beskrivelse = begrunnelse ?: "Behandlingen er opprettet manuelt og kan ikke automatisk behandles",
+            beskrivelse = "Behandlingen er opprettet manuelt og kan ikke automatisk behandles",
             kanAvbrytes = false,
         )
+
+    // copy() gir samme kode, så avklaringen regnes som lik og registreres ikke på nytt
+    fun utmeldtArbeidssøker(beskrivelse: String) =
+        UtmeldtArbeidssøker.copy(beskrivelse = "$beskrivelse. Ta stilling til om forslaget til stans er riktig.")
+
+    fun muligSamordning(begrunnelse: String?) = MuligSamordning.copy(beskrivelse = begrunnelse ?: MuligSamordning.beskrivelse)
+
+    fun manuellBehandling(begrunnelse: String?) = ManuellBehandling.copy(beskrivelse = begrunnelse ?: ManuellBehandling.beskrivelse)
 }
