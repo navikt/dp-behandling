@@ -16,7 +16,7 @@ class EtterEllerLik internal constructor(
     ): Boolean {
         val a = opplysninger.finnOpplysning(er).verdi
         val b = opplysninger.finnOpplysning(etter).verdi
-        return b.isAfter(a) || a.isEqual(b)
+        return a.isAfter(b) || a.isEqual(b)
     }
 
     override fun toString() = "Sjekker at $er er etter eller lik $etter"
