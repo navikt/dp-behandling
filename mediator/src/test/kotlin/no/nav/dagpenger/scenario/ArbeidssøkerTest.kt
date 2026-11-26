@@ -11,6 +11,7 @@ import no.nav.dagpenger.mediator.asUUID
 import no.nav.dagpenger.mediator.august
 import no.nav.dagpenger.mediator.juli
 import no.nav.dagpenger.mediator.juni
+import no.nav.dagpenger.mediator.november
 import no.nav.dagpenger.mediator.oktober
 import no.nav.dagpenger.mediator.september
 import no.nav.dagpenger.modell.hendelser.FlyttBehandlingHendelse.Companion.behandlingFlyttetAvklaring
@@ -24,7 +25,6 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.kravPåLønn
 import no.nav.dagpenger.scenario.SimulertDagpengerSystem.Companion.nyttScenario
 import no.nav.dagpenger.scenario.assertions.BehandlingsresultatAssertions
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 import java.util.UUID
@@ -533,7 +533,6 @@ class ArbeidssøkerTest {
     }
 
     @Test
-    @Disabled
     fun `får stans på en sak med feil fastsatt meldingsdag`() {
         nyttScenario {
             inntektSiste12Mnd = 500000
@@ -545,26 +544,36 @@ class ArbeidssøkerTest {
             saksbehandler.godkjenn()
             saksbehandler.beslutt()
 
-            behandlingsresultat(1) { }
+            behandlingsresultat(1) {}
 
             for (i in 1..4) {
                 person.sendInnMeldekort(i)
                 meldekortBatch(markerFerdig = true)
             }
-
             person.avsluttArbeidssøkerperiode(
                 fastsattMeldingsdag = 22.juni(2026),
-                avsluttetTidspunkt = 16.august(2026).atTime(2, 1),
+                avsluttetTidspunkt = 24.november(2026).atTime(2, 1),
                 fristBrutt = true,
             )
             saksbehandler.åpneAvklaringer().map { it.kode }.shouldContain("UtmeldtArbeidssøker")
             saksbehandler.endreOpplysning(
                 Meldeplikt.oppfyllerMeldeplikt,
-                true,
-                "Bruker har ikke meldt seg innen 21 dager",
-                Gyldighetsperiode(22.juni(2026), 15.august(2026)),
+                false,
+                "Meldeplikt brutt først fra 9. november",
+                Gyldighetsperiode(9.november(2026)),
             )
             behovsløsere.løsTilForslag()
+
+            behandlingsresultatForslag {
+                opplysninger(Meldeplikt.oppfyllerMeldeplikt) {
+                    this[0].gyldigTilOgMed shouldBe 8.november(2026)
+                    this[1].gyldigFraOgMed shouldBe 9.november(2026)
+                }
+                rettighetsperioder shouldHaveSize 2
+                rettighetsperioder[0].harRett shouldBe true
+                rettighetsperioder[1].harRett shouldBe false
+                rettighetsperioder[1].fraOgMed shouldBe 9.november(2026)
+            }
         }
     }
 }

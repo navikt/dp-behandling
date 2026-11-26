@@ -20,8 +20,10 @@ class Stansprosess : Forretningsprosess(RegelverkDagpenger) {
         val rettighetsperioder = rettighetsperioder(opplysninger)
 
         // Begrenser kjøringen til perioden der bruker har rett, slik at tidligere perioder ikke vurderes på nytt
-        val første = maxOf(endringer.start, rettighetsperioder.minOf { it.fraOgMed })
-        val siste = minOf(endringer.endInclusive, rettighetsperioder.maxOf { it.tilOgMed })
+        // Rettighetsperiodene kan midlertidig være tomme, f.eks. etter at saksbehandler har endret en opplysning
+        // som harLøpendeRett er utledet av. Da begrenses kjøringen kun av endringene, og reglene utleder periodene på nytt.
+        val første = rettighetsperioder.minOfOrNull { it.fraOgMed }?.let { maxOf(endringer.start, it) } ?: endringer.start
+        val siste = rettighetsperioder.maxOfOrNull { it.tilOgMed }?.let { minOf(endringer.endInclusive, it) } ?: endringer.endInclusive
 
         logger.info { "Kjører regler i ${this.javaClass.simpleName} fra $første til $siste" }
 
