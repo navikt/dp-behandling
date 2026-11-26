@@ -514,6 +514,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |019d0059-6cde-7184-8383-736d18e3f9f7|Har periode igjen å gjenoppta|Boolsk|boolean|||Intern
 |019d0059-a863-7074-ac2d-5a7086a45e8d|Har søkt innen fristen for gjenopptak|Boolsk|boolean|||Intern
 |019d0062-e45b-70e3-92ec-dd29b5d6c9fb|Første virkedag i avbruddsperiode|Dato|LocalDate|||Intern
+|019e1a2b-7c3d-7e4f-8a5b-6c7d8e9f0a1b|Tidligste dato for opphold på 12 uker eller mer|Dato|LocalDate|||Intern
 ### § 4-19. Dagpenger etter avtjent verneplikt
 *Type:* Vilkår
 #### Avklaringer

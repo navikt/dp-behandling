@@ -7,6 +7,7 @@ import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.basertPå
 import no.nav.dagpenger.opplysning.regel.alle
+import no.nav.dagpenger.opplysning.regel.dato.etterEllerLik
 import no.nav.dagpenger.opplysning.regel.dato.førEllerLik
 import no.nav.dagpenger.opplysning.regel.dato.leggTilUker
 import no.nav.dagpenger.opplysning.regel.dato.nesteStønadsdag
@@ -16,6 +17,7 @@ import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.størreEnn
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
 import no.nav.dagpenger.regel.OpplysningsTyper.førsteAvbruddsdagId
+import no.nav.dagpenger.regel.OpplysningsTyper.grenseForNyttGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.harForbruktId
 import no.nav.dagpenger.regel.OpplysningsTyper.harGjenståendeId
 import no.nav.dagpenger.regel.OpplysningsTyper.harSøktInnenFristId
@@ -43,6 +45,7 @@ object Gjenopptak {
     // Grensedatoer for gjenopptak
     private val sisteForbruksdag = Opplysningstype.dato(sisteforbruksdagId, "Siste dag med forbruk")
     private val førsteAvbruddsdag = Opplysningstype.dato(førsteAvbruddsdagId, "Første virkedag i avbruddsperiode")
+    private val grenseForNyttGrunnlag = Opplysningstype.dato(grenseForNyttGrunnlagId, "Tidligste dato for opphold på 12 uker eller mer")
     private val sisteDatoForKravTilGjenopptak = Opplysningstype.dato(sisteDatoForKravTilGjenopptakId, "Siste mulige dato for gjenopptak")
 
     // Er det noe å gjenoppta?
@@ -81,7 +84,8 @@ object Gjenopptak {
 
             // Sjekk om avbruddet har vart lenge nok til å gi nytt grunnlag
             regel(terskelUkerNyttGrunnlag) { somUtgangspunkt(12) }
-            regel(oppholdMedArbeidI12ukerEllerMer) { somUtgangspunkt(false, førsteAvbruddsdag) }
+            regel(grenseForNyttGrunnlag) { leggTilUker(førsteAvbruddsdag, terskelUkerNyttGrunnlag) }
+            regel(oppholdMedArbeidI12ukerEllerMer) { etterEllerLik(gjenopptaksdato, grenseForNyttGrunnlag) }
 
             // Sjekk at det har gått nok tid siden siste forbruk til at det kan gjenopptas
             regel(antallUker) { somUtgangspunkt(52) }
