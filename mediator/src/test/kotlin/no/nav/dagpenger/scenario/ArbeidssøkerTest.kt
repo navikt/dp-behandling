@@ -560,9 +560,9 @@ class ArbeidssøkerTest {
             saksbehandler.åpneAvklaringer().map { it.kode }.shouldContain("UtmeldtArbeidssøker")
             saksbehandler.endreOpplysning(
                 Meldeplikt.oppfyllerMeldeplikt,
-                false,
+                true,
                 "Bruker har ikke meldt seg innen 21 dager",
-                Gyldighetsperiode(16.august(2026)),
+                Gyldighetsperiode(22.juni(2026), 15.august(2026)),
             )
             behovsløsere.løsTilForslag()
         }
