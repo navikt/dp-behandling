@@ -364,4 +364,83 @@ object Avklaringspunkter {
                 """.trimMargin(),
             kanKvitteres = true,
         )
+
+    val OmgjøringEtterKlage =
+        Avklaringkode(
+            kode = "OmgjøringEtterKlage",
+            tittel = "Omgjøring etter klage",
+            beskrivelse = "Behandlingen er en omgjøring etter klage og kan ikke automatisk behandles",
+            kanAvbrytes = false,
+        )
+
+    val KorrigeringUtbetaltPeriode =
+        Avklaringkode(
+            kode = "KorrigeringUtbetaltPeriode",
+            tittel = "Beregning av meldekort som korrigerer tidligere periode",
+            beskrivelse = "Behandlingen er korrigering av et tidligere beregnet meldekort",
+            kanAvbrytes = false,
+        )
+
+    val EtterrapportertPeriode =
+        Avklaringkode(
+            kode = "EtterrapportertPeriode",
+            tittel = "Beregning av meldekort som gjelder en periode som ligger bak i tid",
+            beskrivelse = "Behandlingen gjelder et meldekort som er rapportert etter at vi har beregnet en senere periode",
+            kanAvbrytes = false,
+        )
+
+    val MeldekortMedEksport =
+        Avklaringkode(
+            kode = "MeldekortMedEksport",
+            tittel = "Meldekort med eksport",
+            beskrivelse =
+                """Bruker er innvilget eksport. Sjekk at det beregnes riktig, 
+                |og ikke får f.eks. trekk ved for sen melding.
+                """.trimMargin(),
+            kanAvbrytes = false,
+            kanKvitteres = true,
+        )
+
+    val MigrertYtelse =
+        Avklaringkode(
+            kode = "MigrertYtelse",
+            tittel = "Migrert ytelse",
+            beskrivelse = "Ytelsen er migrert fra et annet system og må kontrolleres",
+            kanAvbrytes = false,
+        )
+
+    val ManueltUtmeldt =
+        Avklaringkode(
+            kode = "ManueltUtmeldt",
+            tittel = "Bruker har blitt utmeldt av ASR utenfor dagpenger",
+            beskrivelse =
+                """Bruker har blitt utmeldt av ASR utenfor dagpenger, og må derfor vurderes manuelt. Sjekk 
+                |hvordan dette påvirker retten til dagpenger og fra hvilken dato en eventuell stans skal gjelde fra.
+                """.trimMargin(),
+            kanAvbrytes = false,
+        )
+
+    fun utmeldtArbeidssøker(beskrivelse: String) =
+        Avklaringkode(
+            kode = "UtmeldtArbeidssøker",
+            tittel = "Bruker har blitt utmeldt av arbeidssøkerregisteret",
+            beskrivelse = "$beskrivelse. Ta stilling til om forslaget til stans er riktig.",
+            kanAvbrytes = false,
+        )
+
+    fun muligSamordning(begrunnelse: String?) =
+        Avklaringkode(
+            kode = "MuligSamordning",
+            tittel = "Mulig samordning mot annen ytelse",
+            beskrivelse = begrunnelse ?: "Behandlingen er opprettet manuelt og kan ikke automatisk behandles",
+            kanAvbrytes = false,
+        )
+
+    fun manuellBehandling(begrunnelse: String?) =
+        Avklaringkode(
+            kode = "ManuellBehandling",
+            tittel = "Manuell behandling",
+            beskrivelse = begrunnelse ?: "Behandlingen er opprettet manuelt og kan ikke automatisk behandles",
+            kanAvbrytes = false,
+        )
 }

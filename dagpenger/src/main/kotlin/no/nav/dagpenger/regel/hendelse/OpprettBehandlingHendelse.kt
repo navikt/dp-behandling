@@ -11,9 +11,9 @@ import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.IkkeOpprettet
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Aktør
-import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.prosess.Manuellprosess
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -50,14 +50,7 @@ class OpprettBehandlingHendelse(
                 basertPå = forrigeBehandling,
                 avklaringer =
                     listOf(
-                        Avklaring(
-                            Avklaringkode(
-                                kode = "ManuellBehandling",
-                                tittel = "Manuell behandling",
-                                beskrivelse = begrunnelse ?: "Behandlingen er opprettet manuelt og kan ikke automatisk behandles",
-                                kanAvbrytes = false,
-                            ),
-                        ),
+                        Avklaring(Avklaringspunkter.manuellBehandling(begrunnelse)),
                     ),
             ),
         )

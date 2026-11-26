@@ -9,12 +9,12 @@ import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Aktør
-import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Opplysninger
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.prosess.Stansprosess
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt.oppfyllerMeldeplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.RegistrertArbeidssøker.registrertArbeidssøker
@@ -88,31 +88,10 @@ class AvsluttetArbeidssøkerperiodeHendelse(
                         // Om saken allerede er stanset kan vi bare oppdatere informasjonen automatisk
                         if (sisteUtfall.harRett || (sisteUtfall.fraOgMed.isAfter(nyStansdato))) {
                             // TODO: Ta bort denne når vi mener disse kan gå automatisk. Husk testene i ArbeidssøkerTest
-                            add(
-                                Avklaring(
-                                    Avklaringkode(
-                                        kode = "UtmeldtArbeidssøker",
-                                        tittel = "Bruker har blitt utmeldt av arbeidssøkerregisteret",
-                                        beskrivelse = "$beskrivelse. Ta stilling til om forslaget til stans er riktig.",
-                                        kanAvbrytes = false,
-                                    ),
-                                ),
-                            )
+                            add(Avklaring(Avklaringspunkter.utmeldtArbeidssøker(beskrivelse)))
 
                             if (avsluttetArbeidssøkerperiode.manueltAvregistrert) {
-                                add(
-                                    Avklaring(
-                                        Avklaringkode(
-                                            kode = "ManueltUtmeldt",
-                                            tittel = "Bruker har blitt utmeldt av ASR utenfor dagpenger",
-                                            beskrivelse =
-                                                """Bruker har blitt utmeldt av ASR utenfor dagpenger, og må derfor vurderes manuelt. Sjekk 
-                                            |hvordan dette påvirker retten til dagpenger og fra hvilken dato en eventuell stans skal gjelde fra.
-                                                """.trimMargin(),
-                                            kanAvbrytes = false,
-                                        ),
-                                    ),
-                                )
+                                add(Avklaring(Avklaringspunkter.ManueltUtmeldt))
                             }
                         }
                     },

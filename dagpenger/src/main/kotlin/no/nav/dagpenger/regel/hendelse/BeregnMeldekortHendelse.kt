@@ -11,7 +11,6 @@ import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Aktør
-import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
 import no.nav.dagpenger.opplysning.Saksbehandler
@@ -19,6 +18,7 @@ import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
 import no.nav.dagpenger.opplysning.verdier.Periode
+import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.prosess.Meldekortprosess
 import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
@@ -85,29 +85,10 @@ class BeregnMeldekortHendelse(
                             skalRevurderes = true
                             if (meldekort.korrigeringAv != null) {
                                 logger.info { "Korrigering av tidligere beregnet meldeperiode som ligger bak i tid." }
-                                add(
-                                    Avklaring(
-                                        Avklaringkode(
-                                            kode = "KorrigeringUtbetaltPeriode",
-                                            tittel = "Beregning av meldekort som korrigerer tidligere periode",
-                                            beskrivelse = "Behandlingen er korrigering av et tidligere beregnet meldekort",
-                                            kanAvbrytes = false,
-                                        ),
-                                    ),
-                                )
+                                add(Avklaring(Avklaringspunkter.KorrigeringUtbetaltPeriode))
                             } else {
                                 logger.info { "Vi har allerede beregnet en periode etter denne meldeperioden!" }
-                                add(
-                                    Avklaring(
-                                        Avklaringkode(
-                                            kode = "EtterrapportertPeriode",
-                                            tittel = "Beregning av meldekort som gjelder en periode som ligger bak i tid",
-                                            beskrivelse =
-                                                "Behandlingen gjelder et meldekort som er rapportert etter at vi har beregnet en senere periode",
-                                            kanAvbrytes = false,
-                                        ),
-                                    ),
-                                )
+                                add(Avklaring(Avklaringspunkter.EtterrapportertPeriode))
                             }
                         }
 
@@ -120,20 +101,7 @@ class BeregnMeldekortHendelse(
                         val harEksportPerioder = forrigeBehandling.opplysninger.finnAlle(Eksport.oppfyllerVilkårForEksport).any { it.verdi }
 
                         if (harEksportPerioder) {
-                            add(
-                                Avklaring(
-                                    Avklaringkode(
-                                        kode = "MeldekortMedEksport",
-                                        tittel = "Meldekort med eksport",
-                                        beskrivelse =
-                                            """Bruker er innvilget eksport. Sjekk at det beregnes riktig, 
-                                            |og ikke får f.eks. trekk ved for sen melding.
-                                            """.trimMargin(),
-                                        kanAvbrytes = false,
-                                        kanKvitteres = true,
-                                    ),
-                                ),
-                            )
+                            add(Avklaring(Avklaringspunkter.MeldekortMedEksport))
                         }
                     },
             ).apply {

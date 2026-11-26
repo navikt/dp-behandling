@@ -8,7 +8,6 @@ import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Aktør
-import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Faktum
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.Gyldighetsperiode
@@ -18,6 +17,7 @@ import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Systemaktør
 import no.nav.dagpenger.opplysning.Systemkilde
 import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.RegelverkDagpenger
 import no.nav.dagpenger.regel.prosess.Migreringsprosess
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype
@@ -115,14 +115,7 @@ class MigrerYtelseHendelse(
                 basertPå = null,
                 avklaringer =
                     listOf(
-                        Avklaring(
-                            Avklaringkode(
-                                kode = "MigrertYtelse",
-                                tittel = "Migrert ytelse",
-                                beskrivelse = "Ytelsen er migrert fra et annet system og må kontrolleres",
-                                kanAvbrytes = false,
-                            ),
-                        ),
+                        Avklaring(Avklaringspunkter.MigrertYtelse),
                     ),
             ).apply {
                 leggTilFakta(opplysninger)

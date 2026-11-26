@@ -65,6 +65,14 @@ Søker er under 18 år og skal ikke ha automatisk behandling.
 - Fødselsdato
 
 ---
+## Beregning av meldekort som gjelder en periode som ligger bak i tid
+- **Kode:** `EtterrapportertPeriode`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ❌ 
+### Beskrivelse
+Behandlingen gjelder et meldekort som er rapportert etter at vi har beregnet en senere periode
+
+---
 ## Arbeid i EØS, Sveits eller Storbritannia
 - **Kode:** `EØSArbeid`
 - **Kan lukkes av saksbehandler:** ✅ 
@@ -224,6 +232,14 @@ Søker har oppgitt arbeid utenfor Norge i søknaden. <br>Sjekk om disse arbeidsf
 - Inntektsopplysninger
 
 ---
+## Beregning av meldekort som korrigerer tidligere periode
+- **Kode:** `KorrigeringUtbetaltPeriode`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ❌ 
+### Beskrivelse
+Behandlingen er korrigering av et tidligere beregnet meldekort
+
+---
 ## Manglende vurdering av reell arbeidssøker
 - **Kode:** `ManglerReellArbeidssøker`
 - **Kan lukkes av saksbehandler:** ✅ 
@@ -235,6 +251,22 @@ Vurdering av reell arbeidssøker mangler. Utfør vurderingen før innvilgelse.
 - Skal eksport vurderes
 
 ---
+## Bruker har blitt utmeldt av ASR utenfor dagpenger
+- **Kode:** `ManueltUtmeldt`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ❌ 
+### Beskrivelse
+Bruker har blitt utmeldt av ASR utenfor dagpenger, og må derfor vurderes manuelt. Sjekk <br>hvordan dette påvirker retten til dagpenger og fra hvilken dato en eventuell stans skal gjelde fra.
+
+---
+## Meldekort med eksport
+- **Kode:** `MeldekortMedEksport`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ❌ 
+### Beskrivelse
+Bruker er innvilget eksport. Sjekk at det beregnes riktig, <br>og ikke får f.eks. trekk ved for sen melding.
+
+---
 ## Meldekort med utdanning eller tiltak
 - **Kode:** `MeldekortMedUtdanning`
 - **Kan lukkes av saksbehandler:** ✅ 
@@ -244,6 +276,14 @@ Bruker har krysset av for utdanning eller tiltak på meldekortet. Må vurderes m
 
 ### Tilknyttet regelsett
 - [§ 4-6. Dagpenger under utdanning, opplæring, etablering av egen virksomhet m.v](./opplysninger.approved.md#-4-6-dagpenger-under-utdanning,-opplæring,-etablering-av-egen-virksomhet-mv)
+---
+## Migrert ytelse
+- **Kode:** `MigrertYtelse`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ❌ 
+### Beskrivelse
+Ytelsen er migrert fra et annet system og må kontrolleres
+
 ---
 ## Gjenopptak i Arena
 - **Kode:** `MuligGjenopptak`
@@ -267,6 +307,14 @@ Prøvingsdatoen er 1. mai eller senere. Grunnbeløpet for inneværende år var i
 - [§ 4-11. Dagpengegrunnlag](./opplysninger.approved.md#-4-11-dagpengegrunnlag)
 ### Opplysninger avklaringen ser på
 - Grunnbeløp for grunnlag
+
+---
+## Omgjøring etter klage
+- **Kode:** `OmgjøringEtterKlage`
+- **Kan lukkes av saksbehandler:** ✅ 
+- **Lukkes automatisk når opplysningene endres:** ❌ 
+### Beskrivelse
+Behandlingen er en omgjøring etter klage og kan ikke automatisk behandles
 
 ---
 ## Bruker oppgir selvforskyldt arbeidsløshet

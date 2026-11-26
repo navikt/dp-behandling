@@ -8,9 +8,9 @@ import no.nav.dagpenger.modell.hendelser.StartHendelse
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Aktør
-import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.Forretningsprosess
 import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -45,14 +45,7 @@ class KlagebehandlingHendelse(
                 basertPå = forrigeBehandling,
                 avklaringer =
                     listOf(
-                        Avklaring(
-                            Avklaringkode(
-                                kode = "OmgjøringEtterKlage",
-                                tittel = "Omgjøring etter klage",
-                                beskrivelse = "Behandlingen er en omgjøring etter klage og kan ikke automatisk behandles",
-                                kanAvbrytes = false,
-                            ),
-                        ),
+                        Avklaring(Avklaringspunkter.OmgjøringEtterKlage),
                     ),
             ),
         )

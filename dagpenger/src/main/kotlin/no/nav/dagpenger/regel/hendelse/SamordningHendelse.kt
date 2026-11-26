@@ -9,8 +9,8 @@ import no.nav.dagpenger.modell.hendelser.StartHendelseResultat
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.IkkeOpprettet
 import no.nav.dagpenger.modell.hendelser.StartHendelseResultat.Opprettet
 import no.nav.dagpenger.opplysning.Aktør
-import no.nav.dagpenger.opplysning.Avklaringkode
 import no.nav.dagpenger.opplysning.TemporalCollection
+import no.nav.dagpenger.regel.Avklaringspunkter
 import no.nav.dagpenger.regel.prosess.Omgjøringsprosess
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -47,14 +47,7 @@ class SamordningHendelse(
                 basertPå = forrigeBehandling,
                 avklaringer =
                     listOf(
-                        Avklaring(
-                            Avklaringkode(
-                                kode = "MuligSamordning",
-                                tittel = "Mulig samordning mot annen ytelse",
-                                beskrivelse = begrunnelse ?: "Behandlingen er opprettet manuelt og kan ikke automatisk behandles",
-                                kanAvbrytes = false,
-                            ),
-                        ),
+                        Avklaring(Avklaringspunkter.muligSamordning(begrunnelse)),
                     ),
             ),
         )
