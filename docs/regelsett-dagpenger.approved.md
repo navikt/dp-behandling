@@ -101,6 +101,7 @@ graph LR
   R39 -->|påvirkerResultat| R8
   R1 -->|data| R9
   R31 -->|data| R9
+  R2 -->|data| R9
   R25 -->|data| R9
   R25 -->|skalVurderes| R9
   R4 -->|skalVurderes| R10
@@ -212,9 +213,9 @@ graph LR
   R25 -->|skalVurderes| R40
   R39 -->|påvirkerResultat| R40
   R2 -->|påvirkerResultat| R40
-  linkStyle 0,1,2,3,4,5,8,9,10,13,14,15,19,20,21,24,27,34,35,36,39,41,42,47,52,54,55,61,62,69,73,80,84,85,87,88,89,90,94,95,96,99,100,106,107,108,109,110,111,112,113,116,118,121,126,131,132,133,137,142,143 stroke:#888888
-  linkStyle 6,11,16,22,25,28,30,31,37,38,40,43,46,48,49,53,56,57,59,63,64,65,70,71,74,75,81,86,91,97,98,101,102,103,114,115,117,119,120,122,123,127,128,134,138,144 stroke:#d6336c
-  linkStyle 7,12,17,18,23,26,29,32,33,44,45,50,51,58,60,66,67,68,72,76,77,78,79,82,83,92,93,104,105,124,125,129,130,135,136,139,140,141,145,146 stroke:#f08c00
+  linkStyle 0,1,2,3,4,5,8,9,10,13,14,15,19,20,21,24,27,34,35,36,37,40,42,43,48,53,55,56,62,63,70,74,81,85,86,88,89,90,91,95,96,97,100,101,107,108,109,110,111,112,113,114,117,119,122,127,132,133,134,138,143,144 stroke:#888888
+  linkStyle 6,11,16,22,25,28,30,31,38,39,41,44,47,49,50,54,57,58,60,64,65,66,71,72,75,76,82,87,92,98,99,102,103,104,115,116,118,120,121,123,124,128,129,135,139,145 stroke:#d6336c
+  linkStyle 7,12,17,18,23,26,29,32,33,45,46,51,52,59,61,67,68,69,73,77,78,79,80,83,84,93,94,105,106,125,126,130,131,136,137,140,141,142,146,147 stroke:#f08c00
 ```
 
 ## Tabell
@@ -230,7 +231,7 @@ graph LR
 | Eksport til EØS-land (Vilkår) | Rettighetstype (Fastsettelse) | Rettighetstype (Fastsettelse) | Rettighetstype (Fastsettelse) |
 | Etablering (Vilkår) | Rettighetstype (Fastsettelse) | Rettighetstype (Fastsettelse) | Rettighetstype (Fastsettelse) |
 | Fulle ytelser (Vilkår) | - | Minsteinntekt (Vilkår), Verneplikt (Vilkår) | Minsteinntekt (Vilkår), Verneplikt (Vilkår) |
-| Gjenopptak (Vilkår) | Meldekortberegning (Fastsettelse), Rettighetstype (Fastsettelse), Søknadstidspunkt (Fastsettelse) | Rettighetstype (Fastsettelse) | - |
+| Gjenopptak (Vilkår) | Dagpengegrunnlag (Fastsettelse), Meldekortberegning (Fastsettelse), Rettighetstype (Fastsettelse), Søknadstidspunkt (Fastsettelse) | Rettighetstype (Fastsettelse) | - |
 | Periode (Vilkår) | - | Periode (Fastsettelse) | - |
 | Krav på dagpenger (Vilkår) | - | - | - |
 | Medlemmets opplysningsplikt (Vilkår) | - | - | - |

@@ -500,6 +500,7 @@ Dette er opplysninger som blir brukt av regelverket.
 - [§ 0-0. Meldekortberegning](#-0-0-meldekortberegning)
 - [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
 - [§ 3-1. Søknadstidspunkt](#-3-1-søknadstidspunkt)
+- [§ 4-11. Dagpengegrunnlag](#-4-11-dagpengegrunnlag)
 #### Opplysninger
 |UUID|Beskrivelse|Logisk datatype|Datatype|Behov|Enhet|Rolle|
 |---|---|---|---|---|---|---|
@@ -515,6 +516,8 @@ Dette er opplysninger som blir brukt av regelverket.
 |019d0059-a863-7074-ac2d-5a7086a45e8d|Har søkt innen fristen for gjenopptak|Boolsk|boolean|||Intern
 |019d0062-e45b-70e3-92ec-dd29b5d6c9fb|Første virkedag i avbruddsperiode|Dato|LocalDate|||Intern
 |019e1a2b-7c3d-7e4f-8a5b-6c7d8e9f0a1b|Tidligste dato for opphold på 12 uker eller mer|Dato|LocalDate|||Intern
+|019e1a2c-1d4e-7f50-9b6c-7d8e9f0a1b2c|Nytt dagpengegrunnlag er høyere enn forrige grunnlag|Boolsk|boolean|||Intern
+|019e1a2c-2e5f-7061-8c7d-8e9f0a1b2c3d|Har fått nytt grunnlag etter opphold|Boolsk|boolean|||Resultat
 ### § 4-19. Dagpenger etter avtjent verneplikt
 *Type:* Vilkår
 #### Avklaringer

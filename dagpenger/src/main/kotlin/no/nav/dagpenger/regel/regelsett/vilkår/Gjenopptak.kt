@@ -12,14 +12,17 @@ import no.nav.dagpenger.opplysning.regel.dato.førEllerLik
 import no.nav.dagpenger.opplysning.regel.dato.leggTilUker
 import no.nav.dagpenger.opplysning.regel.dato.nesteStønadsdag
 import no.nav.dagpenger.opplysning.regel.dato.sisteAv
+import no.nav.dagpenger.opplysning.regel.erHøyereEnnForrige
 import no.nav.dagpenger.opplysning.regel.har
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.størreEnn
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
+import no.nav.dagpenger.regel.OpplysningsTyper.dagpengegrunnlagErHøyereEnnForrigeId
 import no.nav.dagpenger.regel.OpplysningsTyper.førsteAvbruddsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.grenseForNyttGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.harForbruktId
 import no.nav.dagpenger.regel.OpplysningsTyper.harGjenståendeId
+import no.nav.dagpenger.regel.OpplysningsTyper.harNyttGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.harSøktInnenFristId
 import no.nav.dagpenger.regel.OpplysningsTyper.minimumGjenståendeDagerId
 import no.nav.dagpenger.regel.OpplysningsTyper.oppholdMedArbeidI12ukerEllerMerId
@@ -30,6 +33,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.terskelUkerNyttGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.terskelUkerSidenSistForbrukId
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning.sisteGjenståendeDager
+import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengegrunnlag
 import no.nav.dagpenger.regel.regelsett.vilkår.Rettighetstype.skalGjenopptakVurderes
 
 object Gjenopptak {
@@ -67,6 +71,12 @@ object Gjenopptak {
             "Har hatt opphold med arbeid i 12 uker eller mer",
         )
 
+    private val dagpengegrunnlagErHøyereEnnForrige =
+        Opplysningstype.boolsk(dagpengegrunnlagErHøyereEnnForrigeId, "Nytt dagpengegrunnlag er høyere enn forrige grunnlag")
+
+    // Ble det faktisk fastsatt nytt grunnlag som følge av opphold?
+    val harNyttGrunnlag = Opplysningstype.boolsk(harNyttGrunnlagId, "Har fått nytt grunnlag etter opphold")
+
     val skalGjenopptas = Opplysningstype.boolsk(skalGjenopptasId, "Oppfyller kravet for gjenopptak av stønadsperiode")
 
     val regelsett =
@@ -87,6 +97,12 @@ object Gjenopptak {
             regel(grenseForNyttGrunnlag) { leggTilUker(førsteAvbruddsdag, terskelUkerNyttGrunnlag) }
             regel(oppholdMedArbeidI12ukerEllerMer) { etterEllerLik(gjenopptaksdato, grenseForNyttGrunnlag) }
 
+            // Nytt grunnlag gjelder bare hvis det ble innhentet nye inntekter og det nye grunnlaget er høyere enn det vi hadde
+            regel(dagpengegrunnlagErHøyereEnnForrige) {
+                erHøyereEnnForrige(Dagpengegrunnlag.dagpengegrunnlag, Dagpengegrunnlag.grunnlag)
+            }
+            regel(harNyttGrunnlag) { alle(oppholdMedArbeidI12ukerEllerMer, dagpengegrunnlagErHøyereEnnForrige) }
+
             // Sjekk at det har gått nok tid siden siste forbruk til at det kan gjenopptas
             regel(antallUker) { somUtgangspunkt(52) }
             regel(sisteForbruksdag) { sisteAv(Beregning.sisteForbruksdag) }
@@ -96,7 +112,7 @@ object Gjenopptak {
 
             utfall(skalGjenopptas) { alle(harForbrukt, harGjenstående, harSøktInnenFrist, skalGjenopptakVurderes) }
 
-            ønsketResultat(terskelUkerNyttGrunnlag, oppholdMedArbeidI12ukerEllerMer)
+            ønsketResultat(terskelUkerNyttGrunnlag, oppholdMedArbeidI12ukerEllerMer, harNyttGrunnlag)
 
             påvirkerResultat { it.har(skalGjenopptas) }
         }

@@ -398,6 +398,8 @@ object OpplysningsTyper {
     val førsteAvbruddsdagId = Opplysningstype.Id(UUID.fromString("019d0062-e45b-70e3-92ec-dd29b5d6c9fb"), Dato)
     val sisteDatoForKravTilGjenopptakId = Opplysningstype.Id(UUID.fromString("019a3001-3cfe-7eae-857b-355c070ce2ec"), Dato)
     val grenseForNyttGrunnlagId = Opplysningstype.Id(UUID.fromString("019e1a2b-7c3d-7e4f-8a5b-6c7d8e9f0a1b"), Dato)
+    val dagpengegrunnlagErHøyereEnnForrigeId = Opplysningstype.Id(UUID.fromString("019e1a2c-1d4e-7f50-9b6c-7d8e9f0a1b2c"), Boolsk)
+    val harNyttGrunnlagId = Opplysningstype.Id(UUID.fromString("019e1a2c-2e5f-7061-8c7d-8e9f0a1b2c3d"), Boolsk)
     val oppholdMedArbeidI12ukerEllerMerId = Opplysningstype.Id(UUID.fromString("019ce147-cbd3-78a9-8dba-0cc7d10df505"), Boolsk)
 
     // Uriktige Opplysninger
