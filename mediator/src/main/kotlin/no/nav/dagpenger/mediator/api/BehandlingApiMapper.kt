@@ -404,9 +404,9 @@ internal val redigerbareOpplysninger =
                             ikkeUnderretning,
                             ansesUgyldigVedtak,
                             // Gjenoppptak
-                            oppholdMedArbeidI12ukerEllerMer,
+                            // oppholdMedArbeidI12ukerEllerMer,
                             avbruddSkyldesArbeid,
-                            skalReberegneGrunnlag,
+                            // skalReberegneGrunnlag,
                             skalGjenopptakVurderes,
                             // Ferietillegg
                             antallDagerForbruk,
