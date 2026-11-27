@@ -13,8 +13,9 @@ import no.nav.dagpenger.opplysning.regel.Regel
 /**
  * Regeltreet som GraphML med regelsett, avklaringer og kvoter som egne noder.
  *
- * Opplysning -[regeltype]-> Opplysning er regeltreet (fra produkt til det det utledes av).
- * Regelsett kobles til opplysninger med PRODUSERER, AVHENGER_AV, HENTER_VIA_BEHOV, UTFALL, BETINGELSE,
+ * Regel er en egen node per produsert opplysning: Regel -PRODUSERER-> Opplysning og Regel -BRUKER{rekkefølge}-> Opplysning.
+ * Opplysning -AVHENGER_AV{regelType}-> Opplysning er snarveien (fra produkt til det det utledes av).
+ * Regelsett eier regler med HAR_REGEL (PRODUSERER for opplysninger uten regel) og kobles til opplysninger med AVHENGER_AV, HENTER_VIA_BEHOV, UTFALL, BETINGELSE,
  * ØNSKET_RESULTAT og AKTIV_OPPLYSNING, og til avklaringer og kvoter med HAR_AVKLARING og HAR_KVOTE.
  * Typer (Vilkår, Fastsettelse, Prosess og datatype) er egenskaper, ikke labels.
  */
@@ -24,23 +25,30 @@ class RegeltreGraphML(
     private val produsentRegelsett: Map<Opplysningstype<*>, Regelsett> =
         regelsett.flatMap { rs -> rs.produserer.map { it to rs } }.toMap()
 
-    private val produsentRegel: Map<Opplysningstype<*>, Regel<*>> =
-        regelsett.flatMap { it.regler() }.associateBy { it.produserer }
+    private val regler: List<Regel<*>> = regelsett.flatMap { it.regler() }
+
+    private val produsentRegel: Map<Opplysningstype<*>, Regel<*>> = regler.associateBy { it.produserer }
 
     fun toPrint(): String = GraphMLPrinter(dag(), ::nodeEgenskaper, ::kantEgenskaper).toPrint()
 
     private fun dag(): DAG<Any, Any> {
-        val regeltre = RegeltreBygger(regelsett.flatMap { it.regler() }).dag()
+        val regeltre = RegeltreBygger(regler).dag()
         val kanter =
             regeltre.edges.map {
                 Edge<Any, Any>(
                     Node(it.from.name, it.from.data),
                     Node(it.to.name, it.to.data),
-                    it.edgeName,
+                    "AVHENGER_AV",
                     it.data,
                 )
             }
-        return DAG(kanter + regelsett.flatMap(::regelsettKanter))
+        return DAG(kanter + regler.flatMap(::regelKanter) + regelsett.flatMap(::regelsettKanter))
+    }
+
+    private fun regelKanter(regel: Regel<*>): List<Edge<Any, Any>> {
+        val fra = regelNode(regel)
+        return listOf(Edge<Any, Any>(fra, opplysningNode(regel.produserer), "PRODUSERER")) +
+            regel.avhengerAv.mapIndexed { index, type -> Edge<Any, Any>(fra, opplysningNode(type), "BRUKER", index) }
     }
 
     private fun regelsettKanter(rs: Regelsett): List<Edge<Any, Any>> {
@@ -54,7 +62,10 @@ class RegeltreGraphML(
         val betingelser = rs.betingelser.toSet()
         val ønsketResultat = rs.ønsketInformasjon - betingelser - setOfNotNull(rs.utfall)
 
-        return til("PRODUSERER", rs.produserer) +
+        val utenRegel = rs.produserer.filter { it !in produsentRegel }
+
+        return til("PRODUSERER", utenRegel) +
+            rs.regler().map { Edge<Any, Any>(fra, regelNode(it), "HAR_REGEL") } +
             til("AVHENGER_AV", rs.avhengerAv) +
             til("HENTER_VIA_BEHOV", rs.behov) +
             til("UTFALL", listOfNotNull(rs.utfall)) +
@@ -83,6 +94,8 @@ class RegeltreGraphML(
 
     private fun opplysningNode(type: Opplysningstype<*>) = Node<Any>(type.navn, type)
 
+    private fun regelNode(regel: Regel<*>) = Node<Any>("regel:${regel.produserer.navn}", regel)
+
     private fun regelsettNode(rs: Regelsett) = Node<Any>(rs.navn, rs)
 
     private fun avklaringNode(kode: Avklaringkode) = Node<Any>(kode.kode, kode)
@@ -92,6 +105,7 @@ class RegeltreGraphML(
     private fun nodeEgenskaper(node: Node<Any>): Map<String, String?> =
         when (val data = node.data) {
             is Opplysningstype<*> -> opplysningEgenskaper(data)
+            is Regel<*> -> regelEgenskaper(data)
             is Regelsett -> regelsettEgenskaper(data)
             is Avklaringkode -> avklaringEgenskaper(data)
             is KvoteDefinisjon -> kvoteEgenskaper(data)
@@ -101,9 +115,8 @@ class RegeltreGraphML(
     private fun opplysningEgenskaper(type: Opplysningstype<*>): Map<String, String?> {
         val rs = produsentRegelsett[type]
         val regel = produsentRegel[type]
-        val grunnlag = regel == null || regel.avhengerAv.isEmpty()
         return mapOf(
-            "labels" to ":Opplysning" + if (grunnlag) ":Grunnlag" else "",
+            "labels" to ":Opplysning",
             "opplysningId" to type.id.uuid.toString(),
             "regelsett" to rs?.navn,
             "regelsettType" to rs?.type?.name,
@@ -117,6 +130,15 @@ class RegeltreGraphML(
             "behovId" to type.behovId,
         )
     }
+
+    private fun regelEgenskaper(regel: Regel<*>) =
+        mapOf(
+            "labels" to ":Regel",
+            "navn" to "${regel.javaClass.simpleName}(${regel.produserer.navn})",
+            "type" to regel.javaClass.simpleName,
+            "uttrykk" to regel.toString(),
+            "regelsett" to produsentRegelsett[regel.produserer]?.navn,
+        )
 
     private fun regelsettEgenskaper(rs: Regelsett) =
         mapOf(
@@ -148,7 +170,8 @@ class RegeltreGraphML(
     private fun kantEgenskaper(kant: Edge<Any, Any>): Map<String, String?> =
         mapOf(
             "label" to kant.edgeName,
-            "regelsett" to (kant.data as? Regel<*>)?.let { produsentRegelsett[it.produserer]?.navn },
+            "regelType" to (kant.data as? Regel<*>)?.javaClass?.simpleName,
+            "rekkefølge" to (kant.data as? Int)?.toString(),
         )
 
     // Anonyme lambdaer har klassenavn med adresse som endrer seg mellom kjøringer

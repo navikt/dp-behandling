@@ -13,7 +13,7 @@ Filen må finnes før `docker compose up` (ellers lager Docker en mappe med samm
 
 Last inn på nytt etter at grafen er endret: `docker compose run --rm importer`.
 
-Noder: `Opplysning` (+ `Grunnlag` hvis den ikke utledes av andre), `Regelsett`, `Avklaring` og `Kvote`.
+Noder: `Opplysning`, `Regelsett`, `Avklaring` og `Kvote`.
 Typer som `Vilkår`/`Fastsettelse`/`Prosess` og datatype er egenskaper (`type`, `regelsettType`, `datatype`), ikke labels.
 
 Relasjoner:
@@ -36,7 +36,8 @@ RETURN p
 Bare grunnlagsopplysningene bak den:
 
 ```cypher
-MATCH (m {label: 'Fastsatt arbeidstid per uke før tap'})-[*1..]->(d:Grunnlag)
+MATCH (m {label: 'Fastsatt arbeidstid per uke før tap'})-[*1..]->(d)
+WHERE NOT (d)-[:AVHENGER_AV]->()
 RETURN DISTINCT d.label, d.datatype, d.enhet ORDER BY d.label
 ```
 
@@ -68,6 +69,7 @@ MATCH (r:Regelsett)-[:HAR_KVOTE]->(k)-[t]->(o) RETURN r.navn, k.navn, type(t), o
 Alt som ligger bak det et regelsett vil ha ut:
 
 ```cypher
-MATCH (r:Regelsett {navn: 'Fastsettelse av arbeidstid'})-[:ØNSKET_RESULTAT]->(o)-[*]->(g:Grunnlag)
+MATCH (r:Regelsett {navn: 'Fastsettelse av arbeidstid'})-[:ØNSKET_RESULTAT]->(o)-[*]->(g)
+WHERE NOT (g)-[:AVHENGER_AV]->()
 RETURN DISTINCT g.label
 ```
