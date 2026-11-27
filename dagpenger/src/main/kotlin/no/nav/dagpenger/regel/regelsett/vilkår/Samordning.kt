@@ -295,8 +295,8 @@ object Samordning {
                 )
             }
 
-            påvirkerResultat {
-                it.har(skalSamordnes) && it.finnOpplysning(skalSamordnes).verdi
+            påvirkerResultat { opplysninger ->
+                opplysninger.finnAlle(skalSamordnes).any { it.verdi }
             }
 
             ønsketResultat(samordnetDagsats, skalSamordnes, utfallEtterSamordning)
