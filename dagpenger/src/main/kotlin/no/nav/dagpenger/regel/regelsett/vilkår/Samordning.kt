@@ -139,13 +139,34 @@ object Samordning {
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
 
-    val sykepengerDagsats = Opplysningstype.beløp(sykepengerDagsatsId, "Sykepenger dagsats", synlig = { it.erSann(sykepenger) })
-    val pleiepengerDagsats = Opplysningstype.beløp(pleiepengerDagsatsId, "Pleiepenger dagsats", synlig = { it.erSann(pleiepenger) })
-    val omsorgspengerDagsats = Opplysningstype.beløp(omsorgspengerDagsatsId, "Omsorgspenger dagsats", synlig = { it.erSann(omsorgspenger) })
+    val sykepengerDagsats =
+        Opplysningstype.beløp(
+            sykepengerDagsatsId,
+            "Sykepenger dagsats",
+            synlig = { it.erSann(sykepenger) },
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
+    val pleiepengerDagsats =
+        Opplysningstype.beløp(
+            pleiepengerDagsatsId,
+            "Pleiepenger dagsats",
+            synlig = { it.erSann(pleiepenger) },
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
+    val omsorgspengerDagsats =
+        Opplysningstype.beløp(
+            omsorgspengerDagsatsId,
+            "Omsorgspenger dagsats",
+            synlig = { it.erSann(omsorgspenger) },
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
     val opplæringspengerDagsats =
-        Opplysningstype.beløp(opplæringspengerDagsatsId, "Opplæringspenger dagsats", synlig = {
-            it.erSann(opplæringspenger)
-        })
+        Opplysningstype.beløp(
+            opplæringspengerDagsatsId,
+            "Opplæringspenger dagsats",
+            synlig = { it.erSann(opplæringspenger) },
+            overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
+        )
     val uføreDagsats =
         Opplysningstype.beløp(
             uføreDagsatsId,
