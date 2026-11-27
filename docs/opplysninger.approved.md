@@ -497,7 +497,7 @@ Dette er opplysninger som blir brukt av regelverket.
 ### § 4-16. Gjenopptak av løpende stønadsperiode
 *Type:* Vilkår
 #### Avklaringer
-- GjenopptakEtter12Uker - [Avbruddsperioden er mer enn 12 uker](./avklaringer.approved.md#avbruddsperioden-er-mer-enn-12-uker)
+- GjenopptakEtter12Uker - [Avbruddsperioden er 12 uker eller mer](./avklaringer.approved.md#avbruddsperioden-er-12-uker-eller-mer)
 #### Avhenger på data fra
 - [§ 0-0. Meldekortberegning](#-0-0-meldekortberegning)
 - [§ 0-0. Rettighetstype](#-0-0-rettighetstype)

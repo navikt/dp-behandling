@@ -105,12 +105,12 @@ Sjekk om søker har andre fulle ytelser. <br>Om søker har andre fulle ytelser, 
 Denne saken har en innvilget behandling og det må vurderes om retten skal gjenopptas.
 
 ---
-## Avbruddsperioden er mer enn 12 uker
+## Avbruddsperioden er 12 uker eller mer
 - **Kode:** `GjenopptakEtter12Uker`
 - **Kan lukkes av saksbehandler:** ✅ 
 - **Lukkes automatisk når opplysningene endres:** ✅ 
 ### Beskrivelse
-Avbruddsperioden er beregnet til mer enn 12 uker. Systemet har ikke kontrollert om det er arbeid i perioden eller ikke. Du må sjekke om bruker har arbeidet, og i så fall hvor mye, for å kontrollere om vilkåret til reberegning ved gjenopptak er oppfylt.
+Avbruddsperioden er beregnet til 12 uker eller mer. Systemet har ikke kontrollert om det er arbeid i perioden eller ikke. Du må sjekke om bruker har arbeidet, og i så fall hvor mye, for å kontrollere om vilkåret til reberegning ved gjenopptak er oppfylt.
 
 ### Tilknyttet regelsett
 - [§ 4-16. Gjenopptak av løpende stønadsperiode](./opplysninger.approved.md#-4-16-gjenopptak-av-løpende-stønadsperiode)
