@@ -56,7 +56,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Samordning.skalSamordnes
 import no.nav.dagpenger.regel.regelsett.vilkår.Søknadstidspunkt.prøvingsdato
 import no.nav.dagpenger.regel.regelsett.vilkår.TapAvArbeidsinntektOgArbeidstid.beregnetArbeidstid
 
-private val visesHvisSamordning: Opplysningssjekk = { it.erSann(skalSamordnes) }
+private val visesHvisSamordning: Opplysningssjekk = { opplysninger -> opplysninger.finnAlle(skalSamordnes).any { it.verdi } }
 
 /**
  * § 4-25.Samordning med reduserte ytelser fra folketrygden, eller redusert avtalefestet pensjon
