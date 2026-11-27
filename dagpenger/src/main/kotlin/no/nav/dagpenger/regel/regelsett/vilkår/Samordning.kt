@@ -150,14 +150,14 @@ object Samordning {
         Opplysningstype.beløp(
             uføreDagsatsId,
             "Uføre dagsats",
-            synlig = { it.erSann(uføre) && it.erSann(skalUføreSamordnes) },
+            synlig = { it.finnAlle(uføre).any { uføre -> uføre.verdi } },
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val foreldrepengerDagsats =
         Opplysningstype.beløp(
             foreldrepengerDagsatsId,
             "Foreldrepenger dagsats",
-            synlig = { it.erSann(foreldrepenger) },
+            synlig = { it.finnAlle(foreldrepenger).any { foreldrepenger -> foreldrepenger.verdi } },
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val svangerskapspengerDagsats =
@@ -165,7 +165,7 @@ object Samordning {
             svangerskapspengerDagsatsId,
             "Svangerskapspenger dagsats",
             synlig = {
-                it.erSann(svangerskapspenger)
+                it.finnAlle(svangerskapspenger).any { svangerskapspenger -> svangerskapspenger.verdi }
             },
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
