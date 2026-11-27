@@ -106,4 +106,30 @@ class OpplysningerEndreTest {
 
         opplysninger.finnOpplysning(b).verdi shouldBe false
     }
+
+    @Test
+    fun `endring skjuler bare avledede verdier i perioden som ikke lenger dekkes`() {
+        val opplysninger = Opplysninger()
+        val inn = Faktum(a, true, Gyldighetsperiode(1.januar))
+        val utledet = Faktum(b, true, Gyldighetsperiode(1.januar), utledetAv = Utledning("regel", listOf(inn)))
+        opplysninger.leggTil(inn)
+        opplysninger.leggTil(utledet)
+
+        opplysninger.endre(inn, gyldighetsperiode = Gyldighetsperiode(10.januar))
+
+        opplysninger.har(b, 5.januar) shouldBe false
+    }
+
+    @Test
+    fun `endring beholder avledede verdier lesbare når perioden utvides`() {
+        val opplysninger = Opplysninger()
+        val inn = Faktum(a, true, Gyldighetsperiode(10.januar))
+        val utledet = Faktum(b, true, Gyldighetsperiode(10.januar), utledetAv = Utledning("regel", listOf(inn)))
+        opplysninger.leggTil(inn)
+        opplysninger.leggTil(utledet)
+
+        opplysninger.endre(inn, gyldighetsperiode = Gyldighetsperiode(1.januar))
+
+        opplysninger.har(b, 10.januar) shouldBe true
+    }
 }

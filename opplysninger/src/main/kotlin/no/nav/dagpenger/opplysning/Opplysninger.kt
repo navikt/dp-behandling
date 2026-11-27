@@ -92,7 +92,11 @@ class Opplysninger private constructor(
         opplysning.behandletVed = null
 
         if (opplysning.opplysningstype.overlappStrategi == OverlappStrategi.KUN_SISTE) tombstoneAvhengigeAvForrige(opplysning)
-        if (opplysning.erRevisjon) opplysning.erstatter?.let { tombstoneAvhengigeAv(it, behandlet = true) }
+        if (opplysning.erRevisjon) {
+            opplysning.erstatter?.let {
+                tombstoneAvhengigeAv(it, behandlet = true, beholdIPeriode = opplysning.gyldighetsperiode)
+            }
+        }
 
         // Sporbarhet: peker på det den overstyrer. Selve oppslaget gjøres av indeksen, ikke av denne lenken.
         if (!opplysning.erRevisjon) {
@@ -129,11 +133,16 @@ class Opplysninger private constructor(
     private fun tombstoneAvhengigeAv(
         forrige: Opplysning<*>,
         behandlet: Boolean = false,
+        beholdIPeriode: Gyldighetsperiode? = null,
     ) {
         OpplysningGraf(egne.toList())
             .hentAlleUtledetAv(forrige)
             .filterNot { it is Tombstone<*> }
-            .forEach { tombstone(it.opplysningstype, it.gyldighetsperiode, behandlet = behandlet) }
+            .forEach { avhengig ->
+                // Avledede verdier som fortsatt dekkes av den endrede perioden skal være lesbare til de er beregnet på nytt
+                val skjules = beholdIPeriode?.let { avhengig.gyldighetsperiode - it } ?: listOf(avhengig.gyldighetsperiode)
+                skjules.forEach { tombstone(avhengig.opplysningstype, it, behandlet = behandlet) }
+            }
     }
 
     // Invariant: en opplysning kan ikke være utledetAv noe som ikke finnes (lenger) i denne
