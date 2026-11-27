@@ -89,6 +89,9 @@ Behandling endret tilstand til: ForslagTilVedtak
 Behandling endret tilstand til: Redigert
 Behov:
 - BarnetilleggV2
+Laget avklaring om GjenopptakEtter12Uker
+Behov:
+- BarnetilleggV2
 Behov:
 - BarnetilleggV2
 - Inntekt

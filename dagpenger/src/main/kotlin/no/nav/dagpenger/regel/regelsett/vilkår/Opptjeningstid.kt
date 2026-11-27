@@ -46,7 +46,7 @@ object Opptjeningstid {
             forutsetter(Alderskrav.regelsett)
             skalRevurderes {
                 (!it.har(inntektFraSkatt)) ||
-                    it.erSann(Gjenopptak.oppholdMedArbeidI12ukerEllerMer)
+                    it.erSann(Gjenopptak.skalReberegneGrunnlag)
             }
 
             regel(pliktigRapporteringsfrist) { oppslag(prøvingsdato) { Aordningen.rapporteringsfrist(it) } }

@@ -39,6 +39,7 @@ class GjenopptakSteg : No {
 
         Gitt("har vært i {boolsk} etter siste forbruksdag") { arbeid12UkerEllerMer: Boolean ->
             opplysninger.leggTil(Faktum(Gjenopptak.oppholdMedArbeidI12ukerEllerMer, arbeid12UkerEllerMer))
+            opplysninger.leggTil(Faktum(Gjenopptak.avbruddSkyldesArbeid, arbeid12UkerEllerMer))
             regelkjøring.evaluer()
         }
 
@@ -48,7 +49,7 @@ class GjenopptakSteg : No {
         }
 
         Så("skal reberegnes være {boolsk}") { reberegnes: Boolean ->
-            val skalReberegnes = opplysninger.finnOpplysning(Gjenopptak.oppholdMedArbeidI12ukerEllerMer)
+            val skalReberegnes = opplysninger.finnOpplysning(Gjenopptak.skalReberegneGrunnlag)
             skalReberegnes.verdi shouldBe reberegnes
         }
     }

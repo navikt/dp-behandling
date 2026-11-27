@@ -496,6 +496,8 @@ Dette er opplysninger som blir brukt av regelverket.
 |01a19ba4-7872-7338-8663-f88d45b351bf|Har gjenstående periode av dagpenger|Boolsk|boolean|||Resultat
 ### § 4-16. Gjenopptak av løpende stønadsperiode
 *Type:* Vilkår
+#### Avklaringer
+- GjenopptakEtter12Uker - [Avbruddsperioden er mer enn 12 uker](./avklaringer.approved.md#avbruddsperioden-er-mer-enn-12-uker)
 #### Avhenger på data fra
 - [§ 0-0. Meldekortberegning](#-0-0-meldekortberegning)
 - [§ 0-0. Rettighetstype](#-0-0-rettighetstype)
@@ -508,7 +510,7 @@ Dette er opplysninger som blir brukt av regelverket.
 |019a2feb-305b-77f0-bfa9-7facc0c5480c|Siste dag med forbruk|Dato|LocalDate|||Intern
 |019a2ff0-1674-716f-91dd-a454cbff8b19|Kravet til antall uker før gjenopptak|Heltall|int|| Uker|Utgangspunkt
 |019a3001-3cfe-7eae-857b-355c070ce2ec|Siste mulige dato for gjenopptak|Dato|LocalDate|||Intern
-|019ce147-cbd3-78a9-8dba-0cc7d10df505|Har hatt opphold med arbeid i 12 uker eller mer|Boolsk|boolean|||Resultat
+|019ce147-cbd3-78a9-8dba-0cc7d10df505|Avbruddet har vart i 12 uker eller mer|Boolsk|boolean|||Resultat
 |019cf5e9-6e7e-7988-9ae5-b91341d5cef0|Antall uker med arbeid for nytt grunnlag|Heltall|int|| Uker|Resultat
 |019d0059-0e34-76a7-ab91-42925a1d03a3|Antall gjenstående dager for å kunne gjenoppta|Heltall|int|| Dager|Utgangspunkt
 |019d0059-315e-71a0-a538-71e74a281a30|Har startet forbruk av stønadsperiode|Boolsk|boolean|||Intern
@@ -518,6 +520,8 @@ Dette er opplysninger som blir brukt av regelverket.
 |019e1a2b-7c3d-7e4f-8a5b-6c7d8e9f0a1b|Tidligste dato for opphold på 12 uker eller mer|Dato|LocalDate|||Intern
 |019e1a2c-1d4e-7f50-9b6c-7d8e9f0a1b2c|Nytt dagpengegrunnlag er høyere enn forrige grunnlag|Boolsk|boolean|||Intern
 |019e1a2c-2e5f-7061-8c7d-8e9f0a1b2c3d|Har fått nytt grunnlag etter opphold|Boolsk|boolean|||Resultat
+|019e2b3c-4a5b-7c6d-8e7f-9a0b1c2d3e4f|Avbruddet skyldes arbeid|Boolsk|boolean|||Resultat
+|019e2b3c-5b6c-7d7e-9f80-0b1c2d3e4f50|Skal grunnlaget beregnes på nytt etter avbrudd|Boolsk|boolean|||Resultat
 ### § 4-19. Dagpenger etter avtjent verneplikt
 *Type:* Vilkår
 #### Avklaringer
