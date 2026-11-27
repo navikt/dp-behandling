@@ -3,7 +3,9 @@ import no.nav.dagpenger.dag.printer.MermaidPrinter
 import no.nav.dagpenger.opplysning.Regelverk
 import no.nav.dagpenger.opplysning.RegelverkType
 import no.nav.dagpenger.opplysning.dag.RegeltreBygger
+import no.nav.dagpenger.opplysning.dag.RegeltreGraphML
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
+import no.nav.dagpenger.testsupport.dokumentasjon.graphmlOptions
 import no.nav.dagpenger.testsupport.dokumentasjon.markdownOptions
 import org.approvaltests.Approvals
 import org.intellij.lang.annotations.Language
@@ -46,6 +48,14 @@ class DiagramTest {
         skriv(
             markdown,
         )
+    }
+
+    @Test
+    fun `skriver hele dagpengeregeltreet som graphml`() {
+        val graphml = RegeltreGraphML(RegelverkDagpenger.regelsett).toPrint()
+        assertTrue(graphml.contains("<graphml"))
+
+        Approvals.verify(graphml, graphmlOptions(path, "regeltre-dagpenger"))
     }
 
     @Test

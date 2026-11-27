@@ -32,7 +32,7 @@ class Opplysningstype<T : Any>(
     val behovId: String,
     val formål: Opplysningsformål,
     val synlig: (LesbarOpplysninger) -> Boolean = alltidSynlig,
-    private val gyldighetsperiodeStrategi: GyldighetsperiodeStrategi<T> = GyldighetsperiodeStrategi.minsteMulige(),
+    val gyldighetsperiodeStrategi: GyldighetsperiodeStrategi<T> = GyldighetsperiodeStrategi.minsteMulige(),
     val enhet: Enhet? = null,
     val utgåtteBehovId: Set<String> = emptySet(),
     /** Om opplysninger av denne typen skal arves til neste behandling i kjeden. Default true. */

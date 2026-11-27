@@ -1,0 +1,31 @@
+# Starter Neo4j med regeltreet innlastet. Se README.md.
+services:
+  neo4j:
+    image: neo4j:5-community
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: none
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_apoc_import_file_enabled: "true"
+    volumes:
+      - ../regeltre-dagpenger.approved.graphml:/var/lib/neo4j/import/regeltre-dagpenger.approved.graphml
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell 'RETURN 1' || exit 1"]
+      interval: 3s
+      timeout: 5s
+      retries: 40
+
+  importer:
+    image: neo4j:5-community
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    restart: "no"
+    entrypoint: ["cypher-shell", "-a", "bolt://neo4j:7687"]
+    command:
+      - |
+        MATCH (n) DETACH DELETE n;
+        CALL apoc.import.graphml('regeltre-dagpenger.approved.graphml', {readLabels: true, storeNodeIds: false})
+        YIELD nodes, relationships RETURN nodes, relationships;

@@ -153,22 +153,30 @@ abstract class Regel<T : Any> internal constructor(
 fun interface GyldighetsperiodeStrategi<T> {
     companion object {
         private val minsteMulige =
-            GyldighetsperiodeStrategi<Any> { _, basertPå, _ ->
-                if (basertPå.isEmpty()) return@GyldighetsperiodeStrategi Gyldighetsperiode()
+            navngitt<Any>("minsteMulige") { _, basertPå, _ ->
+                if (basertPå.isEmpty()) return@navngitt Gyldighetsperiode()
                 Gyldighetsperiode(
                     fraOgMed = basertPå.maxOf { it.gyldighetsperiode.fraOgMed },
                     tilOgMed = basertPå.minOf { it.gyldighetsperiode.tilOgMed },
                 )
             }
         private val størsteMulige =
-            GyldighetsperiodeStrategi<Any> { _, basertPå, _ ->
-                if (basertPå.isEmpty()) return@GyldighetsperiodeStrategi Gyldighetsperiode()
+            navngitt<Any>("størsteMulige") { _, basertPå, _ ->
+                if (basertPå.isEmpty()) return@navngitt Gyldighetsperiode()
                 Gyldighetsperiode(
                     fraOgMed = basertPå.minOf { it.gyldighetsperiode.fraOgMed },
                     tilOgMed = basertPå.maxOf { it.gyldighetsperiode.tilOgMed },
                 )
             }
-        val egenVerdi = GyldighetsperiodeStrategi<LocalDate> { produkt, _, _ -> Gyldighetsperiode(fom = produkt) }
+        val egenVerdi = navngitt<LocalDate>("egenVerdi") { produkt, _, _ -> Gyldighetsperiode(fom = produkt) }
+
+        private fun <P> navngitt(
+            navn: String,
+            strategi: GyldighetsperiodeStrategi<P>,
+        ): GyldighetsperiodeStrategi<P> =
+            object : GyldighetsperiodeStrategi<P> by strategi {
+                override val navn = navn
+            }
 
         @Suppress("UNCHECKED_CAST")
         fun <P> minsteMulige() = minsteMulige as GyldighetsperiodeStrategi<P>
@@ -177,7 +185,7 @@ fun interface GyldighetsperiodeStrategi<T> {
         fun <P> størsteMulige() = størsteMulige as GyldighetsperiodeStrategi<P>
 
         fun <P> basertPå(opplysningstype: Opplysningstype<LocalDate>) =
-            GyldighetsperiodeStrategi<P> { _, basertPå, _ ->
+            navngitt<P>("basertPå") { _, basertPå, _ ->
                 val dato = basertPå.single { it.opplysningstype == opplysningstype }.verdi
                 require(dato is LocalDate) { "Opplysningstype som skal brukes til å utlede gyldighetsperiode må være LocalDate" }
                 Gyldighetsperiode(dato)
@@ -187,7 +195,7 @@ fun interface GyldighetsperiodeStrategi<T> {
         // (ikke posisjon i avhengerAv-listen). Brukes når en opplysning skal "låne" gyldighetsperioden
         // til én spesifikk avhengighet, uavhengig av hvilke andre opplysninger den også er avhengig av.
         fun <P> arvFra(opplysningstype: Opplysningstype<*>) =
-            GyldighetsperiodeStrategi<P> { _, basertPå, _ ->
+            navngitt<P>("arvFra") { _, basertPå, _ ->
                 basertPå.single { it.opplysningstype == opplysningstype }.gyldighetsperiode
             }
 
@@ -197,7 +205,7 @@ fun interface GyldighetsperiodeStrategi<T> {
         // regelkjøringer (se Regelkjøring.medGyldighetsperiode/sisteTilgjengeligeDato), siden en
         // ubegrenset gyldighetsperiode aldri "avsluttes" ved et nytt faktum lenger frem i tid.
         fun <P> arvFraMedGrense(opplysningstype: Opplysningstype<*>) =
-            GyldighetsperiodeStrategi<P> { _, basertPå, _ ->
+            navngitt<P>("arvFraMedGrense") { _, basertPå, _ ->
                 Gyldighetsperiode(
                     fraOgMed = basertPå.single { it.opplysningstype == opplysningstype }.gyldighetsperiode.fraOgMed,
                     tilOgMed = basertPå.minOf { it.gyldighetsperiode.tilOgMed },
@@ -212,20 +220,23 @@ fun interface GyldighetsperiodeStrategi<T> {
             sjekk: Opplysningstype<Boolean>,
             hvisSann: Opplysningstype<P>,
             hvisUsann: Opplysningstype<P>,
-        ) = GyldighetsperiodeStrategi<P> { _, basertPå, _ ->
+        ) = navngitt<P>("arvFraValgtGren") { _, basertPå, _ ->
             val sjekkVerdi = basertPå.single { it.opplysningstype == sjekk }.verdi as Boolean
             val valgtGren = if (sjekkVerdi) hvisSann else hvisUsann
             basertPå.single { it.opplysningstype == valgtGren }.gyldighetsperiode
         }
 
         fun basertPåTilOgMed(sluttDato: Opplysningstype<LocalDate>): GyldighetsperiodeStrategi<Boolean> =
-            GyldighetsperiodeStrategi { _, basertPå, _ ->
+            navngitt("basertPåTilOgMed") { _, basertPå, _ ->
                 val fraOgMed = basertPå.maxOf { it.gyldighetsperiode.fraOgMed }
                 val tilOgMed = basertPå.single { it.opplysningstype == sluttDato }.verdi
                 require(tilOgMed is LocalDate) { "Opplysningstype som skal brukes til å utlede gyldighetsperiode må være LocalDate" }
                 Gyldighetsperiode(fraOgMed = fraOgMed, tilOgMed = tilOgMed)
             }
     }
+
+    /** Navn som brukes i dokumentasjon og grafeksport; lambdaer har ikke noe stabilt klassenavn. */
+    val navn: String get() = javaClass.simpleName
 
     fun gyldighetsperiode(
         produkt: T,
