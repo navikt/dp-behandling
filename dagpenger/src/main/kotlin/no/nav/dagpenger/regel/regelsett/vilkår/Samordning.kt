@@ -102,7 +102,7 @@ object Samordning {
             skalUføreSamordnesId,
             "Uføretrygden er gitt med virkningstidspunkt i inneværende år eller innenfor de to siste kalenderår",
             synlig = {
-                it.erSann(uføre)
+                it.finnAlle(uføre).any { uføre -> uføre.verdi }
             },
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
@@ -111,7 +111,7 @@ object Samordning {
             uføreBeløpSomSkalSamordnesId,
             "Uførebeløp som skal samordnes",
             synlig = {
-                it.erSann(skalUføreSamordnes)
+                it.finnAlle(skalUføreSamordnes).any { skalSamordnes -> skalSamordnes.verdi }
             },
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
@@ -120,7 +120,7 @@ object Samordning {
             sumHvisUføreIkkeSkalSamordnesId,
             "Sum hvis Uføre ikke skal samordnes",
             synlig = {
-                it.erSann(skalUføreSamordnes)
+                it.finnAlle(skalUføreSamordnes).any { skalSamordnes -> skalSamordnes.verdi }
             },
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
@@ -143,28 +143,28 @@ object Samordning {
         Opplysningstype.beløp(
             sykepengerDagsatsId,
             "Sykepenger dagsats",
-            synlig = { it.erSann(sykepenger) },
+            synlig = { it.finnAlle(sykepenger).any { sykepenger -> sykepenger.verdi } },
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val pleiepengerDagsats =
         Opplysningstype.beløp(
             pleiepengerDagsatsId,
             "Pleiepenger dagsats",
-            synlig = { it.erSann(pleiepenger) },
+            synlig = { it.finnAlle(pleiepenger).any { pleiepenger -> pleiepenger.verdi } },
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val omsorgspengerDagsats =
         Opplysningstype.beløp(
             omsorgspengerDagsatsId,
             "Omsorgspenger dagsats",
-            synlig = { it.erSann(omsorgspenger) },
+            synlig = { it.finnAlle(omsorgspenger).any { omsorgspenger -> omsorgspenger.verdi } },
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val opplæringspengerDagsats =
         Opplysningstype.beløp(
             opplæringspengerDagsatsId,
             "Opplæringspenger dagsats",
-            synlig = { it.erSann(opplæringspenger) },
+            synlig = { it.finnAlle(opplæringspenger).any { opplæringspenger -> opplæringspenger.verdi } },
             overlappStrategi = OverlappStrategi.BEVAR_HØYRE,
         )
     val uføreDagsats =
