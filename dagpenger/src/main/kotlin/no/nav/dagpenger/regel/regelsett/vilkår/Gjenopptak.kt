@@ -4,6 +4,7 @@ import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
+import no.nav.dagpenger.opplysning.Saksbehandlerkilde
 import no.nav.dagpenger.opplysning.dsl.vilkår
 import no.nav.dagpenger.opplysning.folketrygden
 import no.nav.dagpenger.opplysning.regel.GyldighetsperiodeStrategi.Companion.basertPå
@@ -141,6 +142,7 @@ object Gjenopptak {
 
     val GjenopptakEtter12UkerKontroll =
         Kontrollpunkt(GjenopptakEtter12Uker) { opplysninger ->
-            opplysninger.erSann(oppholdMedArbeidI12ukerEllerMer)
+            opplysninger.erSann(oppholdMedArbeidI12ukerEllerMer) &&
+                opplysninger.finnNullableOpplysning(avbruddSkyldesArbeid)?.kilde !is Saksbehandlerkilde
         }
 }
