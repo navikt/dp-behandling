@@ -365,6 +365,13 @@ object Avklaringspunkter {
             kanKvitteres = true,
         )
 
+    val GjenopptakEtter12Uker =
+        Avklaringkode(
+            kode = "GjenopptakEtter12Uker",
+            tittel = "Avbruddsperioden er mer enn 12 uker",
+            beskrivelse = "Avbruddsperioden er beregnet til mer enn 12 uker. Systemet har ikke kontrollert om det er arbeid i perioden eller ikke. Du må sjekke om bruker har arbeidet, og i så fall hvor mye, for å kontrollere om vilkåret til reberegning ved gjenopptak er oppfylt.",
+        )
+
     val OmgjøringEtterKlage =
         Avklaringkode(
             kode = "OmgjøringEtterKlage",

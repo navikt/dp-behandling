@@ -54,7 +54,9 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.overFemtiProsentEiera
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.selvforsørget
 import no.nav.dagpenger.regel.regelsett.vilkår.Etablering.sluttDato
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser.ikkeFulleYtelser
+import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.avbruddSkyldesArbeid
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
+import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.skalReberegneGrunnlag
 import no.nav.dagpenger.regel.regelsett.vilkår.MedlemmetOpplysningsplikt.oppfyllerOpplysningsplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Meldeplikt.oppfyllerMeldeplikt
 import no.nav.dagpenger.regel.regelsett.vilkår.Opphold.bostedsland
@@ -403,6 +405,8 @@ internal val redigerbareOpplysninger =
                             ansesUgyldigVedtak,
                             // Gjenoppptak
                             oppholdMedArbeidI12ukerEllerMer,
+                            avbruddSkyldesArbeid,
+                            skalReberegneGrunnlag,
                             skalGjenopptakVurderes,
                             // Ferietillegg
                             antallDagerForbruk,

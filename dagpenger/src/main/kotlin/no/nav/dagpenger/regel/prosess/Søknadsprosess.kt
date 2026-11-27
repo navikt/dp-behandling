@@ -17,6 +17,7 @@ import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.MuligGjenopptakKontro
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.TilleggsopplysningsKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.Alderskrav.Under18Kontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.FulleYtelser.FulleYtelserKontrollpunkt
+import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.GjenopptakEtter12UkerKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.KravPåDagpenger.harLøpendeRett
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.EØSArbeidKontroll
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.InntektNesteKalendermånedKontroll
@@ -96,6 +97,7 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
             PermitteringKontroll,
             PrøverEtterRapporteringsfristKontroll,
             ReellArbeidssøkerKontroll,
+            SelvforskyldtArbeidsløshetKontroll,
             SjekkPrøvingsdato,
             SkalSamordnes,
             SvangerskapsrelaterteSykepengerKontroll,
@@ -106,8 +108,8 @@ class Søknadsprosess : Forretningsprosess(RegelverkDagpenger) {
             VirkningstidspunktForLangtFremITid,
             YtelserUtenforFolketrygdenKontroll,
             beregnetArbeidstidKontroll,
+            GjenopptakEtter12UkerKontroll,
             utestengtKontroll,
-            SelvforskyldtArbeidsløshetKontroll,
         )
 
     override fun virkningsdato(opplysninger: LesbarOpplysninger): LocalDate {

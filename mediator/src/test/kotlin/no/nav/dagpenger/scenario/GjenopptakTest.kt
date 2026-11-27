@@ -19,6 +19,7 @@ import no.nav.dagpenger.regel.regelsett.fastsetting.DagpengenesStørrelse.dagsat
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.antallStønadsdager
 import no.nav.dagpenger.regel.regelsett.fastsetting.Dagpengeperiode.ordinærPeriode
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak
+import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.avbruddSkyldesArbeid
 import no.nav.dagpenger.regel.regelsett.vilkår.Gjenopptak.oppholdMedArbeidI12ukerEllerMer
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt
 import no.nav.dagpenger.regel.regelsett.vilkår.Minsteinntekt.inntektFraSkatt
@@ -387,7 +388,13 @@ class GjenopptakTest {
             saksbehandler.leggTilOpplysning(
                 oppholdMedArbeidI12ukerEllerMer,
                 true,
-                "Har krav på ny vurdering av grunnlag",
+                "Avbruddet har vart i 12 uker eller mer",
+                Gyldighetsperiode(gjenopptaksdato),
+            )
+            saksbehandler.leggTilOpplysning(
+                avbruddSkyldesArbeid,
+                true,
+                "Avbruddet skyldes arbeid",
                 Gyldighetsperiode(gjenopptaksdato),
             )
 

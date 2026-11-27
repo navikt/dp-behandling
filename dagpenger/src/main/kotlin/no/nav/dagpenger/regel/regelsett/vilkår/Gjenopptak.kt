@@ -1,5 +1,6 @@
 package no.nav.dagpenger.regel.regelsett.vilkår
 
+import no.nav.dagpenger.avklaring.Kontrollpunkt
 import no.nav.dagpenger.opplysning.Opplysningstype
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.aldriSynlig
 import no.nav.dagpenger.opplysning.Opplysningstype.Companion.heltall
@@ -17,6 +18,8 @@ import no.nav.dagpenger.opplysning.regel.har
 import no.nav.dagpenger.opplysning.regel.somUtgangspunkt
 import no.nav.dagpenger.opplysning.regel.størreEnn
 import no.nav.dagpenger.opplysning.verdier.enhet.Enhet
+import no.nav.dagpenger.regel.Avklaringspunkter.GjenopptakEtter12Uker
+import no.nav.dagpenger.regel.OpplysningsTyper.avbruddSkyldesArbeidId
 import no.nav.dagpenger.regel.OpplysningsTyper.dagpengegrunnlagErHøyereEnnForrigeId
 import no.nav.dagpenger.regel.OpplysningsTyper.førsteAvbruddsdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.grenseForNyttGrunnlagId
@@ -29,6 +32,7 @@ import no.nav.dagpenger.regel.OpplysningsTyper.oppholdMedArbeidI12ukerEllerMerId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteDatoForKravTilGjenopptakId
 import no.nav.dagpenger.regel.OpplysningsTyper.sisteforbruksdagId
 import no.nav.dagpenger.regel.OpplysningsTyper.skalGjenopptasId
+import no.nav.dagpenger.regel.OpplysningsTyper.skalReberegneGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.terskelUkerNyttGrunnlagId
 import no.nav.dagpenger.regel.OpplysningsTyper.terskelUkerSidenSistForbrukId
 import no.nav.dagpenger.regel.regelsett.beregning.Beregning
@@ -68,8 +72,14 @@ object Gjenopptak {
     val oppholdMedArbeidI12ukerEllerMer =
         Opplysningstype.boolsk(
             oppholdMedArbeidI12ukerEllerMerId,
-            "Har hatt opphold med arbeid i 12 uker eller mer",
+            "Avbruddet har vart i 12 uker eller mer",
         )
+
+    // Saksbehandler må ta stilling til at avbruddet skyldes arbeid og ikke andre årsaker
+    val avbruddSkyldesArbeid = Opplysningstype.boolsk(avbruddSkyldesArbeidId, "Avbruddet skyldes arbeid")
+
+    val skalReberegneGrunnlag =
+        Opplysningstype.boolsk(skalReberegneGrunnlagId, "Skal grunnlaget beregnes på nytt etter avbrudd")
 
     private val dagpengegrunnlagErHøyereEnnForrige =
         Opplysningstype.boolsk(dagpengegrunnlagErHøyereEnnForrigeId, "Nytt dagpengegrunnlag er høyere enn forrige grunnlag")
@@ -97,11 +107,15 @@ object Gjenopptak {
             regel(grenseForNyttGrunnlag) { leggTilUker(førsteAvbruddsdag, terskelUkerNyttGrunnlag) }
             regel(oppholdMedArbeidI12ukerEllerMer) { etterEllerLik(gjenopptaksdato, grenseForNyttGrunnlag) }
 
+            // Nytt grunnlag krever både langt nok avbrudd og at avbruddet skyldes arbeid
+            regel(avbruddSkyldesArbeid) { somUtgangspunkt(false) }
+            regel(skalReberegneGrunnlag) { alle(oppholdMedArbeidI12ukerEllerMer, avbruddSkyldesArbeid) }
+
             // Nytt grunnlag gjelder bare hvis det ble innhentet nye inntekter og det nye grunnlaget er høyere enn det vi hadde
             regel(dagpengegrunnlagErHøyereEnnForrige) {
                 erHøyereEnnForrige(Dagpengegrunnlag.dagpengegrunnlag, Dagpengegrunnlag.grunnlag)
             }
-            regel(harNyttGrunnlag) { alle(oppholdMedArbeidI12ukerEllerMer, dagpengegrunnlagErHøyereEnnForrige) }
+            regel(harNyttGrunnlag) { alle(skalReberegneGrunnlag, dagpengegrunnlagErHøyereEnnForrige) }
 
             // Sjekk at det har gått nok tid siden siste forbruk til at det kan gjenopptas
             regel(antallUker) { somUtgangspunkt(52) }
@@ -112,8 +126,21 @@ object Gjenopptak {
 
             utfall(skalGjenopptas) { alle(harForbrukt, harGjenstående, harSøktInnenFrist, skalGjenopptakVurderes) }
 
-            ønsketResultat(terskelUkerNyttGrunnlag, oppholdMedArbeidI12ukerEllerMer, harNyttGrunnlag)
+            ønsketResultat(
+                terskelUkerNyttGrunnlag,
+                oppholdMedArbeidI12ukerEllerMer,
+                avbruddSkyldesArbeid,
+                skalReberegneGrunnlag,
+                harNyttGrunnlag,
+            )
+
+            avklaring(GjenopptakEtter12Uker)
 
             påvirkerResultat { it.har(skalGjenopptas) }
+        }
+
+    val GjenopptakEtter12UkerKontroll =
+        Kontrollpunkt(GjenopptakEtter12Uker) { opplysninger ->
+            opplysninger.erSann(oppholdMedArbeidI12ukerEllerMer)
         }
 }

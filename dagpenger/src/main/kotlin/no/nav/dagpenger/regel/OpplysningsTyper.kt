@@ -400,6 +400,8 @@ object OpplysningsTyper {
     val grenseForNyttGrunnlagId = Opplysningstype.Id(UUID.fromString("019e1a2b-7c3d-7e4f-8a5b-6c7d8e9f0a1b"), Dato)
     val dagpengegrunnlagErHøyereEnnForrigeId = Opplysningstype.Id(UUID.fromString("019e1a2c-1d4e-7f50-9b6c-7d8e9f0a1b2c"), Boolsk)
     val harNyttGrunnlagId = Opplysningstype.Id(UUID.fromString("019e1a2c-2e5f-7061-8c7d-8e9f0a1b2c3d"), Boolsk)
+    val avbruddSkyldesArbeidId = Opplysningstype.Id(UUID.fromString("019e2b3c-4a5b-7c6d-8e7f-9a0b1c2d3e4f"), Boolsk)
+    val skalReberegneGrunnlagId = Opplysningstype.Id(UUID.fromString("019e2b3c-5b6c-7d7e-9f80-0b1c2d3e4f50"), Boolsk)
     val oppholdMedArbeidI12ukerEllerMerId = Opplysningstype.Id(UUID.fromString("019ce147-cbd3-78a9-8dba-0cc7d10df505"), Boolsk)
 
     // Uriktige Opplysninger
